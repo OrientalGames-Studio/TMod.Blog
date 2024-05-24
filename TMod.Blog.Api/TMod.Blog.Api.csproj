@@ -16,13 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\TMod.Blog.Data.Repositories\TMod.Blog.Data.Repositories.csproj" />
     <ProjectReference Include="..\TMod.Blog.Data.Services\TMod.Blog.Data.Services.csproj" />
-    <ProjectReference Include="..\TMod.Blog.Data\TMod.Blog.Data.csproj" />
   </ItemGroup>
 
 </Project>

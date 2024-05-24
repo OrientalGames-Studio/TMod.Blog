@@ -57,8 +57,17 @@ namespace TMod.Blog.Data.Repositories.Implements
         {
             try
             {
-                BlogContext.Set<TModel>()
-                    .Remove(model);
+                if ( model is IRemove removedModel )
+                {
+                    removedModel.RemoveMetaRecord(true);
+                    BlogContext.Set<TModel>()
+                        .Update(model);
+                }
+                else
+                {
+                    BlogContext.Set<TModel>()
+                        .Remove(model);
+                }
                 await BlogContext.SaveChangesAsync();
             }
             catch ( Exception ex )
@@ -73,7 +82,7 @@ namespace TMod.Blog.Data.Repositories.Implements
                 TModel? model = await LoadAsync(key);
                 if(model is not null )
                 {
-                    await RemoveAsync(model.Id);
+                    await RemoveAsync(model);
                     await BlogContext.SaveChangesAsync();
                 }
                 else

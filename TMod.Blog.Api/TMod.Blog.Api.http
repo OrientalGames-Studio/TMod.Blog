@@ -1,6 +1,50 @@
-@TMod.Blog.Api_HostAddress = http://localhost:5108
+﻿
 
-GET {{TMod.Blog.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+@TMod.Blog.Api_HostAddress = https://localhost:7095
+
+GET {{TMod.Blog.Api_HostAddress}}/api/v1/admin/configurations
+
+###
+
+POST {{TMod.Blog.Api_HostAddress}}/api/v1/admin/configurations
+Content-Type: application/json
+
+{
+  //AddConfigurationModel
+}
+
+###
+
+GET {{TMod.Blog.Api_HostAddress}}/api/v1/admin/configurations/{configKey}
+
+###
+
+DELETE {{TMod.Blog.Api_HostAddress}}/api/v1/admin/configurations/{configKey}
+
+###
+
+PATCH {{TMod.Blog.Api_HostAddress}}/api/v1/admin/configurations/{configKey}
+Content-Type: application/json
+
+{
+  //UpdateConfigurationModel
+}
+
+###
+
+GET {{TMod.Blog.Api_HostAddress}}/api/v1/admin/configurations/id/{configId:int}
+
+###
+
+DELETE {{TMod.Blog.Api_HostAddress}}/api/v1/admin/configurations/id/{configId:int}
+
+###
+
+PATCH {{TMod.Blog.Api_HostAddress}}/api/v1/admin/configurations/id/{configId:int}
+Content-Type: application/json
+
+{
+  //UpdateConfigurationModel
+}
 
 ###

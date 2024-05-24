@@ -32,7 +32,7 @@ namespace TMod.Blog.Data.Services
         private static bool IsRepositoryType(this Type type)
         {
             return type.GetInterfaces()
-                .Any(p => p.IsGenericType && p.GetGenericTypeDefinition() == typeof(IStoreService));
+                .Any(p => typeof(IStoreService).IsAssignableFrom(p));
         }
 
         private static void RegistryBaseType(Type? type, Type? baseType, IServiceCollection services)

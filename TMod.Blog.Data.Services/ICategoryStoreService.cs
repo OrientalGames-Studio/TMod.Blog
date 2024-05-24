@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TMod.Blog.Data.Abstractions.StoreServices;
+
 namespace TMod.Blog.Data.Services
 {
-    internal interface ICategoryStoreService
+    public interface ICategoryStoreService:IStoreService
     {
     }
 }
