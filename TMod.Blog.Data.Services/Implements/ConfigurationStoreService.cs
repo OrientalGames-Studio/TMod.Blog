@@ -38,6 +38,17 @@ namespace TMod.Blog.Data.Services.Implements
                 configuration.CreateMetaRecord();
                 configuration = await _configurationRepository.CreateAsync(configuration);
             }
+            else if ( configuration.IsRemove )
+            {
+                configuration.Key = $"{configuration.Key}_{configuration.Version}**{configuration.RemoveDate}";
+                configuration.UpdateVersionRecord();
+                _ = await _configurationRepository.UpdateAsync(configuration);
+                configuration = new Configuration();
+                configuration.Key = configurationKey;
+                configuration.Value = JsonSerializer.Serialize(value);
+                configuration.CreateMetaRecord();
+                configuration = await _configurationRepository.CreateAsync(configuration);
+            }
             return configuration!;
         }
 
@@ -138,6 +149,10 @@ namespace TMod.Blog.Data.Services.Implements
         public async Task<ConfigurationViewModel?> UpdateConfigurationAsync(int configurationId, object? value)
         {
             Configuration? configuration = await _configurationRepository.LoadAsync(configurationId);
+            if ( configuration?.IsRemove == true )
+            {
+                return null;
+            }
             if(configuration is not null)
             {
                 configuration.Value = JsonSerializer.Serialize(value);
@@ -150,6 +165,10 @@ namespace TMod.Blog.Data.Services.Implements
         public async Task<ConfigurationViewModel?> UpdateConfigurationAsync(string configurationKey, object? value)
         {
             Configuration? configuration = (await _configurationRepository.GetAllAsync()).FirstOrDefault(p=>p.Key.Equals(configurationKey));
+            if ( configuration?.IsRemove == true )
+            {
+                return null;
+            }
             if ( configuration is not null )
             {
                 configuration.Value = JsonSerializer.Serialize(value);
