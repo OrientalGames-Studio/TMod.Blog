@@ -107,7 +107,7 @@ namespace TMod.Blog.Data.Services.Implements
             configurations = configurations.Where(p => !p.IsRemove);
             if ( filter is not null )
             {
-                configurations = configurations.Where(p => filter.Invoke(null));
+                configurations = configurations.Where(p => filter.Invoke(p));
             }
             totalDataCount = configurations.Count();
             totalPageCount = Math.Max(1, ( int )Math.Ceiling(( double )totalDataCount / ( double )pageSize));

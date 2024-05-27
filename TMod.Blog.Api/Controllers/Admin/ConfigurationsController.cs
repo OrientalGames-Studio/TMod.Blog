@@ -52,18 +52,18 @@ namespace TMod.Blog.Api.Controllers.Admin
             return Ok(pagingResult);
         }
 
-        [HttpGet("id/{configId:int}", Name = "GetConfigById")]
-        public async Task<IActionResult> GetConfigurationByIdAsnyc([FromRoute]int configId)
+        [HttpGet("id/{id:int}", Name = nameof(GetConfigurationByIdAsnyc))]
+        public async Task<IActionResult> GetConfigurationByIdAsnyc([FromRoute] int id)
         {
-            ConfigurationViewModel? viewModel = await _configurationStoreService.LoadConfigurationAsync(configId);
+            ConfigurationViewModel? viewModel = await _configurationStoreService.LoadConfigurationAsync(id);
             if ( viewModel is null )
             {
-                return NotFound(configId);
+                return NotFound(id);
             }
             return Ok(viewModel);
         }
 
-        [HttpGet("{configKey}", Name = "GetConfigByKey")]
+        [HttpGet("{configKey}", Name = nameof(GetConfigurationByKeyAsync))]
         public async Task<IActionResult> GetConfigurationByKeyAsync([FromRoute]string configKey)
         {
             ConfigurationViewModel? viewModel = await _configurationStoreService.LoadConfigurationAsync(configKey);
@@ -84,7 +84,7 @@ namespace TMod.Blog.Api.Controllers.Admin
                     return BadRequest(ModelState);
                 }
                 ConfigurationViewModel vm = await _configurationStoreService.CreateConfigurationAsync(model.ConfigurationKey, model.ConfigurationValue);
-                return CreatedAtAction("GetConfigById", vm.Id);
+                return CreatedAtAction(nameof(GetConfigurationByIdAsnyc), new { id = vm.Id }, vm);
             }
             catch ( Exception ex )
             {
@@ -93,7 +93,7 @@ namespace TMod.Blog.Api.Controllers.Admin
             }
         }
 
-        [HttpDelete("id/{configId:int}", Name = "RemoveConfigById")]
+        [HttpDelete("id/{configId:int}", Name = nameof(RemoveConfigurationByIdAsync))]
         public async Task<IActionResult> RemoveConfigurationByIdAsync([FromRoute] int configId)
         {
             try
@@ -108,7 +108,7 @@ namespace TMod.Blog.Api.Controllers.Admin
             }
         }
 
-        [HttpDelete("{configKey}",Name = "RemoveConfigByKey")]
+        [HttpDelete("{configKey}",Name = nameof(RemoveConfigurationByKeyAsync))]
         public async Task<IActionResult> RemoveConfigurationByKeyAsync([FromRoute] string configKey)
         {
             try
@@ -123,12 +123,16 @@ namespace TMod.Blog.Api.Controllers.Admin
             }
         }
 
-        [HttpPatch("id/{configId:int}",Name = "UpdateConfigById")]
+        [HttpPatch("id/{configId:int}",Name = nameof(UpdateConfigurationByIdAsync))]
         public async Task<IActionResult> UpdateConfigurationByIdAsync([FromRoute]int configId, [FromBody]UpdateConfigurationModel model)
         {
             try
             {
                 ConfigurationViewModel? vm = await _configurationStoreService.UpdateConfigurationAsync(configId, model.ConfigurationValue);
+                if(vm is null )
+                {
+                    return NotFound();
+                }
                 return Ok(vm);
             }
             catch ( Exception ex )
@@ -138,12 +142,16 @@ namespace TMod.Blog.Api.Controllers.Admin
             }
         }
 
-        [HttpPatch("{configKey}",Name = "UpdateConfigByKey")]
+        [HttpPatch("{configKey}",Name = nameof(UpdateConfigurationByKeyAsync))]
         public async Task<IActionResult> UpdateConfigurationByKeyAsync([FromRoute]string configKey, [FromBody]UpdateConfigurationModel model)
         {
             try
             {
                 ConfigurationViewModel? vm = await _configurationStoreService.UpdateConfigurationAsync(configKey, model.ConfigurationValue);
+                if ( vm is null )
+                {
+                    return NotFound();
+                }
                 return Ok(vm);
             }
             catch ( Exception ex )
