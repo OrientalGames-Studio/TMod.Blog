@@ -1,11 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TMod.Blog.Data.Models;
+using TMod.Blog.Data.Models.ViewModels.Articles;
 using TMod.Blog.Data.Repositories;
 
 namespace TMod.Blog.Data.Services.Implements
@@ -33,6 +36,54 @@ namespace TMod.Blog.Data.Services.Implements
             _logger = logger;
             _categoryRepository = categoryRepository;
             _blogContext = blogContext;
+        }
+
+        public async Task<ArticleViewModel?> GetArticleByIdAsync(Guid id)
+        {
+            Article? article = await _articleRepository.LoadAsync(id);
+            if(article is null || article.IsRemove )
+            {
+                return null;
+            }
+            return article;
+        }
+
+        public async IAsyncEnumerable<ArticleViewModel?> GetArticlesAsync()
+        {
+            IEnumerable<Article> articles = await _articleRepository.GetAllAsync();
+            articles = articles.Where(p => !p.IsRemove);
+            foreach ( Article article in articles )
+            {
+                yield return article;
+            }
+        }
+
+        public IQueryable<ArticleViewModel?> Paging(int pageIndex, int pageSize, out int totalDataCount, out int totalPageCount, Func<ArticleViewModel?, bool>? filter = null)
+        {
+            IEnumerable<ArticleViewModel?> articles = GetArticlesAsync().ToBlockingEnumerable();
+            return Paging(articles, pageIndex, pageSize, out totalDataCount, out totalPageCount, filter);
+        }
+
+        public IQueryable<ArticleViewModel?> Paging(IEnumerable values, int pageIndex, int pageSize, out int totalDataCount, out int totalPageCount, Func<ArticleViewModel?, bool>? filter = null)
+        {
+            totalDataCount = 0;
+            totalPageCount = 1;
+            pageIndex = Math.Max(1, pageIndex);
+            pageSize = Math.Max(1, pageSize);
+            IEnumerable<ArticleViewModel?>? articles = values as IEnumerable<ArticleViewModel?>;
+            if(articles is null )
+            {
+                articles = [];
+            }
+            if(filter is not null )
+            {
+                articles = articles.Where(filter);
+            }
+            totalDataCount = articles.Count();
+            totalPageCount = Math.Max(1, ( int )Math.Ceiling(( double )totalDataCount / ( double )pageSize));
+            pageIndex = Math.Max(1,Math.Min(pageIndex,totalPageCount));
+            articles = articles.Skip(( pageIndex - 1 ) * pageSize).Take(pageSize);
+            return articles.AsQueryable();
         }
     }
 }

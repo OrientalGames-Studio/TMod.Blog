@@ -1,1 +1,5 @@
-﻿
+﻿@TMod.Blog.Api_HostAddress = https://localhost:7095
+
+GET {{TMod.Blog.Api_HostAddress}}/api/v1/admin/articles
+
+###
