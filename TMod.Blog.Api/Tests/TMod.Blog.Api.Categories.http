@@ -1,0 +1,56 @@
+@TMod.Blog.Api_HostAddress = https://localhost:7095
+
+// 获取所有分类 
+GET {{TMod.Blog.Api_HostAddress}}/api/v1/admin/categories
+
+###
+
+// 新增分类
+POST {{TMod.Blog.Api_HostAddress}}/api/v1/admin/categories
+Content-Type: application/json
+
+{
+  "category":"测试分类"
+}
+
+###
+
+// 根据分类名称获取分类
+GET {{TMod.Blog.Api_HostAddress}}/api/v1/admin/categories/测试分类
+
+###
+
+// 根据分类删除分类
+DELETE {{TMod.Blog.Api_HostAddress}}/api/v1/admin/categories/测试分类
+
+###
+
+// 根据分类修改分类
+PATCH {{TMod.Blog.Api_HostAddress}}/api/v1/admin/categories/测试分类
+Content-Type: application/json
+
+{
+  "category":"测试分类-mini"
+}
+
+###
+
+// 根据 id 获取分类
+GET {{TMod.Blog.Api_HostAddress}}/api/v1/admin/categories/id/14
+
+###
+
+// 根据 id 删除分类
+DELETE {{TMod.Blog.Api_HostAddress}}/api/v1/admin/categories/id/14
+
+###
+
+// 根据 id 修改分类
+PATCH {{TMod.Blog.Api_HostAddress}}/api/v1/admin/categories/id/14
+Content-Type: application/json
+
+{
+  "category":"测试分类1"
+}
+
+###
