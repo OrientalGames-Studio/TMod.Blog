@@ -1,3 +1,4 @@
+using TMod.Blog.Api;
 using TMod.Blog.Data;
 using TMod.Blog.Data.Repositories;
 using TMod.Blog.Data.Services;
@@ -10,6 +11,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<Constants>();
 builder.Services.AddBlogDb()
     .AddBlogRepositories()
     .AddBlogStoreServices();

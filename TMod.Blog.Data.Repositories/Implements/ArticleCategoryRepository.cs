@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,20 @@ namespace TMod.Blog.Data.Repositories.Implements
     {
         public ArticleCategoryRepository(BlogContext blogContext, ILoggerFactory loggerFactory) : base(blogContext, loggerFactory)
         {
+        }
+
+        public IEnumerable<ArticleCategory> GetArticleCategories(Guid articleId)
+        {
+            Article? article = base.BlogContext.Articles.FirstOrDefault(p=>p.Id == articleId);
+            if(article is null )
+            {
+                yield break;
+            }
+            IEnumerable<ArticleCategory> categories = base.BlogContext.ArticleCategories.Include(p=>p.Category).Where(p=>p.ArticleId == articleId);
+            foreach (ArticleCategory category in categories)
+            {
+                yield return category;
+            }
         }
     }
 }

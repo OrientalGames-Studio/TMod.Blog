@@ -45,6 +45,10 @@ namespace TMod.Blog.Data.Services.Implements
             {
                 return null;
             }
+            IEnumerable<ArticleCategory> categories = _articleCategoryRepository.GetArticleCategories(article.Id);
+            IEnumerable<ArticleTag> tags = _articleTagRepository.GetArticleTags(article.Id);
+            article.ArticleCategories = new List<ArticleCategory>(categories);
+            article.ArticleTags = new List<ArticleTag>(tags);
             return article;
         }
 

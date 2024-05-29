@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 using TMod.Blog.Data.Interfaces;
+using TMod.Blog.Data.Models.ViewModels.Categories;
 
 namespace TMod.Blog.Data.Models.ViewModels.Articles
 {
@@ -68,6 +69,16 @@ namespace TMod.Blog.Data.Models.ViewModels.Articles
         /// </summary>
         public DateTime? RemoveDate { get; set; }
 
+        /// <summary>
+        /// 文章标签
+        /// </summary>
+        public List<ArticleTagViewModel> Tags { get; set; } = new List<ArticleTagViewModel>();
+
+        /// <summary>
+        /// 文章分类
+        /// </summary>
+        public List<CategoryViewModel> Categories { get; set; } = new List<CategoryViewModel>();
+
         public static implicit operator Article? (ArticleViewModel? viewModel)
         {
             if(viewModel is null )
@@ -87,6 +98,8 @@ namespace TMod.Blog.Data.Models.ViewModels.Articles
             article.IsRemove = viewModel.IsRemove;
             article.CreateDate = viewModel.CreateDate;
             article.UpdateDate = viewModel.UpdateDate;
+            article.ArticleTags = viewModel.Tags.Select(p=>(ArticleTag)p!).ToList();
+            article.ArticleCategories = viewModel.Categories.Select(p => new ArticleCategory() { ArticleId = article.Id, CategoryId = p.Id }).ToList();
             return article;
         }
 
@@ -109,6 +122,8 @@ namespace TMod.Blog.Data.Models.ViewModels.Articles
             viewModel.IsRemove = article.IsRemove;
             viewModel.CreateDate = article.CreateDate;
             viewModel.UpdateDate = article.UpdateDate;
+            viewModel.Tags = article.ArticleTags.Select(p => ( ArticleTagViewModel )p!).ToList();
+            viewModel.Categories = article.ArticleCategories.Select(p => (CategoryViewModel)p.Category!).ToList();
             return viewModel;
         }
     }

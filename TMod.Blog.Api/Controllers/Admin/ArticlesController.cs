@@ -12,11 +12,13 @@ namespace TMod.Blog.Api.Controllers.Admin
     {
         private readonly ILogger<ArticlesController> _logger;
         private readonly IArticleStoreService _articleStoreService;
+        private readonly Constants _constants;
 
-        public ArticlesController(ILogger<ArticlesController> logger, IArticleStoreService articleStoreService)
+        public ArticlesController(ILogger<ArticlesController> logger, IArticleStoreService articleStoreService,Constants constants)
         {
             _logger = logger;
             _articleStoreService = articleStoreService;
+            _constants = constants;
         }
 
         /// <summary>
@@ -48,6 +50,8 @@ namespace TMod.Blog.Api.Controllers.Admin
             try
             {
                 IQueryable<ArticleViewModel?> articles = _articleStoreService.Paging(pageIndex,pageSize,out int dataCount,out int pageCount,article=>FilterArticle(article,articleTitleFilter,articleSnapshotFilter,articleCategoryFilter,articleTagsFilter,articleStateFilter,articlePublishedDateFilter,articleLastEditDateFilter));
+                articles.OrderBy(p=>p!.State)
+                    .ThenByDescending(p => p!.LastEditDate ?? p!.UpdateDate ?? p!.CreateDate);
                 pagingResult = new
                 {
                     pageIndex,
@@ -87,6 +91,8 @@ namespace TMod.Blog.Api.Controllers.Admin
         private bool FilterArticle(ArticleViewModel? article, string? articleTitleFilter, string? articleSnapshotFilter, string? articleCategoryFilter, string? articleTagsFilter, ArticleStateEnum? articleStateFilter, DateOnly? articlePublishedDateFilter, DateOnly? articleLastEditDateFilter)
         {
             bool result = true;
+            string[] categories = [];
+            string[] tags = [];
             if ( article is null )
             {
                 return false;
@@ -98,6 +104,16 @@ namespace TMod.Blog.Api.Controllers.Admin
             if ( !string.IsNullOrWhiteSpace(articleSnapshotFilter) )
             {
                 result = result && ( article.Snapshot?.Contains(articleSnapshotFilter) == true );
+            }
+            if(!string.IsNullOrWhiteSpace(articleCategoryFilter) )
+            {
+                categories = articleCategoryFilter.Split(_constants.SplitStringChars,StringSplitOptions.RemoveEmptyEntries);
+                result = result && ( article.Categories is not null && article.Categories.Count > 0 ) && article.Categories.Any(p => Array.IndexOf(categories, p.Category) > -1);
+            }
+            if ( !string.IsNullOrWhiteSpace(articleTagsFilter) )
+            {
+                tags = articleTagsFilter.Split(_constants.SplitStringChars, StringSplitOptions.RemoveEmptyEntries);
+                result = result && ( article.Tags is not null && article.Tags.Count > 0 ) && article.Tags.Any(p => Array.IndexOf(tags, p.Tag) > -1);
             }
             if ( articlePublishedDateFilter is not null )
             {
@@ -111,8 +127,8 @@ namespace TMod.Blog.Api.Controllers.Admin
             {
                 result = result && ( article.State == articleStateFilter );
             }
-            // Todo: 分类筛选 和 标签筛选
             return result;
         }
+
     }
 }

@@ -11,5 +11,6 @@ namespace TMod.Blog.Data.Repositories
 {
     public interface IArticleCategoryRepository:IIntKeyRepository<ArticleCategory>
     {
+        IEnumerable<ArticleCategory> GetArticleCategories(Guid articleId);
     }
 }

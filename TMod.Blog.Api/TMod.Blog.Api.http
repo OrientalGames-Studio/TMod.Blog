@@ -3,3 +3,7 @@
 GET {{TMod.Blog.Api_HostAddress}}/api/v1/admin/articles
 
 ###
+
+GET {{TMod.Blog.Api_HostAddress}}/api/v1/admin/articles/{id:guid}
+
+###
