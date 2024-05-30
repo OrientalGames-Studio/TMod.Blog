@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 using TMod.Blog.Data.Interfaces;
 
 namespace TMod.Blog.Data.Models.ViewModels.Articles
 {
-    internal class ArticleArchiveViewModel : IGuidKey, IKey<Guid>
+    public class ArticleArchiveViewModel : IGuidKey, IKey<Guid>
     {
         /// <summary>
         /// 附件主键标识
@@ -22,8 +17,54 @@ namespace TMod.Blog.Data.Models.ViewModels.Articles
         public Guid ArticleId { get; set; }
 
         /// <summary>
-        /// 附件文件数据
+        /// 文件名称
         /// </summary>
-        public byte[] ArchiveContent { get; set; } = null!;
+        [StringLength(30)]
+        public string? ArchiveName { get; set; }
+              
+        /// <summary>
+        /// 文件大小
+        /// </summary>
+        public double ArchiveFileSize { get; set; }
+
+        /// <summary>
+        /// 附件MIME类型
+        /// </summary>
+        [StringLength(100)]
+        public string ArchiveMimetype { get; set; } = "application/octet-stream";
+
+        public static implicit operator ArticleArchive? (ArticleArchiveViewModel? viewModel)
+        {
+            if(viewModel is null )
+            {
+                return null;
+            }
+            ArticleArchive archive = new ArticleArchive()
+            {
+                Id = viewModel.Id,
+                ArticleId = viewModel.ArticleId,
+                ArchiveName = viewModel.ArchiveName,
+                ArchiveFileSize = viewModel.ArchiveFileSize,
+                ArchiveMimetype = viewModel.ArchiveMimetype,
+            };
+            return archive;
+        }
+
+        public static implicit operator ArticleArchiveViewModel? (ArticleArchive? archive)
+        {
+            if(archive is null )
+            {
+                return null;
+            }
+            ArticleArchiveViewModel viewModel = new ArticleArchiveViewModel()
+            {
+                Id = archive.Id,
+                ArticleId = archive.ArticleId,
+                ArchiveName = archive.ArchiveName,
+                ArchiveFileSize = archive.ArchiveFileSize,
+                ArchiveMimetype = archive.ArchiveMimetype
+            };
+            return viewModel;
+        }
     }
 }

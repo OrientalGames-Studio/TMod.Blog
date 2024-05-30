@@ -14,5 +14,11 @@ namespace TMod.Blog.Data.Services
         IAsyncEnumerable<ArticleViewModel?> GetArticlesAsync();
 
         Task<ArticleViewModel?> GetArticleByIdAsync(Guid id);
+
+        ArticleContentViewModel GetArticleContentByArticleId(Guid articleId);
+
+        IEnumerable<ArticleArchiveViewModel> GetArticleArchivesByArticleId(Guid articleId);
+
+        ArticleArchiveContentViewModel GetArticleArchiveContent(Guid articleId, Guid archiveId);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace TMod.Blog.Data.Models.ViewModels.Articles
 {
-    internal class ArticleContentViewModel : IIntKey, IKey<int>
+    public class ArticleContentViewModel : IIntKey, IKey<int>
     {
         /// <summary>
         /// 自增主键
@@ -18,5 +18,35 @@ namespace TMod.Blog.Data.Models.ViewModels.Articles
         /// 文章正文内容
         /// </summary>
         public string Content { get; set; } = null!;
+
+        public static implicit operator ArticleContent? (ArticleContentViewModel? viewModel)
+        {
+            if(viewModel is null )
+            {
+                return null;
+            }
+            ArticleContent articleContent = new ArticleContent()
+            {
+                Id = viewModel.Id,
+                ArticleId = viewModel.ArticleId,
+                Content = viewModel.Content,
+            };
+            return articleContent;
+        }
+
+        public static implicit operator ArticleContentViewModel? (ArticleContent? articleContent)
+        {
+            if(articleContent is null )
+            {
+                return null;
+            }
+            ArticleContentViewModel viewModel = new ArticleContentViewModel()
+            {
+                Id = articleContent.Id,
+                ArticleId = articleContent.ArticleId,
+                Content = articleContent.Content
+            };
+            return viewModel;
+        }
     }
 }

@@ -38,6 +38,33 @@ namespace TMod.Blog.Data.Services.Implements
             _blogContext = blogContext;
         }
 
+        public ArticleArchiveContentViewModel GetArticleArchiveContent(Guid articleId, Guid archiveId)
+        {
+            Stream? fileDataStream = _articleArchiveRepository.GetArticleArchiveContent(articleId,archiveId,out string? fileName,out string? mimeType,out double? fileSize);
+            ArticleArchiveContentViewModel viewModel = new ArticleArchiveContentViewModel()
+            {
+                ArchiveId = archiveId,
+                ArchiveName = fileName??"",
+                MIMEType = mimeType??"application/octet-stream",
+                ArchiveData = fileDataStream,
+                FileSize = fileSize.HasValue? fileSize.Value : 0d,
+            };
+            return viewModel;
+        }
+
+        public IEnumerable<ArticleArchiveViewModel> GetArticleArchivesByArticleId(Guid articleId)
+        {
+            IEnumerable<ArticleArchive?> archives = _articleArchiveRepository.GetArticleArchivesByArticleId(articleId);
+            foreach ( ArticleArchive? archive in archives )
+            {
+                if(archive is null )
+                {
+                    continue;
+                }
+                yield return archive!;
+            }
+        }
+
         public async Task<ArticleViewModel?> GetArticleByIdAsync(Guid id)
         {
             Article? article = await _articleRepository.LoadAsync(id);
@@ -50,6 +77,19 @@ namespace TMod.Blog.Data.Services.Implements
             article.ArticleCategories = new List<ArticleCategory>(categories);
             article.ArticleTags = new List<ArticleTag>(tags);
             return article;
+        }
+
+        public ArticleContentViewModel GetArticleContentByArticleId(Guid articleId)
+        {
+            ArticleContent? content = _articleContentRepository.GetArticleContentByArticleId(articleId);
+            if(content is null )
+            {
+                return new ArticleContentViewModel()
+                {
+                    ArticleId = articleId,
+                };
+            }
+            return content!;
         }
 
         public async IAsyncEnumerable<ArticleViewModel?> GetArticlesAsync()

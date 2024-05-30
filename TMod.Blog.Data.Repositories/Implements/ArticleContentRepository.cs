@@ -15,5 +15,16 @@ namespace TMod.Blog.Data.Repositories.Implements
         public ArticleContentRepository(BlogContext blogContext, ILoggerFactory loggerFactory) : base(blogContext, loggerFactory)
         {
         }
+
+        public ArticleContent? GetArticleContentByArticleId(Guid articleId)
+        {
+            Article? article = base.BlogContext.Articles.FirstOrDefault(p=>p.Id == articleId);
+            if(article is null )
+            {
+                return null;
+            }
+            ArticleContent? articleContent = base.BlogContext.ArticleContents.FirstOrDefault(p=>p.ArticleId == articleId);
+            return articleContent;
+        }
     }
 }

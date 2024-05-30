@@ -11,5 +11,6 @@ namespace TMod.Blog.Data.Repositories
 {
     public interface IArticleContentRepository:IIntKeyRepository<ArticleContent>
     {
+        ArticleContent? GetArticleContentByArticleId(Guid articleId);
     }
 }

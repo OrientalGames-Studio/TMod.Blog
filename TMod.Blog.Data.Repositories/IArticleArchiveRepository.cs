@@ -11,5 +11,8 @@ namespace TMod.Blog.Data.Repositories
 {
     public interface IArticleArchiveRepository:IGuidKeyRepository<ArticleArchive>
     {
+        IEnumerable<ArticleArchive?> GetArticleArchivesByArticleId(Guid articleId);
+
+        Stream? GetArticleArchiveContent(Guid articleId, Guid archiveId, out string? archiveName, out string? mimeType, out double? fileSize);
     }
 }
