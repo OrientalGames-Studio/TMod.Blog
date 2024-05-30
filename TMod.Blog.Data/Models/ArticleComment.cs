@@ -4,14 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-using TMod.Blog.Data.Interfaces;
-
 namespace TMod.Blog.Data.Models;
 
 /// <summary>
 /// 博客文章的评论表，用于存储访客对文章的评论或对评论的回复
 /// </summary>
-public partial class ArticleComment : IVersionControl,ICreate,IUpdate,IRemove,IEdit,INotifiable, IGuidKey, IKey<Guid>
+public partial class ArticleComment
 {
     /// <summary>
     /// 评论主键标识

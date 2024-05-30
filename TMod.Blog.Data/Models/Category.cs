@@ -4,15 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-using TMod.Blog.Data.Interfaces;
-
 namespace TMod.Blog.Data.Models;
 
 /// <summary>
 /// 博客的文章分类表，用来存储博客可以选择的分类
 /// </summary>
 [Index("Category1", Name = "Uk__Categories_Category", IsUnique = true)]
-public partial class Category : IVersionControl,ICreate,IUpdate,IRemove, IIntKey, IKey<int>
+public partial class Category
 {
     /// <summary>
     /// 自增主键

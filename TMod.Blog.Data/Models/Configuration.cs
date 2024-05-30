@@ -4,15 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-using TMod.Blog.Data.Interfaces;
-
 namespace TMod.Blog.Data.Models;
 
 /// <summary>
 /// 应用配置表，可以用来存储一些应用设置，例如全局控制是否可以评论等
 /// </summary>
 [Index("Key", Name = "Uq__Configurations__Key", IsUnique = true)]
-public partial class Configuration : IVersionControl,ICreate,IUpdate,IRemove, IIntKey, IKey<int>
+public partial class Configuration
 {
     /// <summary>
     /// 自增主键

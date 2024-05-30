@@ -4,14 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-using TMod.Blog.Data.Interfaces;
-
 namespace TMod.Blog.Data.Models;
 
 /// <summary>
 /// 博客的文章附件表，用来存储博客文章的附件
 /// </summary>
-public partial class ArticleArchive: IGuidKey, IKey<Guid>
+public partial class ArticleArchive
 {
     /// <summary>
     /// 附件主键标识
@@ -28,6 +26,24 @@ public partial class ArticleArchive: IGuidKey, IKey<Guid>
     /// 附件文件数据
     /// </summary>
     public byte[] ArchiveContent { get; set; } = null!;
+
+    /// <summary>
+    /// 文件名称
+    /// </summary>
+    [StringLength(30)]
+    public string? ArchiveName { get; set; }
+
+    /// <summary>
+    /// 文件大小
+    /// </summary>
+    public double ArchiveFileSize { get; set; }
+
+    /// <summary>
+    /// 附件MIME类型
+    /// </summary>
+    [Column("ArchiveMIMEType")]
+    [StringLength(100)]
+    public string ArchiveMimetype { get; set; } = null!;
 
     [ForeignKey("ArticleId")]
     [InverseProperty("ArticleArchives")]

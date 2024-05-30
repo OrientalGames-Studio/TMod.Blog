@@ -4,14 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-using TMod.Blog.Data.Interfaces;
-
 namespace TMod.Blog.Data.Models;
 
 /// <summary>
 /// 博客的文章内容表，用来存储博客的正文内容
 /// </summary>
-public partial class ArticleContent: IIntKey, IKey<int>
+public partial class ArticleContent
 {
     /// <summary>
     /// 自增主键
@@ -30,6 +28,6 @@ public partial class ArticleContent: IIntKey, IKey<int>
     public string Content { get; set; } = null!;
 
     [ForeignKey("ArticleId")]
-    [InverseProperty("ArticleContent")]
+    [InverseProperty("ArticleContents")]
     public virtual Article Article { get; set; } = null!;
 }

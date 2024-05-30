@@ -66,6 +66,13 @@ public partial class BlogContext : DbContext
                 .HasDefaultValueSql("(newid())")
                 .HasComment("附件主键标识");
             entity.Property(e => e.ArchiveContent).HasComment("附件文件数据");
+            entity.Property(e => e.ArchiveFileSize).HasComment("文件大小");
+            entity.Property(e => e.ArchiveMimetype)
+                .HasDefaultValue("application/octet-stream")
+                .HasComment("附件MIME类型");
+            entity.Property(e => e.ArchiveName)
+                .HasDefaultValueSql("(newid())")
+                .HasComment("文件名称");
             entity.Property(e => e.ArticleId).HasComment("文章外键标识");
 
             entity.HasOne(d => d.Article).WithMany(p => p.ArticleArchives)
@@ -129,7 +136,7 @@ public partial class BlogContext : DbContext
             entity.Property(e => e.ArticleId).HasComment("文章编号外键");
             entity.Property(e => e.Content).HasComment("文章正文内容");
 
-            entity.HasOne(d => d.Article).WithOne(p => p.ArticleContent).HasConstraintName("Fk__Article_Id");
+            entity.HasOne(d => d.Article).WithMany(p => p.ArticleContents).HasConstraintName("Fk__Article_Id");
         });
 
         modelBuilder.Entity<ArticleTag>(entity =>
