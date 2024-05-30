@@ -4,12 +4,14 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
+using TMod.Blog.Data.Interfaces;
+
 namespace TMod.Blog.Data.Models;
 
 /// <summary>
 /// 博客文章主表，用来存储博客的文章快照（标题、状态、简讯等）
 /// </summary>
-public partial class Article
+public partial class Article:IGuidKey,IVersionControl,ICreate,IUpdate,IRemove,IEdit
 {
     /// <summary>
     /// Uid 主键标识
