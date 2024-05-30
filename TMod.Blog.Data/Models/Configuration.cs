@@ -12,7 +12,7 @@ namespace TMod.Blog.Data.Models;
 /// 应用配置表，可以用来存储一些应用设置，例如全局控制是否可以评论等
 /// </summary>
 [Index("Key", Name = "Uq__Configurations__Key", IsUnique = true)]
-public partial class Configuration:IIntKey,ICreate,IUpdate,IRemove,IVersionControl
+public partial class Configuration:IIntKey,ICreate,IUpdate,IRemove,IVersionControl,IKey<int>
 {
     /// <summary>
     /// 自增主键

@@ -12,7 +12,7 @@ namespace TMod.Blog.Data.Models;
 /// 博客的文章分类表，用来存储博客可以选择的分类
 /// </summary>
 [Index("Category1", Name = "Uk__Categories_Category", IsUnique = true)]
-public partial class Category:IIntKey,ICreate,IUpdate,IRemove,IVersionControl
+public partial class Category:IIntKey,ICreate,IUpdate,IRemove,IVersionControl,IKey<int>
 {
     /// <summary>
     /// 自增主键

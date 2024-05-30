@@ -11,7 +11,7 @@ namespace TMod.Blog.Data.Models;
 /// <summary>
 /// 博客的文章附件表，用来存储博客文章的附件
 /// </summary>
-public partial class ArticleArchive:IGuidKey
+public partial class ArticleArchive:IGuidKey,IKey<Guid>
 {
     /// <summary>
     /// 附件主键标识

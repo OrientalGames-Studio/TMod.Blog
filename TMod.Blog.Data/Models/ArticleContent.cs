@@ -11,7 +11,7 @@ namespace TMod.Blog.Data.Models;
 /// <summary>
 /// 博客的文章内容表，用来存储博客的正文内容
 /// </summary>
-public partial class ArticleContent:IIntKey
+public partial class ArticleContent:IIntKey,IKey<int>
 {
     /// <summary>
     /// 自增主键

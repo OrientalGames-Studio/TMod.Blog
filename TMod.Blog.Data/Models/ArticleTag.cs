@@ -11,7 +11,7 @@ namespace TMod.Blog.Data.Models;
 /// <summary>
 /// 博客的文章标签表，用来存储博客的标签
 /// </summary>
-public partial class ArticleTag:IIntKey
+public partial class ArticleTag:IIntKey,IKey<int>
 {
     /// <summary>
     /// 自增主键

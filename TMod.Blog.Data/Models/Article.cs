@@ -11,7 +11,7 @@ namespace TMod.Blog.Data.Models;
 /// <summary>
 /// 博客文章主表，用来存储博客的文章快照（标题、状态、简讯等）
 /// </summary>
-public partial class Article:IGuidKey,IVersionControl,ICreate,IUpdate,IRemove,IEdit
+public partial class Article:IGuidKey,IVersionControl,ICreate,IUpdate,IRemove,IEdit,IKey<Guid>
 {
     /// <summary>
     /// Uid 主键标识

@@ -11,7 +11,7 @@ namespace TMod.Blog.Data.Models;
 /// <summary>
 /// 博客文章的评论表，用于存储访客对文章的评论或对评论的回复
 /// </summary>
-public partial class ArticleComment:IGuidKey,IVersionControl,ICreate,IUpdate,IRemove,IEdit,INotifiable
+public partial class ArticleComment:IGuidKey,IVersionControl,ICreate,IUpdate,IRemove,IEdit,INotifiable,IKey<Guid>
 {
     /// <summary>
     /// 评论主键标识
