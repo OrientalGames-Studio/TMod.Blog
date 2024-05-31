@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TMod.Blog.Data.Models;
+using TMod.Blog.Data.Models.DTO.Articles;
 using TMod.Blog.Data.Models.ViewModels.Articles;
 using TMod.Blog.Data.Repositories;
 
@@ -36,6 +37,88 @@ namespace TMod.Blog.Data.Services.Implements
             _logger = logger;
             _categoryRepository = categoryRepository;
             _blogContext = blogContext;
+        }
+
+        public async Task<Guid> CreateArticleAsync(AddArticleModel articleModel, IEnumerable<AddArticleArchiveModel> archiveModels)
+        {
+            using ( var trans = await _blogContext.Database.BeginTransactionAsync() )
+            {
+                try
+                {
+                    // 主表数据
+                    Article article = new Article()
+                    {
+                        Title = articleModel.Title,
+                        Snapshot = string.IsNullOrWhiteSpace(articleModel.Snapshot)?articleModel.Content.Substring(0,Math.Min(50,articleModel.Content.Length)):articleModel.Snapshot,
+                        State = (short)articleModel.ArticleState,
+                        IsCommentEnabled = articleModel.IsCommentEnabled,
+                        LastEditDate = DateTime.Now
+                    };
+                    article.CreateMetaRecord();
+                    article.UpdateMetaRecord();
+                    article = await _articleRepository.CreateAsync(article);
+                    // 文章分类
+                    foreach ( var item in articleModel.Categories )
+                    {
+                        Category? category = _categoryRepository.GetCategoryByCategoryName(item);
+                        if ( category is null )
+                        {
+                            category = new Category()
+                            {
+                                Category1 = item
+                            };
+                            category.CreateMetaRecord();
+                            category = await _categoryRepository.CreateAsync(category);
+                        }
+                        else if ( category.IsRemove )
+                        {
+                            category.IsRemove = false;
+                            category.RemoveDate = null;
+                            category.UpdateMetaRecord(true);
+                            category = await _categoryRepository.UpdateAsync(category);
+                        }
+                        ArticleCategory articleCategory = new ArticleCategory()
+                        {
+                            Article = article,
+                            Category = category
+                        };
+                        await _articleCategoryRepository.CreateAsync(articleCategory);
+                    }
+                    // 文章标签
+                    foreach ( var item in articleModel.Tags )
+                    {
+                        ArticleTag tag = new ArticleTag()
+                        {
+                            Article = article,
+                            Tag = item
+                        };
+                        await _articleTagRepository.CreateAsync(tag);
+                    }
+                    // 附件
+                    if(archiveModels is not null && archiveModels.Any() )
+                    {
+                        foreach ( var item in archiveModels )
+                        {
+                            ArticleArchive archive = new ArticleArchive()
+                            {
+                                Article = article,
+                                ArchiveName = item.FileName,
+                                ArchiveFileSize = item.FileSizeMB,
+                                ArchiveMimetype = item.MIMEType,
+                                ArchiveContent = await item.ReadArchiveContentAsync(),
+                            };
+                            await _articleArchiveRepository.CreateAsync(archive);
+                        }
+                    }
+                    return article.Id;
+                }
+                catch ( Exception ex )
+                {
+                    _logger.LogError(ex, $"创建文章时发生异常，数据已尝试回滚");
+                    await trans.RollbackAsync();
+                }
+            }
+            return Guid.Empty;
         }
 
         public ArticleArchiveContentViewModel GetArticleArchiveContent(Guid articleId, Guid archiveId)

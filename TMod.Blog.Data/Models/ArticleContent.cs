@@ -30,6 +30,6 @@ public partial class ArticleContent:IIntKey,IKey<int>
     public string Content { get; set; } = null!;
 
     [ForeignKey("ArticleId")]
-    [InverseProperty("ArticleContents")]
+    [InverseProperty("ArticleContent")]
     public virtual Article Article { get; set; } = null!;
 }

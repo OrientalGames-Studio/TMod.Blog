@@ -11,5 +11,6 @@ namespace TMod.Blog.Data.Repositories
 {
     public interface ICategoryRepository:IIntKeyRepository<Category>
     {
+        Category? GetCategoryByCategoryName(string category);
     }
 }

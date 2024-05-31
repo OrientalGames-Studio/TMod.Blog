@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using TMod.Blog.Data.Models.DTO.Articles;
 using TMod.Blog.Data.Models.ViewModels.Articles;
 using TMod.Blog.Data.Services;
 
@@ -130,5 +131,11 @@ namespace TMod.Blog.Api.Controllers.Admin
             return result;
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> CreateArticleAsync([FromForm]AddArticleModel model)
+        {
+            return Ok();
+        }
     }
 }

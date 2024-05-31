@@ -15,5 +15,11 @@ namespace TMod.Blog.Data.Repositories.Implements
         public CategoryRepository(BlogContext blogContext, ILoggerFactory loggerFactory) : base(blogContext, loggerFactory)
         {
         }
+
+        public Category? GetCategoryByCategoryName(string category)
+        {
+            Category? meta = base.BlogContext.Categories.FirstOrDefault(p=>p.Category1 == category);
+            return meta;
+        }
     }
 }

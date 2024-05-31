@@ -7,3 +7,17 @@ GET {{TMod.Blog.Api_HostAddress}}/api/v1/admin/articles
 GET {{TMod.Blog.Api_HostAddress}}/api/v1/admin/articles/{id:guid}
 
 ###
+
+@ArticleModel = {"title":"abc","content": "i'm content"}
+
+POST {{TMod.Blog.Api_HostAddress}}/api/v1/admin/articles
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+----WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="model"
+Content-Type: application/json
+
+{{ArticleModel}}
+----WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###

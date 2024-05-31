@@ -91,7 +91,7 @@ public partial class Article:IGuidKey,IVersionControl,ICreate,IUpdate,IRemove,IE
     public virtual ICollection<ArticleComment> ArticleComments { get; set; } = new List<ArticleComment>();
 
     [InverseProperty("Article")]
-    public virtual ICollection<ArticleContent> ArticleContents { get; set; } = new List<ArticleContent>();
+    public virtual ArticleContent ArticleContent { get; set; } = null!;
 
     [InverseProperty("Article")]
     public virtual ICollection<ArticleTag> ArticleTags { get; set; } = new List<ArticleTag>();

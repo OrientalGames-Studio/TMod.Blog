@@ -136,7 +136,7 @@ public partial class BlogContext : DbContext
             entity.Property(e => e.ArticleId).HasComment("文章编号外键");
             entity.Property(e => e.Content).HasComment("文章正文内容");
 
-            entity.HasOne(d => d.Article).WithMany(p => p.ArticleContents).HasConstraintName("Fk__Article_Id");
+            entity.HasOne(d => d.Article).WithOne(p => p.ArticleContent).HasConstraintName("Fk__Article_Id");
         });
 
         modelBuilder.Entity<ArticleTag>(entity =>
