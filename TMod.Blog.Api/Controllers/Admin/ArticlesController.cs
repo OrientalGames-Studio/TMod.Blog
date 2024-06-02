@@ -133,9 +133,32 @@ namespace TMod.Blog.Api.Controllers.Admin
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateArticleAsync([FromForm]AddArticleModel model)
+        public async Task<IActionResult> CreateArticleAsync([FromForm]AddArticleModel model, [FromForm]IFormFileCollection archives)
         {
-            return Ok();
+            if ( ! ModelState.IsValid )
+            {
+                return BadRequest(ModelState);
+            }
+            List<AddArticleArchiveModel> archiveModels = new List<AddArticleArchiveModel>();
+            if ( archives is not null )
+            {
+                foreach ( IFormFile uploadedFile in archives )
+                {
+                    MemoryStream ms = new MemoryStream();
+                    await uploadedFile.CopyToAsync(ms);
+                    AddArticleArchiveModel archiveModel = new AddArticleArchiveModel(ms);
+                    archiveModel.MIMEType = uploadedFile.ContentType;
+                    archiveModel.FileName = uploadedFile.FileName;
+                    archiveModel.FileSizeMB = (double)ms.Length / 1024 / 1024;
+                    archiveModels.Add(archiveModel);
+                }
+            }
+            Guid? articleId = await _articleStoreService.CreateArticleAsync(model, archiveModels);
+            if(articleId is null || articleId.Value == Guid.Empty )
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "由于未知原因创建文章失败");
+            }
+            return CreatedAtAction(nameof(GetArticleByIdAsync), new { id = articleId },articleId);
         }
     }
 }

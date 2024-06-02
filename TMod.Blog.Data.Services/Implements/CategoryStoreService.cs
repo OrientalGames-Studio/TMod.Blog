@@ -40,8 +40,8 @@ namespace TMod.Blog.Data.Services.Implements
                 meta = await _categoryRepository.CreateAsync(meta);
             } else if ( meta.IsRemove )
             {
-                string temp = $"{meta.Category1.Substring(0,Math.Min(4,meta.Category1.Length))}_{Guid.NewGuid():N}";
-                temp = temp.Substring(0, Math.Min(temp.Length, 20));
+                string temp = $"{meta.Category1[..Math.Min(4,meta.Category1.Length)]}_{Guid.NewGuid():N}";
+                temp = temp[.. Math.Min(temp.Length, 20)];
                 meta.Category1 = temp;
                 meta.UpdateVersionRecord();
                 _ = await _categoryRepository.UpdateAsync(meta);

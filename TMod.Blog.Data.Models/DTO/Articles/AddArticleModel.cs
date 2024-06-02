@@ -12,12 +12,14 @@ namespace TMod.Blog.Data.Models.DTO.Articles
     public sealed class AddArticleModel
     {
         [Required]
-        public string Title { get; set; } = null!;
+		[StringLength(60)]
+		public string Title { get; set; } = null!;
 
         [Required]
         public string Content { get; set; } = null!;
 
-        public string? Snapshot { get; set; }
+		[StringLength(150)]
+		public string? Snapshot { get; set; }
 
         public ArticleStateEnum ArticleState { get; set; } = ArticleStateEnum.Draft;
 
