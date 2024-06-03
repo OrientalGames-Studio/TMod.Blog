@@ -160,5 +160,11 @@ namespace TMod.Blog.Api.Controllers.Admin
             }
             return CreatedAtAction(nameof(GetArticleByIdAsync), new { id = articleId },articleId);
         }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateArticleAsync([FromForm]UpdateArticleModel model, [FromForm]IFormFileCollection archives)
+        {
+            return Ok();
+        }
     }
 }

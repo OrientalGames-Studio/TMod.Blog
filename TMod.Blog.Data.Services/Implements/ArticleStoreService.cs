@@ -56,6 +56,13 @@ namespace TMod.Blog.Data.Services.Implements
 					};
 					article.CreateMetaRecord();
 					article = await _articleRepository.CreateAsync(article);
+					// 文章正文
+					ArticleContent content = new ArticleContent()
+					{
+						Article = article,
+						Content = articleModel.Content
+					};
+					await _articleContentRepository.CreateAsync(content);
 					// 文章分类
 					foreach ( var item in articleModel.Categories )
 					{

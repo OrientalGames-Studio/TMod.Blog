@@ -25,6 +25,11 @@ namespace TMod.Blog.Data.Models.ViewModels.Articles
         /// </summary>
         public string Tag { get; set; } = null!;
 
+        /// <summary>
+        /// 编辑时，标签是否标记为删除
+        /// </summary>
+        public bool IsRemove { get; set; } = false;
+
         public static implicit operator ArticleTag?(ArticleTagViewModel? viewModel)
         {
             if(viewModel is null )
