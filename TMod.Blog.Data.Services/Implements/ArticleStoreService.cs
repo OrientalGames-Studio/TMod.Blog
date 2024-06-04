@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,11 +11,12 @@ using System.Threading.Tasks;
 using TMod.Blog.Data.Models;
 using TMod.Blog.Data.Models.DTO.Articles;
 using TMod.Blog.Data.Models.ViewModels.Articles;
+using TMod.Blog.Data.Models.ViewModels.Categories;
 using TMod.Blog.Data.Repositories;
 
 namespace TMod.Blog.Data.Services.Implements
 {
-	internal class ArticleStoreService : IArticleStoreService
+    internal class ArticleStoreService : IArticleStoreService
 	{
 		private readonly IArticleRepository _articleRepository;
 		private readonly IArticleArchiveRepository _articleArchiveRepository;
@@ -226,5 +228,82 @@ namespace TMod.Blog.Data.Services.Implements
 			articles = articles.Skip(( pageIndex - 1 ) * pageSize).Take(pageSize);
 			return articles.AsQueryable();
 		}
-	}
+
+        public async Task<Guid> UpdateArticleAsync(Guid articleId
+			, ArticleViewModel article
+			, ArticleContentViewModel articleContent
+			, IEnumerable<CategoryViewModel> deletedCategories
+			, IEnumerable<CategoryViewModel> addedCategories
+			, IEnumerable<ArticleTagViewModel> deletedTags
+			, IEnumerable<ArticleTagViewModel> addedTags
+			, IEnumerable<ArticleArchiveViewModel> deletedArchives
+			, IEnumerable<AddArticleArchiveModel> addedArchives)
+        {
+			// 启用事务
+			using ( var trans = await _blogContext.Database.BeginTransactionAsync() )
+			{
+				try
+				{
+					article.UpdateMetaRecord();
+					// 写入主表数据
+					article = await _articleRepository.UpdateAsync(article!);
+					// 写入正文数据
+					articleContent = await _articleContentRepository.UpdateAsync(articleContent!);
+					// 删除移除的分类
+					foreach ( CategoryViewModel category in deletedCategories )
+					{
+						ArticleCategory? articleCategory = _articleCategoryRepository.GetArticleCategoryById(articleId,category.Id);
+						if ( articleCategory is not null )
+						{
+							await _articleCategoryRepository.RemoveAsync(articleCategory);
+						}
+					}
+					// 增加新增的分类
+					foreach ( CategoryViewModel category in addedCategories )
+					{
+						ArticleCategory articleCategory = new ArticleCategory()
+						{
+							Category = category,
+							Article = article
+						};
+						await _articleCategoryRepository.CreateAsync(articleCategory);
+					}
+					// 删除移除的标签
+					foreach ( ArticleTagViewModel tag in deletedTags )
+					{
+						await _articleTagRepository.RemoveAsync(tag);
+					}
+					// 增加新增的标签
+					foreach ( ArticleTagViewModel tag in addedTags )
+					{
+						await _articleTagRepository.CreateAsync(tag);
+					}
+					// 删除移除的附件
+					foreach ( ArticleArchiveViewModel archive in deletedArchives )
+					{
+						await _articleArchiveRepository.RemoveAsync(archive);
+					}
+					// 增加新增的附件
+					foreach ( AddArticleArchiveModel archive in addedArchives )
+					{
+						ArticleArchive articleArchive = new ArticleArchive()
+						{
+							Article = article,
+							ArchiveName = archive.FileName,
+							ArchiveMimetype = archive.MIMEType,
+							ArchiveFileSize = archive.FileSizeMB,
+							ArchiveContent = await archive.ReadArchiveContentAsync()
+						};
+						await _articleArchiveRepository.CreateAsync(articleArchive);
+					}
+					trans.Commit();
+				}catch(Exception ex )
+				{
+					_logger.LogError(ex, $"根据编号{articleId}修改文章时发生异常");
+					trans.Rollback();
+				}
+			}
+			return articleId;
+        }
+    }
 }

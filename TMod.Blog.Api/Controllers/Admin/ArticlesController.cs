@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using System.Text.Json;
+
+using TMod.Blog.Api.Tools.ModelBinders;
 using TMod.Blog.Data.Models.DTO.Articles;
 using TMod.Blog.Data.Models.ViewModels.Articles;
+using TMod.Blog.Data.Models.ViewModels.Categories;
 using TMod.Blog.Data.Services;
 
 namespace TMod.Blog.Api.Controllers.Admin
@@ -161,10 +165,52 @@ namespace TMod.Blog.Api.Controllers.Admin
             return CreatedAtAction(nameof(GetArticleByIdAsync), new { id = articleId },articleId);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateArticleAsync([FromForm]UpdateArticleModel model, [FromForm]IFormFileCollection archives)
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateArticleAsync([FromRoute]Guid id,[ModelBinder(typeof(UpdateArticleModelBinder))] UpdateArticleModel model, [FromForm]IFormFileCollection archives)
         {
-            return Ok();
+            if ( !ModelState.IsValid )
+            {
+                return BadRequest(ModelState);
+            }
+            ArticleViewModel? metaData = await _articleStoreService.GetArticleByIdAsync(id);
+            if(metaData is null)
+            {
+                return BadRequest("修改失败，元数据不存在");
+            }
+            if(metaData.Id != model.Meta!.Article!.Id || metaData.Id != model.Meta!.ArticleContent!.ArticleId)
+            {
+                return BadRequest($"修改失败，元数据编号和修改数据编号不一致");
+            }
+            if(metaData.Version != model.Meta!.Article!.Version )
+            {
+                return BadRequest("修改失败，元数据已被修改，请重新加载数据后再试");
+            }
+            IEnumerable<CategoryViewModel> deletedCategories = model.Meta.Article.Categories?.Where(p=>p.IsRemove)??[];
+            IEnumerable<CategoryViewModel> addedCategories = model.Categories.Where(p=>!p.IsRemove);
+            IEnumerable<ArticleTagViewModel> deletedTags = model.Meta.Article.Tags?.Where(p=>p.IsRemove)??[];
+            IEnumerable<ArticleTagViewModel> addedTags = model.Tags.Where(p=>!p.IsRemove);
+            IEnumerable<ArticleArchiveViewModel> deletedArchives = model.Meta.Archives?.Where(p=>p.IsRemove)??[];
+            List<AddArticleArchiveModel> addedArchives = [];
+            foreach ( IFormFile archive in archives )
+            {
+                MemoryStream ms = new MemoryStream();
+                await archive.CopyToAsync(ms);
+                AddArticleArchiveModel archiveModel = new AddArticleArchiveModel(ms);
+                archiveModel.MIMEType = archive.ContentType;
+                archiveModel.FileName = archive.FileName;
+                archiveModel.FileSizeMB = ( double )ms.Length / 1024 / 1024;
+                addedArchives.Add(archiveModel);
+            }
+            try
+            {
+                Guid articleId = await _articleStoreService.UpdateArticleAsync(metaData.Id,model.Meta.Article,model.Meta.ArticleContent,deletedCategories,addedCategories,deletedTags,addedTags,deletedArchives,addedArchives);
+                return CreatedAtAction(nameof(GetArticleByIdAsync), new { id = articleId }, articleId);
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"修改编号为{id}的文章失败，入参:{JsonSerializer.Serialize(model)}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"修改文章{id}数据失败");
+            }
         }
     }
 }

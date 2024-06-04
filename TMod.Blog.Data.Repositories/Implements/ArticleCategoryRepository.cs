@@ -30,5 +30,15 @@ namespace TMod.Blog.Data.Repositories.Implements
                 yield return category;
             }
         }
+
+        public ArticleCategory? GetArticleCategoryById(Guid articleId, int categoryId)
+        {
+            Article? article = base.BlogContext.Articles.FirstOrDefault(p=>p.Id == articleId);
+            if(article is null )
+            {
+                return null;
+            }
+            return base.BlogContext.ArticleCategories.FirstOrDefault(p=>p.ArticleId == article.Id && p.CategoryId == categoryId);
+        }
     }
 }

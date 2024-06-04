@@ -12,8 +12,8 @@ namespace TMod.Blog.Data.Models.DTO.Articles
 {
     public sealed class UpdateArticleModel
     {
-        //[Required]
-        public UpdateArticleMetaModel? Meta { get; set; } = null!;
+        [Required]
+        public UpdateArticleMetaModel? Meta { get; set; }
 
         public List<CategoryViewModel> Categories { get; set; } = new List<CategoryViewModel>();
 
@@ -22,11 +22,12 @@ namespace TMod.Blog.Data.Models.DTO.Articles
 
     public sealed class UpdateArticleMetaModel
     {
-        public string? Key { get; set; }
-        
-        public ArticleViewModel? Article { get; set; } = null!;
+        [Required]
+        public ArticleViewModel? Article { get; set; }
 
-        
-        public ArticleContentViewModel? ArticleContent { get; set; } = null!;
+        [Required]
+        public ArticleContentViewModel? ArticleContent { get; set; }
+
+        public List<ArticleArchiveViewModel> Archives { get; set; } = new List<ArticleArchiveViewModel>();
     }
 }

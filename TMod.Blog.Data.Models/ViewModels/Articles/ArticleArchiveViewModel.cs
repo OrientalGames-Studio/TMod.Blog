@@ -33,6 +33,11 @@ namespace TMod.Blog.Data.Models.ViewModels.Articles
         [StringLength(100)]
         public string ArchiveMimetype { get; set; } = "application/octet-stream";
 
+        /// <summary>
+        /// 编辑时，附件是否标记为删除
+        /// </summary>
+        public bool IsRemove { get; set; } = false;
+
         public static implicit operator ArticleArchive? (ArticleArchiveViewModel? viewModel)
         {
             if(viewModel is null )
