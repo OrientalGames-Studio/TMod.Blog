@@ -1,4 +1,5 @@
 using TMod.Blog.Api;
+using TMod.Blog.Api.Endpoints;
 using TMod.Blog.Api.Tools.ModelBinders;
 using TMod.Blog.Data;
 using TMod.Blog.Data.Repositories;
@@ -20,6 +21,8 @@ builder.Services.AddBlogDb()
     .AddBlogRepositories()
     .AddBlogStoreServices();
 
+builder.Services.AddAntiforgery();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -33,6 +36,11 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseAntiforgery();
+
 app.MapControllers();
+
+app.MapArticleCommentsEndpoints();
+app.MapArticleCategoriesEndpoints();
 
 app.Run();

@@ -26,5 +26,9 @@ namespace TMod.Blog.Data.Services
         Task RemoveCategoryAsync(int id);
 
         Task RemoveCategoryAsync(string category);
+
+        Task<Guid> AppendCategoriesToArticleAsync(Guid articleId, IEnumerable<string> categories);
+
+        Task SubstractCategoriesFromArticleAsync(Guid articleId, IEnumerable<string> categories);
     }
 }

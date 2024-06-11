@@ -244,11 +244,11 @@ namespace TMod.Blog.Data.Services.Implements
 			{
 				try
 				{
-					article.UpdateMetaRecord();
+					article.UpdateMetaRecord(true);
 					// 写入主表数据
-					article = await _articleRepository.UpdateAsync(article!);
+					article = (await _articleRepository.UpdateAsync(article!))!;
 					// 写入正文数据
-					articleContent = await _articleContentRepository.UpdateAsync(articleContent!);
+					articleContent = (await _articleContentRepository.UpdateAsync(articleContent!))!;
 					// 删除移除的分类
 					foreach ( CategoryViewModel category in deletedCategories )
 					{
@@ -263,32 +263,32 @@ namespace TMod.Blog.Data.Services.Implements
 					{
 						ArticleCategory articleCategory = new ArticleCategory()
 						{
-							Category = category,
-							Article = article
+							Category = category!,
+							Article = article!
 						};
 						await _articleCategoryRepository.CreateAsync(articleCategory);
 					}
 					// 删除移除的标签
 					foreach ( ArticleTagViewModel tag in deletedTags )
 					{
-						await _articleTagRepository.RemoveAsync(tag);
+						await _articleTagRepository.RemoveAsync(tag!);
 					}
 					// 增加新增的标签
 					foreach ( ArticleTagViewModel tag in addedTags )
 					{
-						await _articleTagRepository.CreateAsync(tag);
+						await _articleTagRepository.CreateAsync(tag!);
 					}
 					// 删除移除的附件
 					foreach ( ArticleArchiveViewModel archive in deletedArchives )
 					{
-						await _articleArchiveRepository.RemoveAsync(archive);
+						await _articleArchiveRepository.RemoveAsync(archive!);
 					}
 					// 增加新增的附件
 					foreach ( AddArticleArchiveModel archive in addedArchives )
 					{
 						ArticleArchive articleArchive = new ArticleArchive()
 						{
-							Article = article,
+							Article = article!,
 							ArchiveName = archive.FileName,
 							ArchiveMimetype = archive.MIMEType,
 							ArchiveFileSize = archive.FileSizeMB,
@@ -305,5 +305,48 @@ namespace TMod.Blog.Data.Services.Implements
 			}
 			return articleId;
         }
+
+        public async Task<Guid> UpdateArticleCommentEnabledFlagAsync(Guid articleId, bool isEnabled)
+        {
+            Article? article = await _articleRepository.LoadAsync(articleId);
+			if(article is null )
+			{
+				return Guid.Empty;
+			}
+			if(article.IsCommentEnabled == isEnabled )
+			{
+				return article.Id;
+			}
+			article.UpdateMetaRecord(true);
+			article.IsCommentEnabled = isEnabled;
+			article = await _articleRepository.UpdateAsync(article);
+			return article.Id;
+        }
+
+        public async Task<Guid> UpdateArticleStateAsync(Guid articleId, ArticleStateEnum state)
+        {
+            Article? article = await _articleRepository.LoadAsync(articleId);
+			if(article is null )
+			{
+				return Guid.Empty;
+			}
+			if(article.State == (short)state )
+			{
+				return article.Id;
+			}
+			article.UpdateMetaRecord(true);
+			article.State = (short)state;
+			switch ( state )
+			{
+				case ArticleStateEnum.Draft:
+					article.PublishDate = null;
+					break;
+				case ArticleStateEnum.Published:
+					article.PublishDate = DateTime.Now;
+					break;
+			}
+			article = await _articleRepository.UpdateAsync(article);
+			return article.Id;
+		}
     }
 }

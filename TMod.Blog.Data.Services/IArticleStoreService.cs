@@ -26,5 +26,9 @@ namespace TMod.Blog.Data.Services
         Task<Guid> CreateArticleAsync(AddArticleModel articleModel, IEnumerable<AddArticleArchiveModel> archiveModels);
 
         Task<Guid> UpdateArticleAsync(Guid articleId, ArticleViewModel article, ArticleContentViewModel articleContent, IEnumerable<CategoryViewModel> deletedCategories, IEnumerable<CategoryViewModel> addedCategories, IEnumerable<ArticleTagViewModel> deletedTags, IEnumerable<ArticleTagViewModel> addedTags, IEnumerable<ArticleArchiveViewModel> deletedArchives, IEnumerable<AddArticleArchiveModel> addedArchives);
+
+        Task<Guid> UpdateArticleStateAsync(Guid articleId, ArticleStateEnum state);
+
+        Task<Guid> UpdateArticleCommentEnabledFlagAsync(Guid articleId, bool isEnabled);
     }
 }

@@ -212,5 +212,28 @@ namespace TMod.Blog.Api.Controllers.Admin
                 return StatusCode(StatusCodes.Status500InternalServerError, $"修改文章{id}数据失败");
             }
         }
+
+        [HttpPatch("{id:guid}/state")]
+        public async Task<IActionResult> UpdateArticleStateAsync([FromRoute]Guid id, [FromBody]UpdateArticleStateModel model)
+        {
+            if (! ModelState.IsValid )
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                Guid articleId = await _articleStoreService.UpdateArticleStateAsync(id,model.State);
+                if(articleId ==  Guid.Empty)
+                {
+                    return NotFound();
+                }
+                return CreatedAtAction(nameof(GetArticleByIdAsync),new { id = articleId }, articleId);
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"修改文章{id}的状态为{model.State}时发生异常");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"修改文章{id}的状态失败");
+            }
+        }
     }
 }
