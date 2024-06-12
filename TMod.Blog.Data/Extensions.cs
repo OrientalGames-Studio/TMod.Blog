@@ -22,18 +22,18 @@ namespace TMod.Blog.Data
             return update;
         }
 
-        public static IRemove RemoveMetaRecord(this IRemove remove, bool removeVersion = false)
+        public static IRemove RemoveMetaRecord(this IRemove remove, bool updateVersion = false)
         {
             remove.RemoveDate = DateTime.Now;
             remove.IsRemove = true;
-            remove.Version += removeVersion ? 1 : 0;
+            remove.Version += updateVersion ? 1 : 0;
             return remove;
         }
 
-        public static IEdit EditMetaRecord(this IEdit edit, bool editVersion = false)
+        public static IEdit EditMetaRecord(this IEdit edit, bool updateVersion = false)
         {
             edit.LastEditDate = DateTime.Now;
-            edit.Version += editVersion ? 1 : 0;
+            edit.Version += updateVersion ? 1 : 0;
             return edit;
         }
 

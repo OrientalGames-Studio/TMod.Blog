@@ -235,5 +235,20 @@ namespace TMod.Blog.Api.Controllers.Admin
                 return StatusCode(StatusCodes.Status500InternalServerError, $"修改文章{id}的状态失败");
             }
         }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> RemoveArticleByIdAsync([FromRoute]Guid id)
+        {
+            try
+            {
+                await _articleStoreService.RemoveArticleByIdAsync(id);
+                return NoContent();
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"删除文章{id}时发生异常");
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 }

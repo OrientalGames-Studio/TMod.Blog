@@ -229,6 +229,16 @@ namespace TMod.Blog.Data.Services.Implements
 			return articles.AsQueryable();
 		}
 
+        public async Task RemoveArticleByIdAsync(Guid articleId)
+        {
+			Article? article = await _articleRepository.LoadAsync(articleId);
+			if(article is null || article.IsRemove )
+			{
+				return;
+			}
+			await _articleRepository.RemoveAsync(article);
+        }
+
         public async Task<Guid> UpdateArticleAsync(Guid articleId
 			, ArticleViewModel article
 			, ArticleContentViewModel articleContent

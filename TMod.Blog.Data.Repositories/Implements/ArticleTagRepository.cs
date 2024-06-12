@@ -16,6 +16,16 @@ namespace TMod.Blog.Data.Repositories.Implements
         {
         }
 
+        public ArticleTag? GetArticleTagByTag(Guid articleId, string tag)
+        {
+            Article? article = base.BlogContext.Articles.FirstOrDefault(p=>p.Id == articleId);
+            if ( article is null )
+            {
+                return null;
+            }
+            return base.BlogContext.ArticleTags.FirstOrDefault(p => p.ArticleId == articleId && p.Tag == tag);
+        }
+
         public IEnumerable<ArticleTag> GetArticleTags(Guid articleId)
         {
             Article? article = base.BlogContext.Articles.FirstOrDefault(p=>p.Id == articleId);

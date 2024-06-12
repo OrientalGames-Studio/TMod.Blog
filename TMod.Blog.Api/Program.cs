@@ -40,7 +40,9 @@ app.UseAntiforgery();
 
 app.MapControllers();
 
-app.MapArticleCommentsEndpoints();
-app.MapArticleCategoriesEndpoints();
+app.MapArticleCommentsEndpoints()
+    .MapArticleCategoriesEndpoints()
+    .MapArticleTagsEndpoints()
+    .MapAntiforgeryTokenEndpoints();
 
 app.Run();

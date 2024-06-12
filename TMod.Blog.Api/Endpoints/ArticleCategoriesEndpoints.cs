@@ -45,8 +45,8 @@ namespace TMod.Blog.Api.Endpoints
             }
         })
             .WithName("AddArticleCategories")
-            .WithDisplayName("添加分类到文章")
-            .WithSummary("添加分类到文章")
+            .WithDisplayName("添加分类到文章接口")
+            .WithSummary("添加分类到文章接口")
             .WithDescription("添加分类到文章接口，根据 categories 参数自动创建分类并和文章关联");
 
         private static RouteHandlerBuilder? BuildSubstractArticleCategoriesApi(RouteGroupBuilder? group, ILoggerFactory loggerFactory) => group?.MapDelete("Articles/{articleId:guid}/Categories", async Task<Results<NoContent, StatusCodeHttpResult>> ([FromRoute]Guid articleId, [FromBody]List<string> categories, [FromServices]ICategoryStoreService categoryStoreService) =>
@@ -63,8 +63,8 @@ namespace TMod.Blog.Api.Endpoints
             }
         })
             .WithName("SubstractArticleCategories")
-            .WithDisplayName("从文章中移除分类")
-            .WithSummary("从文章中移除分类")
+            .WithDisplayName("从文章中移除分类接口")
+            .WithSummary("从文章中移除分类接口")
             .WithDescription("从文章中移除分类接口，根据 categories 参数移除分类和文章的关联");
     }
 }

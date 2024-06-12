@@ -12,5 +12,7 @@ namespace TMod.Blog.Data.Repositories
     public interface IArticleTagRepository : IIntKeyRepository<ArticleTag>
     {
         IEnumerable<ArticleTag> GetArticleTags(Guid articleId);
+
+        ArticleTag? GetArticleTagByTag(Guid articleId, string tag);
     }
 }

@@ -30,5 +30,7 @@ namespace TMod.Blog.Data.Services
         Task<Guid> UpdateArticleStateAsync(Guid articleId, ArticleStateEnum state);
 
         Task<Guid> UpdateArticleCommentEnabledFlagAsync(Guid articleId, bool isEnabled);
+
+        Task RemoveArticleByIdAsync(Guid articleId);
     }
 }
