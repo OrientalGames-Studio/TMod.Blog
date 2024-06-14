@@ -1,13 +1,12 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider/>
-<MudDialogProvider/>
-<MudPopoverProvider/>
-<MudSnackbarProvider/>
+<PageTitle>TMod 博客</PageTitle>
 
-<MudLayout>
-    @Body
-</MudLayout>
+<MudThemeProvider/>
+<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall"/>
+@* <MudPopoverProvider/> *@
+<MudSnackbarProvider/>
+@Body
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.

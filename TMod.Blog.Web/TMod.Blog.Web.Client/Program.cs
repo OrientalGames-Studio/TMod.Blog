@@ -7,7 +7,7 @@ using MudBlazor;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 builder.Services.AddMudServices()
-    .AddMudPopoverService()
+    //.AddMudPopoverService()
     .AddMudExtensions()
     .AddMudMarkdownServices();
 

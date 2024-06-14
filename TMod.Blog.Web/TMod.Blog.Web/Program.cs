@@ -11,7 +11,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddMudServices()
-    .AddMudPopoverService()
+    //.AddMudPopoverService()
     .AddMudExtensions()
     .AddMudMarkdownServices();
 
@@ -40,6 +40,6 @@ app.UseMudExtensions();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
-    .AddAdditionalAssemblies(typeof(TMod.Blog.Web.Client._Imports).Assembly);
+    .AddAdditionalAssemblies(typeof(TMod.Blog.Web.Client._Imports).Assembly,typeof(TMod.Blog.Web.Core._Imports).Assembly);
 
 app.Run();
