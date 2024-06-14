@@ -21,9 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMod.Blog.Data.Services", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMod.Blog.Data.Models", "TMod.Blog.Data.Models\TMod.Blog.Data.Models.csproj", "{D33E2192-BFFD-45DE-9755-DC710FADC658}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TMod.Blog.Web", "TMod.Blog.Web\TMod.Blog.Web\TMod.Blog.Web\TMod.Blog.Web.csproj", "{84B15E74-1F5F-4FD1-B74F-CA078E453BBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMod.Blog.Web", "TMod.Blog.Web\TMod.Blog.Web\TMod.Blog.Web.csproj", "{84B15E74-1F5F-4FD1-B74F-CA078E453BBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TMod.Blog.Web.Client", "TMod.Blog.Web\TMod.Blog.Web\TMod.Blog.Web.Client\TMod.Blog.Web.Client.csproj", "{84ADA2CA-BAEB-4D22-A909-B220E18ECF05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMod.Blog.Web.Client", "TMod.Blog.Web\TMod.Blog.Web.Client\TMod.Blog.Web.Client.csproj", "{84ADA2CA-BAEB-4D22-A909-B220E18ECF05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
