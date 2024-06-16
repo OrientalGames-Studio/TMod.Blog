@@ -1,0 +1,46 @@
+﻿@using System.Reflection
+
+<Router AppAssembly="_appAssembly" AdditionalAssemblies="_additionalAssemblies">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(Shared.Layouts.MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>
+
+@code{
+
+    [EditorRequired]
+    [Parameter]
+    public string? AppAssemblyName
+    {
+        get => _appAssembly?.FullName;
+        set
+        {
+            if(!string.IsNullOrWhiteSpace(value))
+            {
+                _appAssembly = Assembly.Load(new AssemblyName(value));
+            }
+        }
+    }
+
+    [Parameter]
+    public string?[] AdditionalAssemblyNames
+    {
+        get
+        {
+            return _additionalAssemblies.Select(p => p?.FullName).Where(q => !string.IsNullOrWhiteSpace(q)).ToArray();
+        }
+        set
+        {
+            if(value.Length > 0 )
+            {
+                string?[] safeValues = value.Where(p => !string.IsNullOrWhiteSpace(p)).ToArray();
+                _additionalAssemblies = safeValues.Select(p=>Assembly.Load(new AssemblyName(p!))).ToArray();
+            }
+        }
+    }
+
+    private Assembly? _appAssembly;
+
+    private Assembly?[] _additionalAssemblies = [];
+}

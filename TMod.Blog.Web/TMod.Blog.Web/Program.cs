@@ -1,7 +1,7 @@
 using TMod.Blog.Web.Components;
+using MudBlazor;
 using MudBlazor.Services;
 using MudBlazor.Extensions;
-using MudBlazor;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +11,6 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddMudServices()
-    //.AddMudPopoverService()
     .AddMudExtensions()
     .AddMudMarkdownServices();
 
@@ -29,13 +28,10 @@ else
     app.UseHsts();
 }
 
-
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-
-app.UseMudExtensions();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()

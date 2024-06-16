@@ -1,11 +1,18 @@
 @inherits LayoutComponentBase
 @layout MainLayout
 
-<PageTitle>TMod 博客 - 管理端</PageTitle>
-
 <MudLayout>
-    <AdminAppBar Body="Body"/>
-    <MudMainContent>
-        @Body
-    </MudMainContent>
+	<MudAppBar>
+		<span>这里是AppBar</span>
+	</MudAppBar>
+	<MudDrawer ClipMode="DrawerClipMode.Always" Open="true">
+		<MudDrawerHeader>
+			<MudText Typo="Typo.h6">这里是Drawer</MudText>
+		</MudDrawerHeader>
+	</MudDrawer>
+	<MudMainContent>
+		<MudContainer>
+			@Body
+		</MudContainer>
+	</MudMainContent>
 </MudLayout>
