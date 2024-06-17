@@ -5,25 +5,29 @@ using MudBlazor.Services;
 using MudBlazor.Extensions;
 
 using TMod.Blog.Web.Services;
-using TMod.Blog.Web.Interactive;
+using System.Text.Json;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.Services.AddMudServices()
     .AddMudExtensions()
     .AddMudMarkdownServices();
 
-builder.Services.AddHttpClient("localClient", c =>
-{
-    c.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
-});
+HttpClient startupClient = new HttpClient();
+startupClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+string? apiServiceUrl = await startupClient.GetStringAsync("/api/v1/configurations/ApiServiceUrl");
+JsonDocument jsonDocument = JsonDocument.Parse(apiServiceUrl);
+apiServiceUrl = jsonDocument.RootElement.GetString();
+builder.Services.AddKeyedSingleton<string>("apiServiceUrl", apiServiceUrl??"");
+builder.Services.AddHttpClient<HttpClient, HttpClient>("localClient", factory: (client, provider) => startupClient);
 
-builder.Services.AddHttpClient("apiClient", async (provider, client) =>
-{
-    IHttpClientFactory httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
-    HttpClient localClient = httpClientFactory.CreateClient("localClient");
-    string? apiServiceUrl = await localClient.GetStringAsync("api/v1/configurations/ApiServiceUrl");
-    client.BaseAddress = new Uri(apiServiceUrl ?? throw new InvalidOperationException("请先配置服务接口地址再注入HttpClient"));
-});
+builder.Services
+    .AddHttpClient("apiClient", (provider, c) =>
+    {
+        string serviceUrl = provider.GetRequiredKeyedService<string>("apiServiceUrl");
+        ILogger<Program> logger = provider.GetRequiredService<ILogger<Program>>();
+        logger.LogCritical(serviceUrl);
+        c.BaseAddress = new Uri(serviceUrl);
+    });
 
 builder.Services.AddIconPathProviderService()
     .AddAppConfigurationProviderService();

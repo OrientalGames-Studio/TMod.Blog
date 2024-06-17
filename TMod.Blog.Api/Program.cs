@@ -23,6 +23,21 @@ builder.Services.AddBlogDb()
 
 builder.Services.AddAntiforgery();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        IConfiguration configuration = builder.Configuration.GetSection("Cors");
+        IEnumerable<string>? hosts =   configuration.GetSection("Hosts").Get<IEnumerable<string>>();
+        IEnumerable<string>? methods = configuration.GetSection("Methods").Get<IEnumerable<string>>();
+        IEnumerable<string>? headers = configuration.GetSection("Headers").Get<IEnumerable<string>>();
+        policy.WithHeaders(headers?.ToArray() ?? [])
+        .WithMethods(methods?.ToArray() ?? [])
+        .WithOrigins(headers?.ToArray() ?? [])
+        .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -37,6 +52,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.UseAntiforgery();
+
+app.UseCors();
 
 app.MapControllers();
 
