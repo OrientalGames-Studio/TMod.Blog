@@ -3,6 +3,10 @@ using MudBlazor;
 using MudBlazor.Services;
 using MudBlazor.Extensions;
 
+using TMod.Blog.Web.Services;
+using TMod.Blog.Web.Endpoints;
+using TMod.Blog.Web.Interactive;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -13,6 +17,15 @@ builder.Services.AddRazorComponents()
 builder.Services.AddMudServices()
     .AddMudExtensions()
     .AddMudMarkdownServices();
+
+
+builder.Services.AddHttpClient("apiClient", c =>
+{
+    c.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ApiServiceUrl") ?? throw new InvalidOperationException("请先配置服务接口地址再注入HttpClient"));
+});
+
+builder.Services.AddIconPathProviderService()
+    .AddAppConfigurationProviderService() ;
 
 var app = builder.Build();
 
@@ -37,5 +50,7 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(TMod.Blog.Web.Client._Imports).Assembly,typeof(TMod.Blog.Web.Core._Imports).Assembly);
+
+app.MapLocalConfigurationEndpoint();
 
 app.Run();

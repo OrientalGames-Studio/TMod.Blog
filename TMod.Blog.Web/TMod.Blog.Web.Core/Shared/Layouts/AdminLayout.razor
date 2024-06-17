@@ -1,18 +1,34 @@
+@using TMod.Blog.Web.Core.Components.Admin
+@using TMod.Blog.Web.Services.Abstraction
+
 @inherits LayoutComponentBase
 @layout MainLayout
 
 <MudLayout>
-	<MudAppBar>
-		<span>这里是AppBar</span>
-	</MudAppBar>
-	<MudDrawer ClipMode="DrawerClipMode.Always" Open="true">
-		<MudDrawerHeader>
-			<MudText Typo="Typo.h6">这里是Drawer</MudText>
-		</MudDrawerHeader>
-	</MudDrawer>
-	<MudMainContent>
-		<MudContainer>
-			@Body
-		</MudContainer>
-	</MudMainContent>
+    <MudAppBar>
+        <AdminAppToolbar MenuBreakpoint="Breakpoint.SmAndDown" OnShowMenuButtonClick="@(_=>_isOpen = !_isOpen)"/>
+        <MudToggleIconButton Icon="@IconPathProviderService!.LightModeIcon" ToggledIcon="@IconPathProviderService!.DarkModeIcon" Title="深色模式" ToggledTitle="浅色模式" ToggledChanged="OnLightModeChange"/>
+    </MudAppBar>
+    <MudDrawer ClipMode="DrawerClipMode.Always" @bind-Open="_isOpen" Breakpoint="Breakpoint.Sm">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">Here is the Drawer</MudText>
+        </MudDrawerHeader>
+    </MudDrawer>
+    <MudDrawerContainer>
+        <MudMainContent>
+            <MudContainer>
+                @Body
+            </MudContainer>
+        </MudMainContent>
+    </MudDrawerContainer>
 </MudLayout>
+
+@code {
+    private bool _isOpen = true;
+
+    [CascadingParameter]
+    public IIconPathProviderService? IconPathProviderService { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnLightModeChange { get; set; }
+}

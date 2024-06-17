@@ -23,4 +23,9 @@
     <PackageReference Include="MudBlazor.Markdown" Version="1.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TMod.Blog.Web.Services.Abstraction\TMod.Blog.Web.Services.Abstraction.csproj" />
+    <ProjectReference Include="..\TMod.Blog.Web.Services\TMod.Blog.Web.Services.csproj" />
+  </ItemGroup>
+
 </Project>

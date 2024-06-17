@@ -1,0 +1,42 @@
+@using TMod.Blog.Web.Services.Abstraction
+
+<MudHidden Breakpoint="MenuBreakpoint" Invert>
+    <MudTooltip Delay="1000" Text="打开/关闭菜单">
+        <MudIconButton Icon="@Icons.Material.Rounded.Menu" OnClick="OnShowMenuButtonClick" />
+    </MudTooltip>
+    <MudSpacer />
+</MudHidden>
+<NavLink class="d-flex d-inline-flex align-center" href="/admin">
+    @if ( IconPathProviderService is not null )
+    {
+        <MudIcon Icon="@IconPathProviderService.BrandIcon" Title="@_appTitle" Size="Size.Medium" ViewBox="0 0 1024 1024" />
+    }
+    else
+    {
+        <MudImage Alt="@_appTitle" Src="https://cdn.jsdelivr.net/gh/OrientalGames-Studio/tmodblog-cdn@main/Images/Icons/blog.svg" Width="32" Height="32" />
+    }
+    <MudText Inline Typo="Typo.caption" Class="align-center"><span>@_appTitle</span></MudText>
+</NavLink>
+<MudSpacer />
+
+@code {
+    private string? _appTitle = "";
+
+    [Parameter]
+    public Breakpoint MenuBreakpoint { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnShowMenuButtonClick { get; set; }
+
+    [CascadingParameter]
+    public IIconPathProviderService? IconPathProviderService { get; set; }
+
+    [CascadingParameter]
+    public IAppConfigurationProviderService? AppConfigurationProviderService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _appTitle = await AppConfigurationProviderService!.GetConfigurationValueAsync("AppTitle");
+    }
+}
