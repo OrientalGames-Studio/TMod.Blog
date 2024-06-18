@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -58,6 +59,27 @@ namespace TMod.Blog.Web.Interactive
             {
                 _logger.LogError(ex, $"将配置[{key}]的值{configurationValue}反序列化为{typeof(T)}?对象时发生异常");
                 return default;
+            }
+        }
+
+        public async Task SetConfigurationValueAsync(string key, object? value)
+        {
+            HttpResponseMessage patchResponse = await _apiClient.PatchAsJsonAsync($"api/v1/configurations/{key}",new
+            {
+                ConfigurationValue = value
+            });
+            if ( patchResponse.IsSuccessStatusCode )
+            {
+                return;
+            }
+            if(patchResponse.StatusCode == System.Net.HttpStatusCode.NotFound )
+            {
+                patchResponse = await _apiClient.PostAsJsonAsync($"api/v1/configurations/{key}", new
+                {
+                    ConfigurationKey = key,
+                    ConfiggurationValue = value
+                });
+                patchResponse.EnsureSuccessStatusCode();
             }
         }
     }

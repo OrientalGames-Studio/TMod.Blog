@@ -1,17 +1,16 @@
 @using TMod.Blog.Web.Core.Components.Admin
-@using TMod.Blog.Web.Services.Abstraction
 
 @inherits LayoutComponentBase
 @layout MainLayout
 
 <MudLayout>
     <MudAppBar>
-        <AdminAppToolbar MenuBreakpoint="Breakpoint.SmAndDown" OnShowMenuButtonClick="@(_=>_isOpen = !_isOpen)"/>
-        <MudToggleIconButton Icon="@IconPathProviderService!.LightModeIcon" ToggledIcon="@IconPathProviderService!.DarkModeIcon" Title="深色模式" ToggledTitle="浅色模式" ToggledChanged="OnLightModeChange"/>
+        <AdminAppToolbar MenuBreakpoint="Breakpoint.SmAndDown" OnShowMenuButtonClick="@(_=>_isOpen = !_isOpen)"/>        
+        <ExternalToolbar/>
     </MudAppBar>
     <MudDrawer ClipMode="DrawerClipMode.Always" Fixed @bind-Open="_isOpen" Breakpoint="Breakpoint.Sm">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h6">Here is the Drawer</MudText>
+            <BlogBrand />
         </MudDrawerHeader>
     </MudDrawer>
     <MudDrawerContainer>
@@ -25,10 +24,4 @@
 
 @code {
     private bool _isOpen = true;
-
-    [CascadingParameter]
-    public IIconPathProviderService? IconPathProviderService { get; set; }
-
-    [Parameter]
-    public EventCallback<bool> OnLightModeChange { get; set; }
 }

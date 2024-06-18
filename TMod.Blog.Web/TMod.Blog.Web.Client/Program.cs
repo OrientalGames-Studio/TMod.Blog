@@ -30,6 +30,7 @@ builder.Services
     });
 
 builder.Services.AddIconPathProviderService()
+    .AddLocalStorageProviderService()
     .AddAppConfigurationProviderService();
 
 await builder.Build().RunAsync();

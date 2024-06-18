@@ -25,8 +25,14 @@ namespace TMod.Blog.Web.Services
         public static IServiceCollection AddAppConfigurationProviderService(this IServiceCollection services)
         {
             services.AddAppConfigurationApi();
-            services.TryAddEnumerable(ServiceDescriptor.Singleton<IAppConfigurationProviderService, AppConfigurationProviderService>());
+            services.TryAddEnumerable(ServiceDescriptor.Scoped<IAppConfigurationProviderService, AppConfigurationProviderService>());
             services.AddCascadingValue<IAppConfigurationProviderService>(provider => provider.GetRequiredService<IAppConfigurationProviderService>());
+            return services;
+        }
+
+        public static IServiceCollection AddLocalStorageProviderService(this IServiceCollection services)
+        {
+            services.TryAddEnumerable(ServiceDescriptor.Scoped<ILocalStorageProviderService, LocalStorageProviderService>());
             return services;
         }
     }

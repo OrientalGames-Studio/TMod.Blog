@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TMod.Blog.Web.Interactive.Abstraction\TMod.Blog.Web.Interactive.Abstraction.csproj" />
   </ItemGroup>
 

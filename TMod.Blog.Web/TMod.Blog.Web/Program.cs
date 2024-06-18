@@ -25,6 +25,7 @@ builder.Services.AddHttpClient("apiClient", c =>
 });
 
 builder.Services.AddIconPathProviderService()
+    .AddLocalStorageProviderService()
     .AddAppConfigurationProviderService() ;
 
 var app = builder.Build();

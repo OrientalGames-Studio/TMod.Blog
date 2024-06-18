@@ -1,0 +1,12 @@
+@using TMod.Blog.Web.Services.Abstraction
+
+<MudToggleIconButton Color="Color.Secondary" Icon="@IconPathProviderService!.DarkModeIcon" ToggledIcon="@IconPathProviderService!.LightModeIcon" Title="深色模式" ToggledTitle="浅色模式" @bind-Toggled="@(_mudThemeProvider.IsDarkMode)" />
+
+@code {
+
+    [CascadingParameter]
+    public IIconPathProviderService? IconPathProviderService { get; set; }
+
+    [CascadingParameter]
+    public MudThemeProvider? _mudThemeProvider { get; set; }
+}

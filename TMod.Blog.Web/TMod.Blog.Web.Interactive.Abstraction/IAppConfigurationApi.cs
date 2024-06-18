@@ -12,5 +12,7 @@ namespace TMod.Blog.Web.Interactive.Abstraction
         Task<string?> GetConfigurationValueAsync(string key);
 
         Task<T?> GetConfigurationValueAsync<T>(string key, JsonSerializerOptions? jsonSerializerOptions = null);
+
+        Task SetConfigurationValueAsync(string key,object? value);
     }
 }
