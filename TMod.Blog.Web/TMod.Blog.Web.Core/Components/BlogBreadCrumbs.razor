@@ -1,0 +1,56 @@
+@implements IDisposable
+
+<div class="d-flex d-inline-flex align-center">
+    <MudBreadcrumbs Items="@_breadcrumbItems"/>
+</div>
+
+@code{
+    private List<BreadcrumbItem> _breadcrumbItems;
+
+    [Inject]
+    public NavigationManager? NavigationManager { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        CreateEmptyBreadcurmbList(NavigationManager.ToBaseRelativePath(NavigationManager.BaseUri));
+        if(NavigationManager is not null )
+        {
+            NavigationManager.LocationChanged += OnLocationChanged;
+        }
+    }
+
+    private void OnLocationChanged(object? sender,LocationChangedEventArgs e)
+    {
+        string breadcurbUrl = NavigationManager!.ToBaseRelativePath(e.Location);
+        SetBreadcrumb(breadcurbUrl);
+    }
+
+    private void CreateEmptyBreadcurmbList(string? initialUrl)
+    {
+        _breadcrumbItems = [new BreadcrumbItem("home",initialUrl)];
+    }
+
+    private void SetBreadcrumb(string url)
+    {
+        if(_breadcrumbItems.Any(p=>p.Href == url) )
+        {
+            int index = _breadcrumbItems.FindIndex(p => p.Href == url);
+            int pos = 0;
+            do
+            {
+                _breadcrumbItems.Remove(_breadcrumbItems.Last());
+            } while ( pos < index );
+        }
+        _breadcrumbItems.Add(new BreadcrumbItem(url.TrimStart('/', '\0'), url));
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        if(NavigationManager is not null )
+        {
+            NavigationManager.LocationChanged -= OnLocationChanged;
+        }
+    }
+}
