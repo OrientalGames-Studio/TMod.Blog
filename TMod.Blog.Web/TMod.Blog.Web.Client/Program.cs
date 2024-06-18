@@ -24,9 +24,9 @@ builder.Services
     .AddHttpClient("apiClient", (provider, c) =>
     {
         string serviceUrl = provider.GetRequiredKeyedService<string>("apiServiceUrl");
-        ILogger<Program> logger = provider.GetRequiredService<ILogger<Program>>();
-        logger.LogCritical(serviceUrl);
         c.BaseAddress = new Uri(serviceUrl);
+        //c.DefaultRequestHeaders.Append(new KeyValuePair<string, IEnumerable<string>>("Access-Control-Allow-Origin", ["*"]));
+        //c.DefaultRequestHeaders.TryAddWithoutValidation("Access-Control-Allow-Origin", "*");
     });
 
 builder.Services.AddIconPathProviderService()

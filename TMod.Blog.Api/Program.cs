@@ -28,13 +28,33 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         IConfiguration configuration = builder.Configuration.GetSection("Cors");
-        IEnumerable<string>? hosts =   configuration.GetSection("Hosts").Get<IEnumerable<string>>();
-        IEnumerable<string>? methods = configuration.GetSection("Methods").Get<IEnumerable<string>>();
-        IEnumerable<string>? headers = configuration.GetSection("Headers").Get<IEnumerable<string>>();
-        policy.WithHeaders(headers?.ToArray() ?? [])
-        .WithMethods(methods?.ToArray() ?? [])
-        .WithOrigins(headers?.ToArray() ?? [])
-        .AllowCredentials();
+        IEnumerable<string> hosts =   configuration.GetSection("Hosts").Get<IEnumerable<string>>()??[];
+        IEnumerable<string> methods = configuration.GetSection("Methods").Get<IEnumerable<string>>()??[];
+        IEnumerable<string> headers = configuration.GetSection("Headers").Get<IEnumerable<string>>()??[];
+        string[] localhosts = ["https://*.localhost:7121","http://*.localhost:5128"];
+        hosts = hosts.Concat(localhosts);
+        //policy.WithHeaders(headers?.ToArray() ?? [])
+        //.WithMethods(methods?.ToArray() ?? [])
+        //.WithOrigins(headers?.ToArray() ?? [])
+        //.AllowCredentials();
+        policy.AllowCredentials()
+        .WithOrigins(hosts.ToArray());
+        if ( methods.Any() )
+        {
+            policy.WithMethods(methods.ToArray());
+        }
+        else
+        {
+            policy.AllowAnyMethod();
+        }
+        if ( headers.Any() )
+        {
+            policy.WithHeaders(headers.ToArray());
+        }
+        else
+        {
+            policy.AllowAnyHeader();
+        }
     });
 });
 

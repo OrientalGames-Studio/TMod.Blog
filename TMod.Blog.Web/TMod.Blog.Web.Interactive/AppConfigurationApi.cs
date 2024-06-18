@@ -38,8 +38,6 @@ namespace TMod.Blog.Web.Interactive
             catch ( Exception ex )
             {
                 _logger.LogError(ex, $"读取配置[{key}]的值时发生异常");
-                var response = await _apiClient.GetAsync($"api/v1/admin/configurations/{key}");
-                ;
                 return null;
             }
         }
