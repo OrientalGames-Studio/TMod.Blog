@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TMod.Blog.Web.Interactive.Abstraction\TMod.Blog.Web.Interactive.Abstraction.csproj" />
+    <ProjectReference Include="..\TMod.Blog.Web.Models\TMod.Blog.Web.Models.csproj" />
   </ItemGroup>
 
 </Project>

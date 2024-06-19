@@ -26,7 +26,8 @@ builder.Services.AddHttpClient("apiClient", c =>
 
 builder.Services.AddIconPathProviderService()
     .AddLocalStorageProviderService()
-    .AddAppConfigurationProviderService() ;
+    .AddAppConfigurationProviderService() 
+    .AddAdminNavMenuProviderService();
 
 var app = builder.Build();
 

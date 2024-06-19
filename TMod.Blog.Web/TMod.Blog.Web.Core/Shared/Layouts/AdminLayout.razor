@@ -1,4 +1,6 @@
 @using TMod.Blog.Web.Core.Components.Admin
+@using TMod.Blog.Web.Services.Abstraction
+@using TMod.Blog.Web.Models
 
 @inherits LayoutComponentBase
 @layout MainLayout
@@ -12,11 +14,12 @@
         <MudDrawerHeader>
             <BlogBrand />
         </MudDrawerHeader>
+        <BlogNavMenus MenuItems="_menuItems" />
     </MudDrawer>
     <MudDrawerContainer>
         <MudMainContent>
             <MudContainer>
-                <BlogBreadCrumbs />
+                <BlogBreadCrumbs MenuItems="_menuItems"/>
                 @Body
             </MudContainer>
         </MudMainContent>
@@ -25,4 +28,14 @@
 
 @code {
     private bool _isOpen = true;
+    private IEnumerable<MenuItem>? _menuItems;
+
+    [Inject(Key = "AdminNavMenuService")]
+    public INavMenuProviderService? NavMenuProviderService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _menuItems = NavMenuProviderService?.GetNavMenuItems();
+    }
 }

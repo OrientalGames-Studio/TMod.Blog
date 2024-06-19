@@ -35,5 +35,11 @@ namespace TMod.Blog.Web.Services
             services.TryAddEnumerable(ServiceDescriptor.Scoped<ILocalStorageProviderService, LocalStorageProviderService>());
             return services;
         }
+
+        public static IServiceCollection AddAdminNavMenuProviderService(this IServiceCollection services)
+        {
+            services.TryAddEnumerable(ServiceDescriptor.KeyedScoped<INavMenuProviderService, AdminNavMenuProviderService>("AdminNavMenuService"));
+            return services;
+        }
     }
 }

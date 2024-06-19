@@ -13,5 +13,23 @@ namespace TMod.Blog.Web.Services.Abstraction
         string LightModeIcon { get; }
 
         string DarkModeIcon { get; }
+
+        string EditIcon { get; }
+
+        string ListIcon { get; }
+
+        string PreviewIcon { get; }
+
+        string ConfigurationIcon { get; }
+
+        string ReportIcon { get; }
+
+        string NavMenu_HomeIcon { get; }
+
+        string NavMenu_Admin_DashboardIcon { get; }
+
+        string NavMenu_Admin_ArticlesIcon { get; }
+
+        string NavMenu_Admin_CategoryIcon { get; }
     }
 }

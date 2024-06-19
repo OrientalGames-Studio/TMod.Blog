@@ -33,9 +33,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMod.Blog.Web.Services", "T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMod.Blog.Web.Services.Client", "TMod.Blog.Web\TMod.Blog.Web.Services.Client\TMod.Blog.Web.Services.Client.csproj", "{CEEB11BA-196A-44CB-8CC3-965868819F59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TMod.Blog.Web.Interactive", "TMod.Blog.Web\TMod.Blog.Web.Interactive\TMod.Blog.Web.Interactive.csproj", "{31FA80E0-F9AA-4CE7-8DB0-B409CB416F10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMod.Blog.Web.Interactive", "TMod.Blog.Web\TMod.Blog.Web.Interactive\TMod.Blog.Web.Interactive.csproj", "{31FA80E0-F9AA-4CE7-8DB0-B409CB416F10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TMod.Blog.Web.Interactive.Abstraction", "TMod.Blog.Web\TMod.Blog.Web.Interactive.Abstraction\TMod.Blog.Web.Interactive.Abstraction.csproj", "{303F59CE-C0E3-47B0-8A2F-72338659FF13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMod.Blog.Web.Interactive.Abstraction", "TMod.Blog.Web\TMod.Blog.Web.Interactive.Abstraction\TMod.Blog.Web.Interactive.Abstraction.csproj", "{303F59CE-C0E3-47B0-8A2F-72338659FF13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TMod.Blog.Web.Models", "TMod.Blog.Web\TMod.Blog.Web.Models\TMod.Blog.Web.Models.csproj", "{DB9789C0-C6E2-4AE5-9383-1563D3AADCB4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +101,10 @@ Global
 		{303F59CE-C0E3-47B0-8A2F-72338659FF13}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{303F59CE-C0E3-47B0-8A2F-72338659FF13}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{303F59CE-C0E3-47B0-8A2F-72338659FF13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB9789C0-C6E2-4AE5-9383-1563D3AADCB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB9789C0-C6E2-4AE5-9383-1563D3AADCB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB9789C0-C6E2-4AE5-9383-1563D3AADCB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB9789C0-C6E2-4AE5-9383-1563D3AADCB4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -119,6 +125,7 @@ Global
 		{CEEB11BA-196A-44CB-8CC3-965868819F59} = {16454A7A-CAC0-40B8-9E9A-4EAC479472E6}
 		{31FA80E0-F9AA-4CE7-8DB0-B409CB416F10} = {16454A7A-CAC0-40B8-9E9A-4EAC479472E6}
 		{303F59CE-C0E3-47B0-8A2F-72338659FF13} = {16454A7A-CAC0-40B8-9E9A-4EAC479472E6}
+		{DB9789C0-C6E2-4AE5-9383-1563D3AADCB4} = {16454A7A-CAC0-40B8-9E9A-4EAC479472E6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D9BE73F8-9AE0-415B-AA14-91199B369F74}

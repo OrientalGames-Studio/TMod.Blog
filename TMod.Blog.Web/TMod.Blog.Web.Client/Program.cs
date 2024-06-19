@@ -31,6 +31,7 @@ builder.Services
 
 builder.Services.AddIconPathProviderService()
     .AddLocalStorageProviderService()
-    .AddAppConfigurationProviderService();
+    .AddAppConfigurationProviderService()
+    .AddAdminNavMenuProviderService();
 
 await builder.Build().RunAsync();

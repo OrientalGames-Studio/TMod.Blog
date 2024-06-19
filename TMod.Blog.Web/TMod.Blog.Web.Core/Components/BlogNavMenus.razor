@@ -1,0 +1,29 @@
+@using TMod.Blog.Web.Models
+
+<MudNavMenu Bordered Rounded Class="mud-width-full">
+    @foreach ( MenuItem item in MenuItems )
+    {
+        if ( item.SubMenus is not null && item.SubMenus.Count > 0 && item.SubMenus.All(p=>p.Visible))
+        {
+            <MudNavGroup Icon="@item.Icon" Title="@item.Title">
+                <BlogNavMenus MenuItems="@item.SubMenus" />
+            </MudNavGroup>
+        }
+        else
+        {
+            @if ( item.Visible )
+            {
+                <MudNavLink Icon="@item.Icon" Href="@item.Url" Match="NavLinkMatch.All" Disabled="@item.Disabled">
+                    <MudTooltip Delay="1000" Text="@item.Description">
+                        @item.Title
+                    </MudTooltip>
+                </MudNavLink>
+            }
+        }
+    }
+</MudNavMenu>
+
+@code {
+    [Parameter]
+    public IEnumerable<MenuItem> MenuItems { get; set; } = [];
+}
