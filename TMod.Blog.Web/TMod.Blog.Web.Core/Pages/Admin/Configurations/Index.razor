@@ -1,0 +1,24 @@
+@page "/admin/configurations"
+
+<MudPaper>
+    <MudToolBar WrapContent>
+        <MudDateRangePicker 
+            Clearable 
+            PlaceholderStart="最小创建日期" 
+            PlaceholderEnd="最大创建日期" 
+            @bind-DateRange="_createDateRange" 
+            MaxDate="@DateTime.Today"
+            Label="配置项创建日期筛选"
+            DisableUnderLine
+            Rounded/>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchConfigurationKey"
+            Label="输入配置项标识模糊筛选"
+            Variant="Variant.Outlined"
+            Adornment="Adornment.End"
+            AdornmentIcon="@Icons.Material.Outlined.Search"/>
+    </MudToolBar>
+    <MudDataGrid Bordered Breakpoint="@Breakpoint.Sm" Items="@_configurationItems" Virtualize>
+    </MudDataGrid>
+    <MudPagination/>
+</MudPaper>

@@ -5,6 +5,7 @@
 @inherits LayoutComponentBase
 @layout MainLayout
 
+<PageTitle>@_pageTitle - π‹¿Ì∂À</PageTitle>
 <MudLayout>
     <MudAppBar>
         <AdminAppToolbar MenuBreakpoint="Breakpoint.SmAndDown" OnShowMenuButtonClick="@(_=>_isOpen = !_isOpen)"/>        
@@ -29,13 +30,18 @@
 @code {
     private bool _isOpen = true;
     private IEnumerable<MenuItem>? _menuItems;
+    private string _pageTitle;
 
     [Inject(Key = "AdminNavMenuService")]
     public INavMenuProviderService? NavMenuProviderService { get; set; }
+
+    [CascadingParameter]
+    public IAppConfigurationProviderService? AppConfigurationProviderService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         _menuItems = NavMenuProviderService?.GetNavMenuItems();
+        _pageTitle = await AppConfigurationProviderService!.GetConfigurationValueAsync("AppTitle")??"";
     }
 }
