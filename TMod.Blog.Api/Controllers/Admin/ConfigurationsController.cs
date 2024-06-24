@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 using TMod.Blog.Data.Abstractions.StoreServices;
 using TMod.Blog.Data.Models.DTO.Configuration;
@@ -22,12 +23,33 @@ namespace TMod.Blog.Api.Controllers.Admin
         }
 
         [HttpGet]
-        public IActionResult GetAllConfigurations([FromQuery]int pageIndex = 1, [FromQuery]int pageSize = 20, [FromQuery]string? configKeyFilter = null)
+        public IActionResult GetAllConfigurations([FromQuery]int pageIndex = 1, [FromQuery]int pageSize = 20, [FromQuery]string? configKeyFilter = null, [FromQuery]DateOnly? createDateFrom = null, [FromQuery]DateOnly? createDateTo = null)
         {
             object pagingResult;
             try
             {
-                IQueryable<ConfigurationViewModel?> viewModels = _configurationStoreService.Paging(pageIndex,pageSize,out int totalDataCount,out int totalPageCount,vm=>string.IsNullOrWhiteSpace(configKeyFilter)?true:(vm?.Key.Contains(configKeyFilter) == true));
+                //IQueryable<ConfigurationViewModel?> viewModels = _configurationStoreService.Paging(pageIndex,pageSize,out int totalDataCount,out int totalPageCount,vm=>
+                //{
+
+                //});
+                IEnumerable<ConfigurationViewModel?> configurations = _configurationStoreService.GetAllConfigurationsAsync().ToBlockingEnumerable();
+                if ( !string.IsNullOrWhiteSpace(configKeyFilter) )
+                {
+                    configurations = configurations.Where(p => p?.Key.Contains(configKeyFilter) == true);
+                }
+                if(createDateFrom is not null && createDateTo is not null )
+                {
+                    configurations = configurations.Where(p => p is not null && ( DateOnly.FromDateTime(p.CreateDate) >= createDateFrom ) && ( DateOnly.FromDateTime(p.CreateDate) < createDateTo )); 
+                }
+				else if (createDateFrom is not null )
+                {
+                    configurations = configurations.Where(p => p is not null && DateOnly.FromDateTime(p.CreateDate) >= createDateFrom );
+                }
+                else if(createDateTo is not null )
+                {
+					configurations = configurations.Where(p => p is not null && DateOnly.FromDateTime(p.CreateDate) >= createDateTo);
+				}
+                IQueryable<ConfigurationViewModel?> viewModels = _configurationStoreService.Paging(configurations,pageIndex,pageSize,out int totalDataCount,out int totalPageCount);
                 pagingResult = new
                 {
                     pageIndex = pageIndex,

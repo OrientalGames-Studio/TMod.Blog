@@ -10,12 +10,14 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
+using TMod.Blog.Data.Models.ViewModels.Configuration;
 using TMod.Blog.Web.Interactive.Abstraction;
+using TMod.Blog.Web.Models;
 using TMod.Blog.Web.Services.Abstraction;
 
 namespace TMod.Blog.Web.Services.Client
 {
-    internal class AppConfigurationProviderService : IAppConfigurationProviderService
+	internal class AppConfigurationProviderService : IAppConfigurationProviderService
     {
         private readonly IAppConfigurationApi _appConfigurationApi;
         private readonly ILocalStorageProviderService _localStorageProviderService;
@@ -119,5 +121,7 @@ namespace TMod.Blog.Web.Services.Client
         {
             await _appConfigurationApi.SetConfigurationValueAsync(key, value);
         }
-    }
+
+		public Task<PagingResult<ConfigurationViewModel?>> GetAllConfigurations(int pageSize, int pageIndex = 1, string? configurationKeyFilter = null, DateOnly? createDateFrom = null, DateOnly? createDateTo = null) => _appConfigurationApi.GetAllConfigurations(pageSize, pageIndex, configurationKeyFilter, createDateFrom, createDateTo);
+	}
 }
