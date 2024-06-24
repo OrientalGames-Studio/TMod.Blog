@@ -110,10 +110,10 @@ namespace TMod.Blog.Data.Services.Implements
             totalDataCount = 0;
             totalPageCount = 1;
             pageSize = Math.Max(1, pageSize);
-            IEnumerable<Configuration>? configurations = values as IEnumerable<Configuration>;
+            IEnumerable<ConfigurationViewModel>? configurations = values as IEnumerable<ConfigurationViewModel>;
             if(configurations is null )
             {
-                configurations = [];
+                configurations = values.Cast<ConfigurationViewModel>();
             }
             configurations = configurations.Where(p => !p.IsRemove);
             if ( filter is not null )

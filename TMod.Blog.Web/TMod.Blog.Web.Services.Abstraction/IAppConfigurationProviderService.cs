@@ -5,6 +5,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
+using TMod.Blog.Data.Models.ViewModels.Configuration;
+using TMod.Blog.Web.Models;
+
 namespace TMod.Blog.Web.Services.Abstraction
 {
     public interface IAppConfigurationProviderService
@@ -19,5 +22,7 @@ namespace TMod.Blog.Web.Services.Abstraction
         Task SetConfigurationValueAsync(string key,object? value);
 
         Task SetAndStoreConfigurationValueAsync(string key,object? value,JsonSerializerOptions? jsonSerializerOptions = null);
-    }
+
+		Task<PagingResult<ConfigurationViewModel?>> GetAllConfigurations(int pageSize, int pageIndex = 1, string? configurationKeyFilter = null, DateOnly? createDateFrom = null, DateOnly? createDateTo = null);
+	}
 }

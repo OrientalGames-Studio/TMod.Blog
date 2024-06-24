@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\TMod.Blog.Data.Models\TMod.Blog.Data.Models.csproj" />
+    <ProjectReference Include="..\TMod.Blog.Web.Models\TMod.Blog.Web.Models.csproj" />
   </ItemGroup>
 
 </Project>

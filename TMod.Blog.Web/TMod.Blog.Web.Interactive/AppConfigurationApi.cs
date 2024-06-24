@@ -8,12 +8,15 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Web;
 
+using TMod.Blog.Data.Models.ViewModels.Configuration;
 using TMod.Blog.Web.Interactive.Abstraction;
+using TMod.Blog.Web.Models;
 
 namespace TMod.Blog.Web.Interactive
 {
-    internal class AppConfigurationApi : IAppConfigurationApi
+	internal class AppConfigurationApi : IAppConfigurationApi
     {
         private readonly HttpClient _apiClient;
         private readonly ILogger<AppConfigurationApi> _logger;
@@ -24,7 +27,26 @@ namespace TMod.Blog.Web.Interactive
             _logger = logger;
         }
 
-        public async Task<string?> GetConfigurationValueAsync(string key)
+		public async Task<PagingResult<ConfigurationViewModel?>> GetAllConfigurations(int pageSize, int pageIndex = 1, string? configurationKeyFilter = null, DateOnly? createDateFrom = null, DateOnly? createDateTo = null)
+		{
+			try
+			{
+                string apiUrl = $"api/v1/admin/configurations?pageIndex={pageIndex}&pageSize={pageSize}{(string.IsNullOrWhiteSpace(configurationKeyFilter)?"":$"&configKeyFilter={HttpUtility.UrlEncode(configurationKeyFilter)}")}{(createDateFrom is null?"":$"&createDateFrom={HttpUtility.UrlEncode(createDateFrom.Value.ToString("yyyy-MM-dd"))}")}{(createDateTo is null?"":$"&createDateTo={HttpUtility.UrlEncode(createDateTo.Value.ToString("yyyy-MM-dd"))}")}";
+				PagingResult<ConfigurationViewModel?>? datas = await _apiClient.GetFromJsonAsync<PagingResult<ConfigurationViewModel?>>(apiUrl);
+                if(datas is null )
+                {
+                    return PagingResult<ConfigurationViewModel?>.Empty;
+                }
+                return datas;
+			}
+			catch ( Exception ex )
+			{
+				_logger.LogError(ex, $"请求接口获取所有配置项时发生异常");
+				return PagingResult<ConfigurationViewModel?>.Empty;
+			}
+		}
+
+		public async Task<string?> GetConfigurationValueAsync(string key)
         {
             try
             {
