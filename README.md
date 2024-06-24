@@ -1,4 +1,4 @@
-# Blog
+# TMod.Blog
 
 
 
@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin http://git.tmod.org/SKYC/blog.git
+git remote add origin http://git.tmod.org/orientalgames-studio/tmod/tmod.blog.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](http://git.tmod.org/SKYC/blog/-/settings/integrations)
+- [ ] [Set up project integrations](http://git.tmod.org/orientalgames-studio/tmod/tmod.blog/-/settings/integrations)
 
 ## Collaborate with your team
 
