@@ -15,17 +15,46 @@
             <MudSpacer />
             <MudTextField @bind-Value="_searchConfigurationKey"
             Label="输入配置项标识模糊筛选"
-            Variant="Variant.Outlined"
             Adornment="Adornment.End"
-            AdornmentIcon="@Icons.Material.Outlined.Search"/>
+            AdornmentIcon="@Icons.Material.Outlined.Search"
+            Margin="Margin.Dense"
+            DebounceInterval="500"/>
     </MudToolBar>
     <MudDivider />
-    <span>@_configurationItems?.Count()??0</span>
-    <MudTable Items="_configurationItems"/>
-    <MudDataGrid T="ConfigurationViewModel" Items="_configurationItems">
+    <MudDataGrid Hover Breakpoint="Breakpoint.Sm" Virtualize SelectedItemsChanged="@((HashSet<ConfigurationViewModel?> item)=>OnSelectedConfigurationsChanged(item))" MultiSelection @bind-RowsPerPage="_pageSize" CurrentPage="_pageIndex" ServerData="QueryDataAsync" >
+        <ToolBarContent>
+            <MudButtonGroup Size="Size.Medium">
+                <MudButton StartIcon="@Icons.Material.Rounded.Add">新增配置项</MudButton>
+                <MudButton StartIcon="@Icons.Material.Rounded.Delete" IconColor="Color.Warning" Disabled="@((_selectedConfigurations?.Count??0)==0)">删除所选配置项</MudButton>
+            </MudButtonGroup>
+        </ToolBarContent>
         <Columns>
-            <PropertyColumn Title="配置项" Property="p=>p.Key"/>
-            <PropertyColumn Title="配置值" Property="p=>p.Value"/>
+            <SelectColumn T="ConfigurationViewModel" ShowInFooter="false" ShowInHeader/>
+            <PropertyColumn Title="配置项" Property="p=>p.Key" />
+            <PropertyColumn Title="配置值" Property="p=>p.Value" />
+            <PropertyColumn Title="创建日期" Property="p=>p.CreateDate" />
+            <TemplateColumn Title="操作" Sortable="false">
+                <CellTemplate>
+                    <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
+                        <MudIconButton >
+                            <MudTooltip Delay="1000" Text="编辑">
+                                <MudIcon Icon="@Icons.Material.Rounded.Edit" />
+                            </MudTooltip>
+                        </MudIconButton>
+                        <MudIconButton >
+                            <MudTooltip Delay="1000" Text="删除">
+                                <MudIcon Icon="@Icons.Material.Rounded.Delete" Color="Color.Warning"/>
+                            </MudTooltip>
+                        </MudIconButton>
+                    </MudButtonGroup>
+                </CellTemplate>
+            </TemplateColumn>
         </Columns>
+        <PagerContent>
+            <MudDataGridPager RowsPerPageString="单页数据量" PageSizeOptions="[20,50,100,200,500,1000]" InfoFormat='@("第{first_item}到{last_item}条，共{all_items}条数据")'/>
+        </PagerContent>
+        <NoRecordsContent>
+            <span>啥也没有！</span>
+        </NoRecordsContent>
     </MudDataGrid>
 </MudPaper>
