@@ -22,7 +22,6 @@ namespace TMod.Blog.Web.Core.Pages.Admin.Configurations
         private int _pageSize = 20;
         private int _dataCount = 0;
         private int _pageCount = 1;
-        private IEnumerable<ConfigurationViewModel?>? _configurationItems;
         private HashSet<ConfigurationViewModel?>? _selectedConfigurations;
 
         [Inject]
@@ -52,21 +51,6 @@ namespace TMod.Blog.Web.Core.Pages.Admin.Configurations
         {
             _selectedConfigurations = selectedConfigurations;
             StateHasChanged();
-        }
-
-        private void OnSearchBoxKeyDown(KeyboardEventArgs e)
-        {
-            ;
-        }
-
-        private void OnSearchBoxSearch(MouseEventArgs key)
-        {
-            return;
-        }
-
-        private void OnDateRangeChanged(DateRange dateRange)
-        {
-
         }
 	}
 }
