@@ -6,6 +6,8 @@ using MudBlazor.Extensions;
 using TMod.Blog.Web.Services;
 using TMod.Blog.Web.Endpoints;
 using TMod.Blog.Web.Interactive;
+using System.Text;
+using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,8 @@ builder.Services.AddMudServices()
 builder.Services.AddHttpClient("apiClient", c =>
 {
     c.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ApiServiceUrl") ?? throw new InvalidOperationException("请先配置服务接口地址再注入HttpClient"));
+    c.DefaultRequestHeaders.AcceptEncoding.Add(StringWithQualityHeaderValue.Parse(new UTF8Encoding().BodyName));
+    c.DefaultRequestHeaders.AcceptCharset.Add(StringWithQualityHeaderValue.Parse(new UTF8Encoding().BodyName));
 });
 
 builder.Services.AddIconPathProviderService()

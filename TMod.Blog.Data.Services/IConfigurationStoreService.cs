@@ -27,5 +27,7 @@ namespace TMod.Blog.Data.Services
         Task RemoveConfigurationAsync(int configurationId);
 
         Task RemoveConfigurationAsync(string configurationKey);
+
+        Task BatchRemoveConfigurationAsync(params int[] configurationIds);
     }
 }

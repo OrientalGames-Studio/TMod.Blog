@@ -21,10 +21,10 @@
             DebounceInterval="500"/>
     </MudToolBar>
     <MudDivider />
-    <MudDataGrid Hover Breakpoint="Breakpoint.Sm" Virtualize SelectedItemsChanged="@((HashSet<ConfigurationViewModel?> item)=>OnSelectedConfigurationsChanged(item))" MultiSelection @bind-RowsPerPage="_pageSize" CurrentPage="_pageIndex" ServerData="QueryDataAsync" >
+    <MudDataGrid @ref="_dataGrid" Hover Breakpoint="Breakpoint.Sm" @bind-SelectedItems="_selectedConfigurations" MultiSelection ServerData="QueryDataAsync" >
         <ToolBarContent>
             <MudButtonGroup Size="Size.Medium">
-                <MudButton StartIcon="@Icons.Material.Rounded.Add">新增配置项</MudButton>
+                <MudButton StartIcon="@Icons.Material.Rounded.Add" OnClick="OnAddButtonClickAsync">新增配置项</MudButton>
                 <MudButton StartIcon="@Icons.Material.Rounded.Delete" IconColor="Color.Warning" Disabled="@((_selectedConfigurations?.Count??0)==0)">删除所选配置项</MudButton>
             </MudButtonGroup>
         </ToolBarContent>
@@ -36,7 +36,7 @@
             <TemplateColumn Title="操作" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
-                        <MudIconButton >
+                        <MudIconButton OnClick="@(arg=>OnEditButtonClickAsync(arg,context))">
                             <MudTooltip Delay="1000" Text="编辑">
                                 <MudIcon Icon="@Icons.Material.Rounded.Edit" />
                             </MudTooltip>

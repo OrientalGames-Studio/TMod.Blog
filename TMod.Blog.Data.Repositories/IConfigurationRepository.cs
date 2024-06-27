@@ -11,5 +11,6 @@ namespace TMod.Blog.Data.Repositories
 {
     public interface IConfigurationRepository : IIntKeyRepository<Configuration>
     {
+        Task BatchRemoveConfigurationByIdAsync(params int[] configurationIds);
     }
 }

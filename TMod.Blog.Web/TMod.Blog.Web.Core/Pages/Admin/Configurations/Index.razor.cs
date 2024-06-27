@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TMod.Blog.Data.Models.ViewModels.Configuration;
+using TMod.Blog.Web.Core.Components.Configurations;
 using TMod.Blog.Web.Services.Abstraction;
 
 namespace TMod.Blog.Web.Core.Pages.Admin.Configurations
@@ -18,24 +19,14 @@ namespace TMod.Blog.Web.Core.Pages.Admin.Configurations
     {
         private DateRange? _createDateRange;
         private string? _searchConfigurationKey;
-        private int _pageIndex = 1;
-        private int _pageSize = 20;
-        private int _dataCount = 0;
-        private int _pageCount = 1;
         private HashSet<ConfigurationViewModel?>? _selectedConfigurations;
+        private MudDataGrid<ConfigurationViewModel?>? _dataGrid;
 
         [Inject]
         public IAppConfigurationProviderService? AppConfigurationProviderService { get; set; }
 
-        protected override async Task OnInitializedAsync()
-        {
-            await base.OnInitializedAsync();
-        }
-
-		protected override async Task OnAfterRenderAsync(bool firstRender)
-		{
-			await base.OnAfterRenderAsync(firstRender);
-		}
+        [Inject]
+        public IDialogService? DialogService { get; set; }
 
         private async Task<GridData<ConfigurationViewModel?>> QueryDataAsync(GridState<ConfigurationViewModel?> gridState)
         {
@@ -47,10 +38,46 @@ namespace TMod.Blog.Web.Core.Pages.Admin.Configurations
             };
         }
 
-        private void OnSelectedConfigurationsChanged(HashSet<ConfigurationViewModel?> selectedConfigurations)
+        private async Task OnEditButtonClickAsync(MouseEventArgs e,CellContext<ConfigurationViewModel?> viewModelContext)
         {
-            _selectedConfigurations = selectedConfigurations;
-            StateHasChanged();
+            if(e.Detail > 1 )
+            {
+                return;
+            }
+            if(viewModelContext is not null && viewModelContext.Item is not null)
+            {
+                await ShowEditDialogAsync(viewModelContext.Item);
+            }
+        }
+
+        private async Task OnAddButtonClickAsync(MouseEventArgs e)
+        {
+            if(e.Detail > 1 )
+            {
+                return;
+            }
+            await ShowEditDialogAsync(null);
+        }
+
+
+        private async Task ShowEditDialogAsync(ConfigurationViewModel? viewModel)
+        {
+            DialogOptions options = new DialogOptions()
+            {
+                DisableBackdropClick = true,
+                FullWidth = true,
+                Position = DialogPosition.Center,
+                CloseButton = true,
+            };
+            DialogParameters<EditConfigurationDialog> parameters = new DialogParameters<EditConfigurationDialog>
+            {
+                { p => p.Model, viewModel }
+            };
+            IDialogReference dialog = await DialogService!.ShowAsync<EditConfigurationDialog>($"{( viewModel is null ? "新增" : "编辑" )}配置项", parameters, options);
+            if(!(await dialog.Result ).Canceled )
+            {
+                await InvokeAsync(_dataGrid!.ReloadServerData);
+            }
         }
 	}
 }

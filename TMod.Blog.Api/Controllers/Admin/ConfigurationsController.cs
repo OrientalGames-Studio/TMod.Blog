@@ -182,5 +182,19 @@ namespace TMod.Blog.Api.Controllers.Admin
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> BatchDeleteConfigurations([FromBody]BatchDeleteConfigurationModel model)
+        {
+            try
+            {
+
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"批量删除配置项时发生异常,配置项编号:({string.Join(",", model?.ConfigurationIds ?? [])})");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 }

@@ -1,0 +1,72 @@
+@using TMod.Blog.Data.Models.ViewModels.Configuration
+@using TMod.Blog.Web.Services.Abstraction
+
+<MudDialog DefaultFocus="DefaultFocus.LastChild">
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudStack Row>
+                <MudTextField @bind-Value="Model!.Key" ReadOnly="_isEdit" AdornmentText="配置项标识" AdornmentAriaLabel="配置项标识" Label="配置项标识" Required RequiredError="配置项标识是必填的" HelperText="配置项标识一经创建则无法更改，请谨慎填写。" HelperTextOnFocus/>
+                <MudTextField @bind-Value="Model!.Value" AdornmentText="配置项的值" AdornmentAriaLabel="配置项的值" Label="配置项值的值" />
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(_=>MudDialogInstance!.Cancel())">@CancelButtonText</MudButton>
+        <MudButton Color="Color.Primary" OnClick="OnSaveButtonClickAsync">@ConfirmButtonText</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code{
+    private bool _isEdit;
+    private MudForm? _form;
+
+    [CascadingParameter]
+    public MudDialogInstance? MudDialogInstance { get; set; }
+
+    [Parameter]
+    public ConfigurationViewModel? Model { get; set; }
+
+    [Inject]
+    public IAppConfigurationProviderService? AppConfigurationProviderService { get; set; }
+
+    [Inject]
+    public ISnackbar? Snackbar { get; set; }
+
+    internal string ConfirmButtonText => $"{( _isEdit ? "保存" : "创建" )}配置项";
+    internal string CancelButtonText => $"取消{( _isEdit ? "保存" : "创建" )}";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if(Model is null )
+        {
+            _isEdit = false;
+            Model = new ConfigurationViewModel();
+        }
+        else
+        {
+            _isEdit = true;
+        }
+    }
+
+    private async Task OnSaveButtonClickAsync(MouseEventArgs e)
+    {
+        if(e.Detail > 1 || _form is null)
+        {
+            return;
+        }
+        await _form.Validate();
+        if(_form.IsValid != true )
+        {
+            return;
+        }
+        Task task = AppConfigurationProviderService!.SetConfigurationValueAsync(Model!.Key, Model!.Value);
+        await task;
+        if ( task.IsFaulted )
+        {
+            Snackbar!.Add($"保存配置项失败:{task.Exception?.Message}",Severity.Error);
+            return;
+        }
+        MudDialogInstance!.Close(DialogResult.Ok<object?>(null));
+    }
+}

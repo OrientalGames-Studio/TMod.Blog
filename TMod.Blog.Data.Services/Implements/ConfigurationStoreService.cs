@@ -34,7 +34,7 @@ namespace TMod.Blog.Data.Services.Implements
             {
                 configuration = new Configuration();
                 configuration.Key = configurationKey;
-                configuration.Value = JsonSerializer.Serialize(value);
+                configuration.Value = value is JsonElement ? ( ( JsonElement )value ).ToString() : JsonSerializer.Serialize(value);
                 configuration.CreateMetaRecord();
                 configuration = await _configurationRepository.CreateAsync(configuration);
             }
@@ -45,7 +45,7 @@ namespace TMod.Blog.Data.Services.Implements
                 _ = await _configurationRepository.UpdateAsync(configuration);
                 configuration = new Configuration();
                 configuration.Key = configurationKey;
-                configuration.Value = JsonSerializer.Serialize(value);
+                configuration.Value = value is JsonElement ? ( ( JsonElement )value ).ToString() : JsonSerializer.Serialize(value);
                 configuration.CreateMetaRecord();
                 configuration = await _configurationRepository.CreateAsync(configuration);
             }
@@ -155,7 +155,7 @@ namespace TMod.Blog.Data.Services.Implements
             }
             if(configuration is not null)
             {
-                configuration.Value = JsonSerializer.Serialize(value);
+                configuration.Value = value is JsonElement ? ( ( JsonElement )value ).ToString() : JsonSerializer.Serialize(value);
                 configuration.UpdateMetaRecord(true);
                 configuration = await _configurationRepository.UpdateAsync(configuration);
             }
@@ -171,11 +171,16 @@ namespace TMod.Blog.Data.Services.Implements
             }
             if ( configuration is not null )
             {
-                configuration.Value = JsonSerializer.Serialize(value);
+                configuration.Value = value is JsonElement ? ( ( JsonElement )value ).ToString() : JsonSerializer.Serialize(value);
                 configuration.UpdateMetaRecord(true);
                 configuration = await _configurationRepository.UpdateAsync(configuration);
             }
             return configuration;
+        }
+
+        public async Task BatchRemoveConfigurationAsync(params int[] configurationIds)
+        {
+
         }
     }
 }

@@ -86,7 +86,7 @@ namespace TMod.Blog.Web.Interactive
 
         public async Task SetConfigurationValueAsync(string key, object? value)
         {
-            HttpResponseMessage patchResponse = await _apiClient.PatchAsJsonAsync($"api/v1/configurations/{key}",new
+            HttpResponseMessage patchResponse = await _apiClient.PatchAsJsonAsync($"api/v1/admin/configurations/{key}",new
             {
                 ConfigurationValue = value
             });
@@ -96,10 +96,10 @@ namespace TMod.Blog.Web.Interactive
             }
             if(patchResponse.StatusCode == System.Net.HttpStatusCode.NotFound )
             {
-                patchResponse = await _apiClient.PostAsJsonAsync($"api/v1/configurations/{key}", new
+                patchResponse = await _apiClient.PostAsJsonAsync($"api/v1/admin/configurations", new
                 {
-                    ConfigurationKey = key,
-                    ConfiggurationValue = value
+                    ConfigurationKey = HttpUtility.UrlEncode(key),
+                    ConfigurationValue = value
                 });
                 patchResponse.EnsureSuccessStatusCode();
             }

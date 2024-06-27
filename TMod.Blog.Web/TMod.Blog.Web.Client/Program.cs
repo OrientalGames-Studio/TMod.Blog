@@ -6,6 +6,8 @@ using MudBlazor.Extensions;
 
 using TMod.Blog.Web.Services;
 using System.Text.Json;
+using System.Net.Http.Headers;
+using System.Text;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.Services.AddMudServices()
@@ -25,6 +27,8 @@ builder.Services
     {
         string serviceUrl = provider.GetRequiredKeyedService<string>("apiServiceUrl");
         c.BaseAddress = new Uri(serviceUrl);
+        c.DefaultRequestHeaders.AcceptEncoding.Add(StringWithQualityHeaderValue.Parse(new UTF8Encoding().BodyName));
+        c.DefaultRequestHeaders.AcceptCharset.Add(StringWithQualityHeaderValue.Parse(new UTF8Encoding().BodyName));
         //c.DefaultRequestHeaders.Append(new KeyValuePair<string, IEnumerable<string>>("Access-Control-Allow-Origin", ["*"]));
         //c.DefaultRequestHeaders.TryAddWithoutValidation("Access-Control-Allow-Origin", "*");
     });
