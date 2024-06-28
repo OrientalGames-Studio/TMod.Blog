@@ -34,8 +34,8 @@ namespace TMod.Blog.Data.Repositories.Implements
                         }
                         await base.RemoveAsync(configuration);
                     }
-                    await trans.CommitAsync();
                     await base.BlogContext.SaveChangesAsync();
+                    await trans.CommitAsync();
                 }
                 catch ( Exception ex )
                 {

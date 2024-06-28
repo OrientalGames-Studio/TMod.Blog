@@ -25,7 +25,7 @@
         <ToolBarContent>
             <MudButtonGroup Size="Size.Medium">
                 <MudButton StartIcon="@Icons.Material.Rounded.Add" OnClick="OnAddButtonClickAsync">新增配置项</MudButton>
-                <MudButton StartIcon="@Icons.Material.Rounded.Delete" IconColor="Color.Warning" Disabled="@((_selectedConfigurations?.Count??0)==0)">删除所选配置项</MudButton>
+                <MudButton StartIcon="@Icons.Material.Rounded.Delete" IconColor="Color.Warning" Disabled="@((_selectedConfigurations?.Count??0)==0)" OnClick="OnBatchRemoveButtonClickAsync">删除所选配置项</MudButton>
             </MudButtonGroup>
         </ToolBarContent>
         <Columns>
@@ -41,7 +41,7 @@
                                 <MudIcon Icon="@Icons.Material.Rounded.Edit" />
                             </MudTooltip>
                         </MudIconButton>
-                        <MudIconButton >
+                        <MudIconButton OnClick="@(arg=>OnRemoveButtonClickAsync(arg,context))">
                             <MudTooltip Delay="1000" Text="删除">
                                 <MudIcon Icon="@Icons.Material.Rounded.Delete" Color="Color.Warning"/>
                             </MudTooltip>

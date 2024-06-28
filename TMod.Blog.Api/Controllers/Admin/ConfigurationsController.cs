@@ -186,9 +186,14 @@ namespace TMod.Blog.Api.Controllers.Admin
         [HttpDelete]
         public async Task<IActionResult> BatchDeleteConfigurations([FromBody]BatchDeleteConfigurationModel model)
         {
+            if ( !ModelState.IsValid )
+            {
+                return BadRequest(ModelState);
+            }
             try
             {
-
+                await _configurationStoreService.BatchRemoveConfigurationAsync(model.ConfigurationIds?.ToArray() ?? []);
+                return NoContent();
             }
             catch ( Exception ex )
             {

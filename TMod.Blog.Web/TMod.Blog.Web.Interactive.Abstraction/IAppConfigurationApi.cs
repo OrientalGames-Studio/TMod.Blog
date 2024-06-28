@@ -19,5 +19,7 @@ namespace TMod.Blog.Web.Interactive.Abstraction
         Task SetConfigurationValueAsync(string key,object? value);
 
         Task<PagingResult<ConfigurationViewModel?>> GetAllConfigurations(int pageSize, int pageIndex = 1, string? configurationKeyFilter = null, DateOnly? createDateFrom = null, DateOnly? createDateTo = null);
+
+        Task BatchRemoveConfigurationByIdAsync(params int[] configurationIds);
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -16,7 +17,7 @@ using TMod.Blog.Web.Models;
 
 namespace TMod.Blog.Web.Interactive
 {
-	internal class AppConfigurationApi : IAppConfigurationApi
+    internal class AppConfigurationApi : IAppConfigurationApi
     {
         private readonly HttpClient _apiClient;
         private readonly ILogger<AppConfigurationApi> _logger;
@@ -27,7 +28,28 @@ namespace TMod.Blog.Web.Interactive
             _logger = logger;
         }
 
-		public async Task<PagingResult<ConfigurationViewModel?>> GetAllConfigurations(int pageSize, int pageIndex = 1, string? configurationKeyFilter = null, DateOnly? createDateFrom = null, DateOnly? createDateTo = null)
+        public async Task BatchRemoveConfigurationByIdAsync(params int[] configurationIds)
+        {
+            try
+            {
+                string apiUrl = $"api/v1/admin/configurations";
+                HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Delete,apiUrl);
+                requestMessage.Content = new StringContent(JsonSerializer.Serialize(new
+                {
+                    ConfigurationIds = configurationIds ?? []
+                }), Encoding.UTF8, MediaTypeHeaderValue.Parse("application/json"));
+                HttpResponseMessage responseMessage = await _apiClient.SendAsync(requestMessage);
+                responseMessage.EnsureSuccessStatusCode();
+                return;
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"请求接口批量删除 Id 是({string.Join(",", configurationIds ?? [])})的配置项时发生异常");
+                throw;
+            }
+        }
+
+        public async Task<PagingResult<ConfigurationViewModel?>> GetAllConfigurations(int pageSize, int pageIndex = 1, string? configurationKeyFilter = null, DateOnly? createDateFrom = null, DateOnly? createDateTo = null)
 		{
 			try
 			{

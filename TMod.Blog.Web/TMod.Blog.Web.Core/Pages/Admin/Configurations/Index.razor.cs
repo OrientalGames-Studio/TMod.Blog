@@ -28,6 +28,9 @@ namespace TMod.Blog.Web.Core.Pages.Admin.Configurations
         [Inject]
         public IDialogService? DialogService { get; set; }
 
+        [Inject]
+        public ISnackbar? Snackbar { get; set; }
+
         private async Task<GridData<ConfigurationViewModel?>> QueryDataAsync(GridState<ConfigurationViewModel?> gridState)
         {
             var pagingResult = await AppConfigurationProviderService!.GetAllConfigurations(gridState.PageSize,gridState.Page,_searchConfigurationKey,_createDateRange?.Start is null?null:DateOnly.FromDateTime(_createDateRange.Start.Value),_createDateRange?.End is null?null:DateOnly.FromDateTime(_createDateRange.End.Value));
@@ -76,6 +79,42 @@ namespace TMod.Blog.Web.Core.Pages.Admin.Configurations
             IDialogReference dialog = await DialogService!.ShowAsync<EditConfigurationDialog>($"{( viewModel is null ? "新增" : "编辑" )}配置项", parameters, options);
             if(!(await dialog.Result ).Canceled )
             {
+                await InvokeAsync(_dataGrid!.ReloadServerData);
+            }
+        }
+
+        private async Task OnBatchRemoveButtonClickAsync(MouseEventArgs e)
+        {
+            if(e.Detail > 1 || _selectedConfigurations is null || _selectedConfigurations.Count == 0 )
+            {
+                return;
+            }
+            await BatchRemoveConfigurationByIdAsync(_selectedConfigurations?.ToList() ?? []);
+        }
+
+        private async Task OnRemoveButtonClickAsync(MouseEventArgs e,CellContext<ConfigurationViewModel?> viewModelContext)
+        {
+            if(e.Detail > 1 || viewModelContext is null || viewModelContext.Item is null )
+            {
+                return;
+            }
+            await BatchRemoveConfigurationByIdAsync([viewModelContext.Item]);
+        }
+
+        private async Task BatchRemoveConfigurationByIdAsync(List<ConfigurationViewModel?> configurations)
+        {
+            if ( configurations is null || configurations.Count == 0 )
+            {
+                return;
+            }
+            bool? confirm = await DialogService!.ShowMessageBox("删除确认", $"是否要删除{( configurations.Count == 1 ? $"{configurations.First()?.Key}这一条" : $"{string.Join(",", configurations.Select(c => c?.Key))}这几条" )}配置项？", "是", "否", options: new DialogOptions()
+            {
+                DisableBackdropClick = true,
+            });
+            if(confirm == true )
+            {
+                await AppConfigurationProviderService!.BatchRemoveConfigurationByIdAsync(configurations.Select(p => p!.Id).ToArray());
+                Snackbar!.Add("删除成功");
                 await InvokeAsync(_dataGrid!.ReloadServerData);
             }
         }

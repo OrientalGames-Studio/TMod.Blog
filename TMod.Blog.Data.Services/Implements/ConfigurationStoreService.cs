@@ -180,7 +180,18 @@ namespace TMod.Blog.Data.Services.Implements
 
         public async Task BatchRemoveConfigurationAsync(params int[] configurationIds)
         {
-
+            if(configurationIds is null || configurationIds.Length <= 0 )
+            {
+                return;
+            }
+            if(configurationIds.Length == 1 )
+            {
+                await RemoveConfigurationAsync(configurationIds.First());
+            }
+            else
+            {
+                await _configurationRepository.BatchRemoveConfigurationByIdAsync(configurationIds);
+            }
         }
     }
 }
