@@ -72,6 +72,22 @@ namespace TMod.Blog.Data.Services.Implements
             }
         }
 
+        public async Task BatchRemoveCategoryByIdAsync(params int[] categoryIds)
+        {
+            if(categoryIds is null || categoryIds.Length <= 0 )
+            {
+                return;
+            }
+            if(categoryIds.Length == 1 )
+            {
+                await RemoveCategoryAsync(categoryIds.First());
+            }
+            else
+            {
+                await _categoryRepository.BatchRemoveCategoryByIdAsync(categoryIds);
+            }
+        }
+
         public async Task<CategoryViewModel> CreateCategoryAsync(string category)
         {
             Category? meta = (await _categoryRepository.GetAllAsync()).FirstOrDefault(p=>p.Category1 == category);
@@ -175,10 +191,10 @@ namespace TMod.Blog.Data.Services.Implements
             totalPageCount = 1;
             pageIndex = Math.Max(1, pageIndex);
             pageSize = Math.Max(1, pageSize);
-            IEnumerable<Category>? categories = values as IEnumerable<Category>;
+            IEnumerable<CategoryViewModel>? categories = values as IEnumerable<CategoryViewModel>;
             if ( categories is null )
             {
-                categories = [];
+                categories = values.Cast<CategoryViewModel>();
             }
             categories = categories.Where(p => !p.IsRemove);
             if ( filter is not null )
@@ -190,7 +206,7 @@ namespace TMod.Blog.Data.Services.Implements
             pageIndex = Math.Max(1, Math.Min(pageIndex, totalPageCount));
             categories = categories.Skip(( pageIndex - 1 ) * pageSize).Take(pageSize);
             List<CategoryViewModel?> viewModels = new List<CategoryViewModel?>();
-            foreach ( Category category in categories )
+            foreach ( Category? category in categories )
             {
                 viewModels.Add(category);
             }

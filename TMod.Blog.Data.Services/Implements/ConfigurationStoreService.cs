@@ -125,7 +125,7 @@ namespace TMod.Blog.Data.Services.Implements
             pageIndex = Math.Max(1, Math.Min(pageIndex, totalPageCount));
             configurations = configurations.Skip(( pageIndex - 1 ) * pageSize).Take(pageSize);
             List<ConfigurationViewModel?> viewModels = new List<ConfigurationViewModel?>();
-            foreach ( Configuration configuration in configurations )
+            foreach ( Configuration? configuration in configurations )
             {
                 viewModels.Add(configuration);
             }

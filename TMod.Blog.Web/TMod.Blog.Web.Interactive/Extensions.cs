@@ -18,5 +18,11 @@ namespace TMod.Blog.Web.Interactive
             services.TryAddEnumerable(ServiceDescriptor.Singleton<IAppConfigurationApi, AppConfigurationApi>());
             return services;
         }
+
+        public static IServiceCollection AddCategoryApi(this IServiceCollection services)
+        {
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<ICategoryApi, CategoryApi>());
+            return services;
+        }
     }
 }

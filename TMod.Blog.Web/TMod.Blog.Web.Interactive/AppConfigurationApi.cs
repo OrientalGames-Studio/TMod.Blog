@@ -49,7 +49,7 @@ namespace TMod.Blog.Web.Interactive
             }
         }
 
-        public async Task<PagingResult<ConfigurationViewModel?>> GetAllConfigurations(int pageSize, int pageIndex = 1, string? configurationKeyFilter = null, DateOnly? createDateFrom = null, DateOnly? createDateTo = null)
+        public async Task<PagingResult<ConfigurationViewModel?>> GetAllConfigurationsAsync(int pageSize, int pageIndex = 1, string? configurationKeyFilter = null, DateOnly? createDateFrom = null, DateOnly? createDateTo = null)
 		{
 			try
 			{

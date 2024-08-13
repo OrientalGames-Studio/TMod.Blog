@@ -20,19 +20,37 @@ namespace TMod.Blog.Api.Controllers.Admin
         }
 
         [HttpGet]
-        public IActionResult GetAllCategoriesAsync([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 20, [FromQuery]string? categoryFilter = null)
+        public IActionResult GetAllCategoriesAsync([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 20, [FromQuery] string? categoryFilter = null, [FromQuery] DateOnly? createDateFrom = null, [FromQuery] DateOnly? createDateTo = null)
         {
             object pagingResult;
             try
             {
-                IEnumerable<CategoryViewModel?> categories = _categoryStoreService.Paging(pageIndex,pageSize,out int totalDataCount,out int totalPageCount,p=>string.IsNullOrWhiteSpace(categoryFilter)?true:(p?.Category.Contains(categoryFilter) == true));
+                //IEnumerable<CategoryViewModel?> categories = _categoryStoreService.Paging(pageIndex,pageSize,out int totalDataCount,out int totalPageCount,p=>string.IsNullOrWhiteSpace(categoryFilter)?true:(p?.Category.Contains(categoryFilter) == true));
+                IEnumerable<CategoryViewModel?> categories = _categoryStoreService.GetAllCategoriesAsync().ToBlockingEnumerable();
+                if ( !string.IsNullOrWhiteSpace(categoryFilter) )
+                {
+                    categories = categories.Where(p => p?.Category.Contains(categoryFilter) == true);
+                }
+                if ( createDateFrom is not null && createDateTo is not null )
+                {
+                    categories = categories.Where(p => p is not null && ( DateOnly.FromDateTime(p.CreateDate) >= createDateFrom ) && ( DateOnly.FromDateTime(p.CreateDate) < createDateTo ));
+                }
+                else if ( createDateFrom is not null )
+                {
+                    categories = categories.Where(p => p is not null && DateOnly.FromDateTime(p.CreateDate) >= createDateFrom);
+                }
+                else if ( createDateTo is not null )
+                {
+                    categories = categories.Where(p => p is not null && DateOnly.FromDateTime(p.CreateDate) < createDateTo);
+                }
+                IQueryable<CategoryViewModel?> viewModels = _categoryStoreService.Paging(categories,pageIndex,pageSize,out int totalDataCount,out int totalPageCount);
                 pagingResult = new
                 {
                     pageIndex = pageIndex,
                     pageSize = pageSize,
                     dataCount = totalDataCount,
                     pageCount = totalPageCount,
-                    data = categories
+                    data = viewModels
                 };
             }
             catch ( Exception ex )
@@ -51,19 +69,19 @@ namespace TMod.Blog.Api.Controllers.Admin
         }
 
         [ActionName(nameof(GetCategoryByIdAsync))]
-        [HttpGet("id/{id:int}",Name = nameof(GetCategoryByIdAsync))]
-        public async Task<IActionResult> GetCategoryByIdAsync([FromRoute]int id)
+        [HttpGet("id/{id:int}", Name = nameof(GetCategoryByIdAsync))]
+        public async Task<IActionResult> GetCategoryByIdAsync([FromRoute] int id)
         {
             CategoryViewModel? vm = await _categoryStoreService.LoadCategoryAsync(id);
-            if(vm is null )
+            if ( vm is null )
             {
                 return NotFound();
             }
             return Ok(vm);
         }
 
-        [HttpGet("{category}",Name = nameof(GetCategoryByNameAsync))]
-        public async Task<IActionResult> GetCategoryByNameAsync([FromRoute]string category)
+        [HttpGet("{category}", Name = nameof(GetCategoryByNameAsync))]
+        public async Task<IActionResult> GetCategoryByNameAsync([FromRoute] string category)
         {
             CategoryViewModel? vm = await _categoryStoreService.LoadCategoryAsync(category);
             if ( vm is null )
@@ -74,7 +92,7 @@ namespace TMod.Blog.Api.Controllers.Admin
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCategoryAsync([FromBody]AddCategoryModel model)
+        public async Task<IActionResult> CreateCategoryAsync([FromBody] AddCategoryModel model)
         {
             try
             {
@@ -92,8 +110,8 @@ namespace TMod.Blog.Api.Controllers.Admin
             }
         }
 
-        [HttpDelete("id/{id:int}",Name = nameof(RemoveCategoryByIdAsync))]
-        public async Task<IActionResult> RemoveCategoryByIdAsync([FromRoute]int id)
+        [HttpDelete("id/{id:int}", Name = nameof(RemoveCategoryByIdAsync))]
+        public async Task<IActionResult> RemoveCategoryByIdAsync([FromRoute] int id)
         {
             try
             {
@@ -108,7 +126,7 @@ namespace TMod.Blog.Api.Controllers.Admin
         }
 
         [HttpDelete("{category}", Name = nameof(RemoveCategoryByNameAsync))]
-        public async Task<IActionResult> RemoveCategoryByNameAsync([FromRoute]string category)
+        public async Task<IActionResult> RemoveCategoryByNameAsync([FromRoute] string category)
         {
             try
             {
@@ -122,8 +140,26 @@ namespace TMod.Blog.Api.Controllers.Admin
             }
         }
 
-        [HttpPatch("id/{id:int}",Name = nameof(UpdateCategoryByIdAsync))]
-        public async Task<IActionResult> UpdateCategoryByIdAsync([FromRoute]int id, [FromBody]UpdateCategoryModel model)
+        [HttpDelete]
+        public async Task<IActionResult> BatchRemoveCategoryByIdAsync([FromBody]BatchDeleteCategoryModel? model)
+        {
+            if ( !ModelState.IsValid )
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                await _categoryStoreService.BatchRemoveCategoryByIdAsync(model!.CategoryIds?.ToArray() ?? []);
+                return NoContent();
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"批量删除分类时发生异常，分类编号:({string.Join(",", model?.CategoryIds?.ToArray() ?? [])})");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        [HttpPatch("id/{id:int}", Name = nameof(UpdateCategoryByIdAsync))]
+        public async Task<IActionResult> UpdateCategoryByIdAsync([FromRoute] int id, [FromBody] UpdateCategoryModel model)
         {
             if ( !ModelState.IsValid )
             {
@@ -132,7 +168,7 @@ namespace TMod.Blog.Api.Controllers.Admin
             try
             {
                 CategoryViewModel? viewModel = await _categoryStoreService.UpdateCategoryAsync(id,model.Category!);
-                if(viewModel is null )
+                if ( viewModel is null )
                 {
                     return NotFound();
                 }
@@ -145,8 +181,8 @@ namespace TMod.Blog.Api.Controllers.Admin
             }
         }
 
-        [HttpPatch("{category}",Name = nameof(UpdateCategoryByNameAsync))]
-        public async Task<IActionResult> UpdateCategoryByNameAsync([FromRoute]string category, [FromBody]UpdateCategoryModel model)
+        [HttpPatch("{category}", Name = nameof(UpdateCategoryByNameAsync))]
+        public async Task<IActionResult> UpdateCategoryByNameAsync([FromRoute] string category, [FromBody] UpdateCategoryModel model)
         {
             if ( !ModelState.IsValid )
             {
@@ -155,7 +191,7 @@ namespace TMod.Blog.Api.Controllers.Admin
             try
             {
                 CategoryViewModel? viewModel = await _categoryStoreService.UpdateCategoryAsync(category, model.Category!);
-                if(viewModel is null )
+                if ( viewModel is null )
                 {
                     return NotFound();
                 }

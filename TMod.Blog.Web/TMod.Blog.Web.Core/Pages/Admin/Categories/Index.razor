@@ -1,46 +1,45 @@
-@page "/admin/configurations"
-@using TMod.Blog.Data.Models.ViewModels.Configuration
+@page "/admin/categories"
+@using TMod.Blog.Data.Models.ViewModels.Categories
 
 <MudPaper>
     <MudToolBar WrapContent>
         <MudDateRangePicker Clearable
                             PlaceholderStart="最小创建日期"
                             PlaceholderEnd="最大创建日期"
-                            @bind-DateRange="_createDateRange"
+                            @bind-DateRange="CreateDateRange"
                             MaxDate="@DateTime.Today"
-                            Label="配置项创建日期筛选"
+                            Label="分类创建日期筛选"
                             DisableUnderLine
                             Rounded />
         <MudSpacer />
-        <MudTextField @bind-Value="SearchConfigurationKey"
-                      Label="输入配置项标识模糊筛选"
+        <MudTextField @bind-Value="SearchCategoryKey"
+                      Label="输入分类名称模糊筛选"
                       Adornment="Adornment.End"
                       AdornmentIcon="@Icons.Material.Outlined.Search"
                       Margin="Margin.Dense"
                       DebounceInterval="500" />
     </MudToolBar>
     <MudDivider />
-    <MudDataGrid @ref="_dataGrid" Hover Breakpoint="Breakpoint.Sm" @bind-SelectedItems="_selectedConfigurations" MultiSelection ServerData="QueryDataAsync">
+    <MudDataGrid @ref="_dataGrid" Hover Breakpoint="Breakpoint.Sm" @bind-SelectedItems="_selectedCategories" MultiSelection ServerData="QueryDataAsync">
         <ToolBarContent>
             <MudButtonGroup Size="Size.Medium">
-                <MudButton StartIcon="@Icons.Material.Rounded.Add" OnClick="OnAddButtonClickAsync">新增配置项</MudButton>
-                <MudButton StartIcon="@Icons.Material.Rounded.Delete" IconColor="Color.Warning" Disabled="@((_selectedConfigurations?.Count??0)==0)" OnClick="OnBatchRemoveButtonClickAsync">删除所选配置项</MudButton>
+                <MudButton StartIcon="@Icons.Material.Rounded.Add" OnClick="OnAddButtonClickAsync">新增分类</MudButton>
+                <MudButton StartIcon="@Icons.Material.Rounded.Delete" IconColor="Color.Warning" Disabled="@((_selectedCategories?.Count??0)==0)" OnClick="OnBatchRemoveButtonClickAsync">删除所选分类</MudButton>
             </MudButtonGroup>
         </ToolBarContent>
         <Columns>
-            <SelectColumn T="ConfigurationViewModel" ShowInFooter="false" ShowInHeader />
-            <PropertyColumn Title="配置项" Property="p=>p.Key" />
-            <PropertyColumn Title="配置值" Property="p=>p.Value" />
-            <PropertyColumn Title="创建日期" Property="p=>p.CreateDate" />
-            <TemplateColumn Title="操作" Sortable="false">
+            <SelectColumn ShowInFooter="false" ShowInHeader T="CategoryViewModel" />
+            <PropertyColumn Title="分类" Property="p=>p.Category"/> 
+            <PropertyColumn Title="创建时间" Property="p=>p.CreateDate" />
+            <TemplateColumn Title="操作">
                 <CellTemplate>
                     <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
-                        <MudIconButton OnClick="@(arg=>OnEditButtonClickAsync(arg,context))">
+                        <MudIconButton OnClick="@(args=>OnEditButtonClickAsync(args,context))">
                             <MudTooltip Delay="1000" Text="编辑">
                                 <MudIcon Icon="@Icons.Material.Rounded.Edit" />
                             </MudTooltip>
                         </MudIconButton>
-                        <MudIconButton OnClick="@(arg=>OnRemoveButtonClickAsync(arg,context))">
+                        <MudIconButton OnClick="@(args=>OnRemoveButtonClickAsync(args,context))">
                             <MudTooltip Delay="1000" Text="删除">
                                 <MudIcon Icon="@Icons.Material.Rounded.Delete" Color="Color.Warning" />
                             </MudTooltip>

@@ -122,7 +122,7 @@ namespace TMod.Blog.Web.Services.Client
             await _appConfigurationApi.SetConfigurationValueAsync(key, value);
         }
 
-		public Task<PagingResult<ConfigurationViewModel?>> GetAllConfigurations(int pageSize, int pageIndex = 1, string? configurationKeyFilter = null, DateOnly? createDateFrom = null, DateOnly? createDateTo = null) => _appConfigurationApi.GetAllConfigurations(pageSize, pageIndex, configurationKeyFilter, createDateFrom, createDateTo);
+		public Task<PagingResult<ConfigurationViewModel?>> GetAllConfigurationsAsync(int pageSize, int pageIndex = 1, string? configurationKeyFilter = null, DateOnly? createDateFrom = null, DateOnly? createDateTo = null) => _appConfigurationApi.GetAllConfigurationsAsync(pageSize, pageIndex, configurationKeyFilter, createDateFrom, createDateTo);
 
         public Task BatchRemoveConfigurationByIdAsync(params int[] configurationIds)=>_appConfigurationApi.BatchRemoveConfigurationByIdAsync(configurationIds);
     }

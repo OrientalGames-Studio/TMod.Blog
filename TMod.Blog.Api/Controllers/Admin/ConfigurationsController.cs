@@ -47,7 +47,7 @@ namespace TMod.Blog.Api.Controllers.Admin
                 }
                 else if(createDateTo is not null )
                 {
-					configurations = configurations.Where(p => p is not null && DateOnly.FromDateTime(p.CreateDate) >= createDateTo);
+					configurations = configurations.Where(p => p is not null && DateOnly.FromDateTime(p.CreateDate) < createDateTo);
 				}
                 IQueryable<ConfigurationViewModel?> viewModels = _configurationStoreService.Paging(configurations,pageIndex,pageSize,out int totalDataCount,out int totalPageCount);
                 pagingResult = new

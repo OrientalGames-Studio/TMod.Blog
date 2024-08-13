@@ -22,6 +22,38 @@ namespace TMod.Blog.Web.Core.Pages.Admin.Configurations
         private HashSet<ConfigurationViewModel?>? _selectedConfigurations;
         private MudDataGrid<ConfigurationViewModel?>? _dataGrid;
 
+        internal DateRange? CreateDateRange
+        {
+            get => _createDateRange;
+            set
+            {
+                if ( _createDateRange != value )
+                {
+                    _createDateRange = value;
+                    if ( _dataGrid is not null )
+                    {
+                        InvokeAsync(_dataGrid.ReloadServerData);
+                    }
+                }
+            }
+        }
+
+        internal string? SearchConfigurationKey
+        {
+            get => _searchConfigurationKey;
+            set
+            {
+                if ( _searchConfigurationKey != value )
+                {
+                    _searchConfigurationKey = value;
+                    if ( _dataGrid is not null )
+                    {
+                        InvokeAsync(_dataGrid.ReloadServerData);
+                    }
+                }
+            }
+        }
+
         [Inject]
         public IAppConfigurationProviderService? AppConfigurationProviderService { get; set; }
 
@@ -33,7 +65,7 @@ namespace TMod.Blog.Web.Core.Pages.Admin.Configurations
 
         private async Task<GridData<ConfigurationViewModel?>> QueryDataAsync(GridState<ConfigurationViewModel?> gridState)
         {
-            var pagingResult = await AppConfigurationProviderService!.GetAllConfigurations(gridState.PageSize,gridState.Page,_searchConfigurationKey,_createDateRange?.Start is null?null:DateOnly.FromDateTime(_createDateRange.Start.Value),_createDateRange?.End is null?null:DateOnly.FromDateTime(_createDateRange.End.Value));
+            var pagingResult = await AppConfigurationProviderService!.GetAllConfigurationsAsync(gridState.PageSize,gridState.Page,SearchConfigurationKey,CreateDateRange?.Start is null?null:DateOnly.FromDateTime(CreateDateRange.Start.Value),CreateDateRange?.End is null?null:DateOnly.FromDateTime(CreateDateRange.End.Value));
             return new GridData<ConfigurationViewModel?>()
             {
                 Items = pagingResult.Data,

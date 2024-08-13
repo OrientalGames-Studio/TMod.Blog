@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <None Include="Components\Configurations\EditConfigurationDialog.razor" />
+    <None Include="Pages\Admin\Categories\Index.razor" />
     <None Include="Pages\Admin\Configurations\Index.razor" />
     <None Include="Pages\Admin\Dashboard.razor" />
     <None Include="Shared\Layouts\AdminLayout.razor" />

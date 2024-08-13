@@ -1,0 +1,13 @@
+﻿<MudDialog DefaultFocus="DefaultFocus.LastChild">
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudStack Row>
+                <MudTextField @bind-Value="Model!.Category" AdornmentText="分类名称" AdornmentAriaLabel="分类名称" Label="分类名称" Required RequiredError="分类名称不允许为空"/>
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(_=>MudDialogInstance!.Cancel())">@CancelButtonText</MudButton>
+        <MudButton Color="Color.Primary" OnClick="OnSaveButtonClickAsync">@ConfirmButtonText</MudButton>
+    </DialogActions>
+</MudDialog>

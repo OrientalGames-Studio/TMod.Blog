@@ -41,5 +41,12 @@ namespace TMod.Blog.Web.Services
             services.TryAddEnumerable(ServiceDescriptor.KeyedScoped<INavMenuProviderService, AdminNavMenuProviderService>("AdminNavMenuService"));
             return services;
         }
+
+        public static IServiceCollection AddCategoryService(this IServiceCollection services)
+        {
+            services.AddCategoryApi();
+            services.TryAddEnumerable(ServiceDescriptor.Scoped<ICategoryService, CategoryService>());
+            return services;
+        }
     }
 }

@@ -37,7 +37,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMod.Blog.Web.Interactive",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMod.Blog.Web.Interactive.Abstraction", "TMod.Blog.Web\TMod.Blog.Web.Interactive.Abstraction\TMod.Blog.Web.Interactive.Abstraction.csproj", "{303F59CE-C0E3-47B0-8A2F-72338659FF13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TMod.Blog.Web.Models", "TMod.Blog.Web\TMod.Blog.Web.Models\TMod.Blog.Web.Models.csproj", "{DB9789C0-C6E2-4AE5-9383-1563D3AADCB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMod.Blog.Web.Models", "TMod.Blog.Web\TMod.Blog.Web.Models\TMod.Blog.Web.Models.csproj", "{DB9789C0-C6E2-4AE5-9383-1563D3AADCB4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
