@@ -32,7 +32,9 @@ builder.Services.AddIconPathProviderService()
     .AddLocalStorageProviderService()
     .AddAppConfigurationProviderService() 
     .AddAdminNavMenuProviderService()
-    .AddCategoryService();
+    .AddCategoryService()
+    .AddTagService()
+    .AddArticleService();
 
 var app = builder.Build();
 

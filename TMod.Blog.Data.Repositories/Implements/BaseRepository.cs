@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -51,8 +52,34 @@ namespace TMod.Blog.Data.Repositories.Implements
             return model;
         }
 
-        public virtual Task<IEnumerable<TModel>> GetAllAsync() => Task.FromResult(BlogContext.Set<TModel>().AsNoTracking().AsEnumerable());
-        public virtual async Task<TModel?> LoadAsync(TKey key) => await BlogContext.Set<TModel>().AsNoTracking().FirstOrDefaultAsync(p=>p.Id!.Equals(key));
+        public virtual Task<IEnumerable<TModel>> GetAllAsync(params Expression<Func<TModel, object>>[] joins)
+        {
+            IQueryable<TModel> results = BlogContext.Set<TModel>().AsNoTracking();
+            if ( joins is not null && joins.Length > 0 )
+            {
+                foreach ( Expression<Func<TModel,object>> joinTable in joins )
+                {
+                    results.Include( joinTable );
+                }
+            }
+            return Task.FromResult(results.AsEnumerable());
+        }
+        public virtual async Task<TModel?> LoadAsync(TKey key, params Expression<Func<TModel, object>>[] joins)
+        {
+            IQueryable<TModel> results = BlogContext.Set<TModel>().AsNoTracking();
+            if(!results.Any(p=>p.Id!.Equals(key)) )
+            {
+                return null;
+            }
+            if ( joins is not null && joins.Length > 0 )
+            {
+                foreach ( Expression<Func<TModel, object>> joinTable in joins )
+                {
+                    results.Include(joinTable);
+                }
+            }
+            return await results.FirstOrDefaultAsync(p => p.Id!.Equals(key));
+        }
         public virtual async Task RemoveAsync(TModel model)
         {
             try

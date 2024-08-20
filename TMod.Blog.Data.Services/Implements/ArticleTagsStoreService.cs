@@ -65,6 +65,15 @@ namespace TMod.Blog.Data.Services.Implements
             }
         }
 
+        public IEnumerable<string> GetTags()
+        {
+            IEnumerable<ArticleTagsView> tagsViews = _articleTagRepository.GetTags();
+            foreach ( ArticleTagsView tagsView in tagsViews )
+            {
+                yield return tagsView.Tag;
+            }
+        }
+
         public IQueryable<ArticleTagViewModel?> Paging(int pageIndex, int pageSize, out int totalDataCount, out int totalPageCount, Func<ArticleTagViewModel?, bool>? filter = null)
         {
             var getAllTask = _articleTagRepository.GetAllAsync();

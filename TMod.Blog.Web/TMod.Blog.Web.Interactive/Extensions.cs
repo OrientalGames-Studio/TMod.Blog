@@ -24,5 +24,17 @@ namespace TMod.Blog.Web.Interactive
             services.TryAddEnumerable(ServiceDescriptor.Singleton<ICategoryApi, CategoryApi>());
             return services;
         }
+
+        public static IServiceCollection AddTagApi(this IServiceCollection services)
+        {
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<ITagApi, TagApi>());
+            return services;
+        }
+
+        public static IServiceCollection AddArticleApi(this IServiceCollection services)
+        {
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IArticleApi, ArticleApi>());
+            return services;
+        }
     }
 }

@@ -37,6 +37,8 @@ builder.Services.AddIconPathProviderService()
     .AddLocalStorageProviderService()
     .AddAppConfigurationProviderService()
     .AddAdminNavMenuProviderService()
-    .AddCategoryService();
+    .AddCategoryService()
+    .AddTagService()
+    .AddArticleService();
 
 await builder.Build().RunAsync();

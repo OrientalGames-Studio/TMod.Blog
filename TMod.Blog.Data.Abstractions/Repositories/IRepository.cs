@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,7 +11,7 @@ namespace TMod.Blog.Data.Abstractions.Repositories
 {
     public interface IRepository<TKeyType, TModelType> where TModelType : class,IKey<TKeyType>
     {
-        Task<IEnumerable<TModelType>> GetAllAsync();
+        Task<IEnumerable<TModelType>> GetAllAsync(params Expression<Func<TModelType, object>>[] joins);
 
         Task<TModelType> CreateAsync(TModelType model);
 
@@ -20,6 +21,6 @@ namespace TMod.Blog.Data.Abstractions.Repositories
 
         Task RemoveAsync(TKeyType key);
 
-        Task<TModelType?> LoadAsync(TKeyType key);
+        Task<TModelType?> LoadAsync(TKeyType key, params Expression<Func<TModelType, object>>[] joins);
     }
 }

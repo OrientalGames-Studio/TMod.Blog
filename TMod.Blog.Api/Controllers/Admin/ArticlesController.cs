@@ -19,7 +19,7 @@ namespace TMod.Blog.Api.Controllers.Admin
         private readonly IArticleStoreService _articleStoreService;
         private readonly Constants _constants;
 
-        public ArticlesController(ILogger<ArticlesController> logger, IArticleStoreService articleStoreService,Constants constants)
+        public ArticlesController(ILogger<ArticlesController> logger, IArticleStoreService articleStoreService, Constants constants)
         {
             _logger = logger;
             _articleStoreService = articleStoreService;
@@ -49,13 +49,18 @@ namespace TMod.Blog.Api.Controllers.Admin
             , [FromQuery] string? articleSnapshotFilter = null  // 文章快照内容筛选
             , [FromQuery] string? articleCategoryFilter = null  // 文章分类筛选
             , [FromQuery] string? articleTagsFilter = null  // 文章标签筛选，这个通常有可能会有多个，多个时按( ,，;；)分隔
+            , [FromQuery] DateOnly? articlePublishedDateEndFilter = null  // 最大发布日期筛选
+            , [FromQuery] DateOnly? articleLastEditDateEndFilter = null  // 最大最后发布日期筛选
+            , [FromQuery] DateOnly? articleCreateDateFilter = null  // 创建日期筛选
+            , [FromQuery] DateOnly? articleCreateDateEndFilter = null // 最大创建日期筛选
+            , [FromQuery] bool? articleCommentStateFilter = null
             )
         {
             object pagingResult;
             try
             {
-                IQueryable<ArticleViewModel?> articles = _articleStoreService.Paging(pageIndex,pageSize,out int dataCount,out int pageCount,article=>FilterArticle(article,articleTitleFilter,articleSnapshotFilter,articleCategoryFilter,articleTagsFilter,articleStateFilter,articlePublishedDateFilter,articleLastEditDateFilter));
-                articles.OrderBy(p=>p!.State)
+                IQueryable<ArticleViewModel?> articles = _articleStoreService.Paging(pageIndex,pageSize,out int dataCount,out int pageCount,article=>FilterArticleV2(article,articleTitleFilter,articleSnapshotFilter,articleCategoryFilter,articleTagsFilter,articleCreateDateFilter,articleCreateDateEndFilter,articleLastEditDateFilter,articleLastEditDateEndFilter,articlePublishedDateFilter,articlePublishedDateEndFilter,articleStateFilter,articleCommentStateFilter));
+                articles.OrderBy(p => p!.State)
                     .ThenByDescending(p => p!.LastEditDate ?? p!.UpdateDate ?? p!.CreateDate);
                 pagingResult = new
                 {
@@ -81,12 +86,109 @@ namespace TMod.Blog.Api.Controllers.Admin
             return Ok(pagingResult);
         }
 
+        private bool FilterArticleV2(ArticleViewModel? article, string? articleTitleFilter, string? articleSnapshotFilter, string? articleCategoryFilter, string? articleTagsFilter, DateOnly? articleCreateDateFilter, DateOnly? articleCreateDateEndFilter, DateOnly? articleLastEditDateFilter, DateOnly? articleLastEditDateEndFilter, DateOnly? articlePublishedDateFilter, DateOnly? articlePublishedDateEndFilter, ArticleStateEnum? articleStateFilter, bool? articleCommentStateFilter)
+        {
+            bool result = true;
+            string[] categories = articleCategoryFilter?.Split(_constants.SplitStringChars,StringSplitOptions.RemoveEmptyEntries)??[];
+            string[] tags = articleTagsFilter?.Split(_constants.SplitStringChars, StringSplitOptions.RemoveEmptyEntries)??[];
+            if ( article is null )
+            {
+                return false;
+            }
+            #region 创建时间筛选
+            if ( articleCreateDateFilter is not null && articleCreateDateEndFilter is not null )
+            {
+                result = result &&
+                    DateOnly.FromDateTime(article.CreateDate) >= articleCreateDateFilter &&
+                    DateOnly.FromDateTime(article.CreateDate) < articleCreateDateEndFilter;
+            }
+            else if ( articleCreateDateFilter is not null && articleCreateDateEndFilter is null )
+            {
+                result = result &&
+                    DateOnly.FromDateTime(article.CreateDate) >= articleCreateDateFilter;
+            }
+            else if ( articleCreateDateFilter is null && articleCreateDateEndFilter is not null )
+            {
+                result = result &&
+                    DateOnly.FromDateTime(article.CreateDate) < articleCreateDateEndFilter;
+            }
+            #endregion
+            #region 编辑时间筛选
+            if ( articleLastEditDateFilter is not null && articleLastEditDateEndFilter is not null )
+            {
+                result = result &&
+                    DateOnly.FromDateTime(article.LastEditDate.GetValueOrDefault()) >= articleLastEditDateFilter &&
+                    DateOnly.FromDateTime(article.LastEditDate.GetValueOrDefault()) < articleLastEditDateEndFilter;
+            }
+            else if ( articleLastEditDateFilter is not null && articleLastEditDateEndFilter is null )
+            {
+                result = result &&
+                    DateOnly.FromDateTime(article.LastEditDate.GetValueOrDefault()) >= articleLastEditDateFilter;
+            }
+            else if ( articleLastEditDateFilter is null && articleLastEditDateEndFilter is not null )
+            {
+                result = result &&
+                    DateOnly.FromDateTime(article.LastEditDate.GetValueOrDefault()) < articleLastEditDateEndFilter;
+            }
+            #endregion
+            #region 发布时间筛选
+            if ( articlePublishedDateFilter is not null && articlePublishedDateEndFilter is not null )
+            {
+                result = result &&
+                    DateOnly.FromDateTime(article.PublishDate.GetValueOrDefault()) >= articlePublishedDateFilter &&
+                    DateOnly.FromDateTime(article.PublishDate.GetValueOrDefault()) < articlePublishedDateEndFilter;
+            }
+            else if ( articlePublishedDateFilter is not null && articlePublishedDateEndFilter is null )
+            {
+                result = result &&
+                    DateOnly.FromDateTime(article.PublishDate.GetValueOrDefault()) >= articlePublishedDateFilter;
+            }
+            else if ( articlePublishedDateFilter is null && articlePublishedDateEndFilter is not null )
+            {
+                result = result &&
+                    DateOnly.FromDateTime(article.PublishDate.GetValueOrDefault()) < articlePublishedDateEndFilter;
+            }
+            #endregion
+            #region 文章状态筛选
+            if ( articleStateFilter is not null )
+            {
+                //result = result && ( ((short)articleStateFilter  & ((short)article.State+1) ) == ((short)article.State) );
+                result = result && (( article.State & articleStateFilter ) != 0);
+            }
+            #endregion
+            #region 标签筛选
+            if ( tags.Any() )
+            {
+                result = result && ( article.Tags.Any(t => Array.IndexOf(tags, t.Tag) > -1) );
+            }
+            #endregion
+            #region 分类筛选
+            if ( categories.Any() )
+            {
+                result = result && ( article.Categories.Any(c => Array.IndexOf(categories, c.Category) > -1) );
+            }
+            #endregion
+            if ( !string.IsNullOrWhiteSpace(articleSnapshotFilter) )
+            {
+                result = result && ( article.Snapshot?.Contains(articleSnapshotFilter) == true );
+            }
+            if ( !string.IsNullOrWhiteSpace(articleTitleFilter) )
+            {
+                result = result && article.Title.Contains(articleTitleFilter);
+            }
+            if ( articleCommentStateFilter.HasValue )
+            {
+                result = result && article.IsCommentEnabled == articleCommentStateFilter;
+            }
+            return result;
+        }
+
         [ActionName(nameof(GetArticleByIdAsync))]
-        [HttpGet("{id:guid}",Name = nameof(GetArticleByIdAsync))]
-        public async Task<IActionResult> GetArticleByIdAsync([FromRoute]Guid id)
+        [HttpGet("{id:guid}", Name = nameof(GetArticleByIdAsync))]
+        public async Task<IActionResult> GetArticleByIdAsync([FromRoute] Guid id)
         {
             ArticleViewModel? viewModel = await _articleStoreService.GetArticleByIdAsync(id);
-            if(viewModel is null )
+            if ( viewModel is null )
             {
                 return NotFound();
             }
@@ -110,9 +212,9 @@ namespace TMod.Blog.Api.Controllers.Admin
             {
                 result = result && ( article.Snapshot?.Contains(articleSnapshotFilter) == true );
             }
-            if(!string.IsNullOrWhiteSpace(articleCategoryFilter) )
+            if ( !string.IsNullOrWhiteSpace(articleCategoryFilter) )
             {
-                categories = articleCategoryFilter.Split(_constants.SplitStringChars,StringSplitOptions.RemoveEmptyEntries);
+                categories = articleCategoryFilter.Split(_constants.SplitStringChars, StringSplitOptions.RemoveEmptyEntries);
                 result = result && ( article.Categories is not null && article.Categories.Count > 0 ) && article.Categories.Any(p => Array.IndexOf(categories, p.Category) > -1);
             }
             if ( !string.IsNullOrWhiteSpace(articleTagsFilter) )
@@ -136,10 +238,11 @@ namespace TMod.Blog.Api.Controllers.Admin
         }
 
 
+
         [HttpPost]
-        public async Task<IActionResult> CreateArticleAsync([FromForm]AddArticleModel model, [FromForm]IFormFileCollection archives)
+        public async Task<IActionResult> CreateArticleAsync([FromForm] AddArticleModel model, [FromForm] IFormFileCollection archives)
         {
-            if ( ! ModelState.IsValid )
+            if ( !ModelState.IsValid )
             {
                 return BadRequest(ModelState);
             }
@@ -153,35 +256,35 @@ namespace TMod.Blog.Api.Controllers.Admin
                     AddArticleArchiveModel archiveModel = new AddArticleArchiveModel(ms);
                     archiveModel.MIMEType = uploadedFile.ContentType;
                     archiveModel.FileName = uploadedFile.FileName;
-                    archiveModel.FileSizeMB = (double)ms.Length / 1024 / 1024;
+                    archiveModel.FileSizeMB = ( double )ms.Length / 1024 / 1024;
                     archiveModels.Add(archiveModel);
                 }
             }
             Guid? articleId = await _articleStoreService.CreateArticleAsync(model, archiveModels);
-            if(articleId is null || articleId.Value == Guid.Empty )
+            if ( articleId is null || articleId.Value == Guid.Empty )
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "由于未知原因创建文章失败");
             }
-            return CreatedAtAction(nameof(GetArticleByIdAsync), new { id = articleId },articleId);
+            return CreatedAtAction(nameof(GetArticleByIdAsync), new { id = articleId }, articleId);
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateArticleAsync([FromRoute]Guid id,[ModelBinder(typeof(UpdateArticleModelBinder))] UpdateArticleModel model, [FromForm]IFormFileCollection archives)
+        public async Task<IActionResult> UpdateArticleAsync([FromRoute] Guid id, [ModelBinder(typeof(UpdateArticleModelBinder))] UpdateArticleModel model, [FromForm] IFormFileCollection archives)
         {
             if ( !ModelState.IsValid )
             {
                 return BadRequest(ModelState);
             }
             ArticleViewModel? metaData = await _articleStoreService.GetArticleByIdAsync(id);
-            if(metaData is null)
+            if ( metaData is null )
             {
                 return BadRequest("修改失败，元数据不存在");
             }
-            if(metaData.Id != model.Meta!.Article!.Id || metaData.Id != model.Meta!.ArticleContent!.ArticleId)
+            if ( metaData.Id != model.Meta!.Article!.Id || metaData.Id != model.Meta!.ArticleContent!.ArticleId )
             {
                 return BadRequest($"修改失败，元数据编号和修改数据编号不一致");
             }
-            if(metaData.Version != model.Meta!.Article!.Version )
+            if ( metaData.Version != model.Meta!.Article!.Version )
             {
                 return BadRequest("修改失败，元数据已被修改，请重新加载数据后再试");
             }
@@ -214,20 +317,20 @@ namespace TMod.Blog.Api.Controllers.Admin
         }
 
         [HttpPatch("{id:guid}/state")]
-        public async Task<IActionResult> UpdateArticleStateAsync([FromRoute]Guid id, [FromBody]UpdateArticleStateModel model)
+        public async Task<IActionResult> UpdateArticleStateAsync([FromRoute] Guid id, [FromBody] UpdateArticleStateModel model)
         {
-            if (! ModelState.IsValid )
+            if ( !ModelState.IsValid )
             {
                 return BadRequest(ModelState);
             }
             try
             {
                 Guid articleId = await _articleStoreService.UpdateArticleStateAsync(id,model.State);
-                if(articleId ==  Guid.Empty)
+                if ( articleId == Guid.Empty )
                 {
                     return NotFound();
                 }
-                return CreatedAtAction(nameof(GetArticleByIdAsync),new { id = articleId }, articleId);
+                return CreatedAtAction(nameof(GetArticleByIdAsync), new { id = articleId }, articleId);
             }
             catch ( Exception ex )
             {
@@ -237,7 +340,7 @@ namespace TMod.Blog.Api.Controllers.Admin
         }
 
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> RemoveArticleByIdAsync([FromRoute]Guid id)
+        public async Task<IActionResult> RemoveArticleByIdAsync([FromRoute] Guid id)
         {
             try
             {

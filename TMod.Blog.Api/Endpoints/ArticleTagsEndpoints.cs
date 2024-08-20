@@ -18,6 +18,7 @@ namespace TMod.Blog.Api.Endpoints
                 .WithTags("ArticleTags");
             BuildAddTagsToArticleApi(group, loggerFactory);
             BuildRemoveTagsFromArticleApi(group, loggerFactory);
+            BuildGetAllTagsFromViewApi(group, loggerFactory);
             if ( app.Environment.IsDevelopment() )
             {
                 group.DisableAntiforgery();
@@ -64,5 +65,23 @@ namespace TMod.Blog.Api.Endpoints
             .WithDisplayName("从文章中移除标签接口")
             .WithSummary("从文章中移除标签接口")
             .WithDescription("从文章中移除标签接口，根据 tags 从文章中取消和标签的关联");
+
+        private static RouteHandlerBuilder? BuildGetAllTagsFromViewApi(RouteGroupBuilder? group, ILoggerFactory loggerFactory) => group?.MapGet("Tags", Results<Ok<IEnumerable<string>>, StatusCodeHttpResult> ([FromServices]IArticleTagsStoreService articleTagsStoreService) =>
+        {
+            ILogger logger = loggerFactory.CreateLogger("GetAllTagsFromView");
+            try
+            {
+                return TypedResults.Ok<IEnumerable<string>>(articleTagsStoreService.GetTags());
+            }
+            catch ( Exception ex )
+            {
+                logger.LogError(ex, $"从视图中查询所有标签发生异常");
+                return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        })
+            .WithName("GetAllTagsFromView")
+            .WithDisplayName("从视图中获取所有标签接口")
+            .WithSummary("从视图中获取所有标签接口")
+            .WithDescription("从视图中获取所有标签接口，已做去重处理");
     }
 }

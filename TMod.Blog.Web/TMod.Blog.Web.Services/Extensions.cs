@@ -48,5 +48,19 @@ namespace TMod.Blog.Web.Services
             services.TryAddEnumerable(ServiceDescriptor.Scoped<ICategoryService, CategoryService>());
             return services;
         }
+
+        public static IServiceCollection AddTagService(this IServiceCollection services)
+        {
+            services.AddTagApi();
+            services.TryAddEnumerable(ServiceDescriptor.Scoped<ITagService, TagService>());
+            return services;
+        }
+
+        public static IServiceCollection AddArticleService(this IServiceCollection services)
+        {
+            services.AddArticleApi();
+            services.TryAddEnumerable(ServiceDescriptor.Scoped<IArticleService, ArticleService>());
+            return services;
+        }
     }
 }

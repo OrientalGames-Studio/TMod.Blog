@@ -50,7 +50,7 @@ public partial class BlogContext : DbContext
             entity.Property(e => e.PublishDate).HasComment("文章首次发表日期");
             entity.Property(e => e.RemoveDate).HasComment("文章删除日期");
             entity.Property(e => e.Snapshot).HasComment("文章前150个字内容节选");
-            entity.Property(e => e.State).HasComment("文章状态（0：草稿，1：已发布，2：已隐藏）");
+            entity.Property(e => e.State).HasComment("文章状态（1：草稿，2：已发布，4：已隐藏）");
             entity.Property(e => e.Title).HasComment("文章标题");
             entity.Property(e => e.UpdateDate).HasComment("文章修改日期");
             entity.Property(e => e.Version).HasComment("文章版本");

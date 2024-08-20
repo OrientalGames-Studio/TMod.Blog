@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 using TMod.Blog.Data.Models;
@@ -41,7 +42,42 @@ namespace TMod.Blog.Data.Services.Implements
 			_blogContext = blogContext;
 		}
 
-		public async Task<Guid> CreateArticleAsync(AddArticleModel articleModel, IEnumerable<AddArticleArchiveModel> archiveModels)
+        public async Task<bool> BatchUpdateArticleCommentEnabledFlagAsync(Dictionary<Guid, bool> dic)
+        {
+			using ( var trans = await _blogContext.Database.BeginTransactionAsync() )
+			{
+				try
+				{
+					foreach ( var item in dic )
+					{
+                        Article? article = await _articleRepository.LoadAsync(item.Key);
+                        if ( article is null )
+                        {
+							_logger.LogWarning($"批量修改文章控评状态时，没有找到 id 为 {item.Key} 的文章，跳过该文章的修改。");
+							continue;
+                        }
+                        if ( article.IsCommentEnabled == item.Value )
+                        {
+							_logger.LogWarning($"批量修改文章控评状态时，id 为 {item.Key} 的文章已是 {article.IsCommentEnabled} 状态，跳过该文章的修改。");
+							continue;
+                        }
+                        article.UpdateMetaRecord(true);
+                        article.IsCommentEnabled = item.Value;
+                        article = await _articleRepository.UpdateAsync(article);
+                    }
+					await trans.CommitAsync();
+					return true;
+				}
+				catch ( Exception ex )
+				{
+					_logger.LogError(ex, $"批量修改文章控评状态时发生异常，数据已尝试回滚。入参：({JsonSerializer.Serialize(dic)})");
+					await trans.RollbackAsync();
+					return false;
+				}
+			}
+        }
+
+        public async Task<Guid> CreateArticleAsync(AddArticleModel articleModel, IEnumerable<AddArticleArchiveModel> archiveModels)
 		{
 			using ( var trans = await _blogContext.Database.BeginTransactionAsync() )
 			{

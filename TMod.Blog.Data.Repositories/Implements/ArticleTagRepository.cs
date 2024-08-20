@@ -39,5 +39,7 @@ namespace TMod.Blog.Data.Repositories.Implements
                 yield return tag;
             }
         }
+
+        public IEnumerable<ArticleTagsView> GetTags() => base.BlogContext.ArticleTagsViews;
     }
 }

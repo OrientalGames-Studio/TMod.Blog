@@ -32,7 +32,7 @@ public partial class Article:IGuidKey,IVersionControl,ICreate,IUpdate,IRemove,IE
     public string? Snapshot { get; set; }
 
     /// <summary>
-    /// 文章状态（0：草稿，1：已发布，2：已隐藏）
+    /// 文章状态（1：草稿，2：已发布，4：已隐藏）
     /// </summary>
     public short State { get; set; }
 
@@ -91,7 +91,7 @@ public partial class Article:IGuidKey,IVersionControl,ICreate,IUpdate,IRemove,IE
     public virtual ICollection<ArticleComment> ArticleComments { get; set; } = new List<ArticleComment>();
 
     [InverseProperty("Article")]
-    public virtual ArticleContent ArticleContent { get; set; } = null!;
+    public ArticleContent ArticleContent { get; set; } = null!;
 
     [InverseProperty("Article")]
     public virtual ICollection<ArticleTag> ArticleTags { get; set; } = new List<ArticleTag>();

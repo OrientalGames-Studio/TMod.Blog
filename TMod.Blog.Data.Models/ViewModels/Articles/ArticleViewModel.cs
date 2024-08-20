@@ -70,6 +70,11 @@ namespace TMod.Blog.Data.Models.ViewModels.Articles
         public DateTime? RemoveDate { get; set; }
 
         /// <summary>
+        /// 文章状态友好描述
+        /// </summary>
+        public string? StateDescription => State.GetDescription();
+
+        /// <summary>
         /// 文章标签
         /// </summary>
         public List<ArticleTagViewModel> Tags { get; set; } = new List<ArticleTagViewModel>();

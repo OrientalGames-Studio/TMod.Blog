@@ -14,5 +14,7 @@ namespace TMod.Blog.Data.Services
         Task<Guid> AddTagsToArticleAsync(Guid articleId, IEnumerable<string> tags);
 
         Task RemoveTagsFromArticleAsync(Guid articleId, IEnumerable<string> tags);
+
+        IEnumerable<string> GetTags();
     }
 }

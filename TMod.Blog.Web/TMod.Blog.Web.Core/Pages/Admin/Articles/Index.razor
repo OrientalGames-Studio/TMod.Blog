@@ -1,0 +1,192 @@
+﻿@page "/admin/articles";
+@using TMod.Blog.Data
+@using TMod.Blog.Data.Models.ViewModels.Articles
+@using TMod.Blog.Data.Models.ViewModels.Categories
+
+<MudPaper>
+    <MudStack style="margin-left:2rem;margin-right:2rem">
+        <MudStack Row Wrap="Wrap.Wrap">
+            <MudDateRangePicker Clearable
+                                PlaceholderStart="最小创建日期"
+                                PlaceholderEnd="最大创建日期"
+                                MaxDate="@DateTime.Today"
+                                Label="文章创建日期筛选"
+                                DisableUnderLine
+                                @bind-DateRange="_createDateRange"
+                                Rounded />
+            <MudSpacer />
+            <MudTextField T="string" Label="输入文章标题模糊筛选"
+                          Adornment="Adornment.End"
+                          AdornmentIcon="@Icons.Material.Outlined.Search"
+                          Margin="Margin.Dense"
+                          @bind-Value="_articleTitleFilter"
+                          DebounceInterval="500" 
+                          Clearable/>
+        </MudStack>
+        <MudStack Row Wrap="Wrap.Wrap">
+            <MudSelect @bind-SelectedValues="_selectedCategories"
+                       Label="选择文章分类筛选"
+                       MultiSelection
+                       SelectAll="@(_enabledCategories.Any())"
+                       SelectAllText="选择所有分类"
+                       MultiSelectionTextFunc="@(new Func<List<string?>, string>(GetCategoryMultiSelectionText))">
+                @foreach (var category in _enabledCategories)
+                {
+                    if(category is null)
+                    {
+                        continue;
+                    }
+                    <MudSelectItem T="CategoryViewModel" Value="@category">@category.Category</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSpacer />
+            <MudSelect @bind-SelectedValues="_selectedTags"
+                       Label="@($"选择文章标签筛选{(_enabledTags.Any()?"":"(无可用筛选)")}")"
+                       MultiSelection
+                       SelectAll="@(_enabledTags.Any())"
+                       SelectAllText="选择所有标签"
+                       MultiSelectionTextFunc="@(new Func<List<string?>, string>(GetTagMultiSelectionText))"
+                       Disabled="@(!_enabledTags.Any())">
+                @foreach (var tag in _enabledTags)
+                {
+                    if(!string.IsNullOrWhiteSpace(tag))
+                    {
+                        <MudSelectItem T="string" Value="@tag">@tag</MudSelectItem>
+                    }
+                }
+            </MudSelect>"
+            <MudSpacer />
+            <MudStack Row Wrap="Wrap.Wrap">
+                <span class="align-self-center">文章状态：</span>
+                <MudCheckBox Label="草稿" @bind-Value="_isDraft" />
+                <MudCheckBox Label="已发布" @bind-Value="_isPublished" />
+                <MudCheckBox Label="已隐藏" @bind-Value="_isHidden" />
+            </MudStack>
+            <MudSpacer />
+            <MudStack Row Wrap="Wrap.Wrap">
+                <span class="align-self-center">文章是否允许评论:</span>
+                <MudToggleGroup T="bool?" SelectionMode="SelectionMode.ToggleSelection" @bind-Value="_articleCommentStateFilter">
+                    <MudToggleItem T="bool?" Value="true" Text="允许"/>
+                    <MudToggleItem T="bool?" Value="false" Text="不允许"/>
+                </MudToggleGroup>
+            </MudStack>
+        </MudStack>
+        <MudDivider />
+        <MudExpansionPanel Dense>
+            <TitleContent>
+                <span class="d-flex justify-center">高级筛选</span>
+            </TitleContent>
+            <ChildContent>
+                <MudStack>
+                    <MudStack Row Wrap="Wrap.Wrap">
+                        <MudDateRangePicker Clearable
+                                            PlaceholderStart="最小编辑日期"
+                                            PlaceholderEnd="最大编辑日期"
+                                            MaxDate="@DateTime.Today"
+                                            Label="文章上次编辑日期筛选"
+                                            DisableUnderLine
+                                            @bind-DateRange="_editDateRange"
+                                            Rounded />
+                        <MudSpacer />
+                        <MudDateRangePicker Clearable
+                                            PlaceholderStart="最小发布日期"
+                                            PlaceholderEnd="最大发布日期"
+                                            MaxDate="@DateTime.Today"
+                                            Label="文章发布日期筛选"
+                                            DisableUnderLine
+                                            @bind-DateRange="_publishDateRange"
+                                            Rounded />
+                    </MudStack>
+                    <MudStack Row Wrap="Wrap.Wrap">
+                        <MudTextField T="string"
+                                      Label="文章内容模糊筛选"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@Icons.Material.Outlined.Search"
+                                      Margin="Margin.Dense"
+                                      @bind-Value="_articleContentFilter"
+                                      DebounceInterval="500" 
+                                      Clearable/>
+                    </MudStack>
+                </MudStack>
+            </ChildContent>
+        </MudExpansionPanel>
+        <MudStack Row Wrap="Wrap.Wrap" Class="justify-end" style="margin-bottom:1rem">
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@(_=>_dataGrid.ReloadServerData())">查询</MudButton>
+        </MudStack>
+    </MudStack>
+    <MudDivider/>
+    <MudDataGrid T="ArticleViewModel" @ref="_dataGrid" ServerData="QueryDataAsync" Hover Breakpoint="Breakpoint.Sm" Context="row" HorizontalScrollbar MultiSelection @bind-SelectedItems="_selectedArticles">
+        <ToolBarContent>
+            <MudStack Row Wrap="Wrap.Wrap">
+                <MudButton StartIcon="@Icons.Material.Filled.NoteAdd">创建文章</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Delete">删除已选文章</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Publish">发布已选文章</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.VisibilityOff">隐藏已选文章</MudButton>
+                <MudTooltip Text="批量切换选中文章的是否可以评论状态，如果是允许评论的会变为不可评论，如果是不可评论的会变为允许评论">
+                    <MudButton StartIcon="@Icons.Material.Filled.SwitchLeft" Disabled="@((_selectedArticles?.Count??0) == 0)" OnClick="BatchChangeArticleCommentIsEnabledAsync">切换已选文章是否允许评论状态</MudButton>
+                </MudTooltip>
+            </MudStack>
+        </ToolBarContent>
+        <Columns>
+            <HierarchyColumn T="ArticleViewModel"/>
+            <SelectColumn ShowInFooter="false" ShowInHeader T="ArticleViewModel" />
+            <PropertyColumn Title="标题" Property="p=>p.Title" />
+            <PropertyColumn Title="修改次数" Property="p=>p.Version"/>
+            <PropertyColumn Title="创建日期" Property="p=>p.CreateDate" Format="yyyy-MM-dd"/>
+            <PropertyColumn Title="最后一次编辑日期" Property="p=>p.LastEditDate" Format="yyyy-MM-dd"/>
+            <TemplateColumn Title="文章状态" Context="article">
+                <CellTemplate>
+                    <MudChip Icon="@(article.Item.State == ArticleStateEnum.Draft?Icons.Material.Filled.Drafts:article.Item.State == ArticleStateEnum.Published?Icons.Material.Filled.Publish:Icons.Material.Filled.VisibilityOff)">@article.Item.StateDescription</MudChip>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="是否允许评论" Context="article">
+                <CellTemplate>
+                   <MudSwitch Value="article.Item.IsCommentEnabled" Label="@(article.Item.IsCommentEnabled?"允许":"不允许")" Color="Color.Success" UnCheckedColor="Color.Warning" ValueChanged="@((bool isEnabled) => OnArticleCommentIsEnabledChangedAsync(article,isEnabled))"/>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="操作" Context="article" StickyRight>
+                <CellTemplate>
+                    <MudStack Row Wrap="Wrap.Wrap">
+                        <MudTooltip Text="查看文章">
+                            <MudIconButton ButtonType="ButtonType.Button" Icon="@Icons.Material.Filled.RemoveRedEye" />
+                        </MudTooltip>
+                        <MudTooltip Text="编辑文章">
+                            <MudIconButton ButtonType="ButtonType.Button" Icon="@Icons.Material.Filled.EditNote" />
+                        </MudTooltip>
+                        <MudTooltip Text="删除文章">
+                            <MudIconButton ButtonType="ButtonType.Button" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" />
+                        </MudTooltip>
+                        <MudMenu Icon="@Icons.Material.Filled.MoreVert">
+                            @switch(article.Item.State)
+                            {
+                                case ArticleStateEnum.Draft:
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Publish">发布文章</MudMenuItem> 
+                                    break;
+                                case ArticleStateEnum.Published:
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Drafts">设为草稿</MudMenuItem>
+                                    break;
+                            }
+                            @if(article.Item.State != ArticleStateEnum.Hidden)
+                            {
+                                <MudMenuItem Icon="@Icons.Material.Filled.VisibilityOff">隐藏文章</MudMenuItem>
+                            }
+                        </MudMenu>
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <ChildRowContent>
+            <MudCard>
+                <MudCardHeader>
+                    <MudText Typo="Typo.h4" Inline>@row.Item.Title</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudMarkdown Value="@row.Item.Snapshot"/>
+                </MudCardContent>
+            </MudCard>
+        </ChildRowContent>
+        <PagerContent>
+            <MudDataGridPager RowsPerPageString="单页数据量" PageSizeOptions="[20,50,100,200,500,1000]" InfoFormat='@("第{first_item}到{last_item}条，共{all_items}条数据")' />
+        </PagerContent>
+    </MudDataGrid>
+</MudPaper>

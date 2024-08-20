@@ -14,5 +14,7 @@ namespace TMod.Blog.Data.Repositories
         IEnumerable<ArticleTag> GetArticleTags(Guid articleId);
 
         ArticleTag? GetArticleTagByTag(Guid articleId, string tag);
+
+        IEnumerable<ArticleTagsView> GetTags();
     }
 }

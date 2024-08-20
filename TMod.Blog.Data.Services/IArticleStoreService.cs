@@ -31,6 +31,8 @@ namespace TMod.Blog.Data.Services
 
         Task<Guid> UpdateArticleCommentEnabledFlagAsync(Guid articleId, bool isEnabled);
 
+        Task<bool> BatchUpdateArticleCommentEnabledFlagAsync(Dictionary<Guid, bool> dic);
+
         Task RemoveArticleByIdAsync(Guid articleId);
     }
 }

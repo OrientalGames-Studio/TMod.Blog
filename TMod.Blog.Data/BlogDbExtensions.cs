@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Proxies;
 
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,10 @@ namespace TMod.Blog.Data
             services.AddDbContext<BlogContext>((provider, builder) =>
             {
                 IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
+                builder.UseLazyLoadingProxies(op =>
+                {
+                    op.IgnoreNonVirtualNavigations();
+                });
                 builder.UseSqlServer(configuration.GetConnectionString("TMod.Blog.Db"));
             });
             return services;

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TMod.Blog.Data.Interfaces;
@@ -41,6 +43,30 @@ namespace TMod.Blog.Data
         {
             create.CreateDate = DateTime.Now;
             return create;
+        }
+
+        public static string? GetDescription(this object? obj)
+        {
+            if(obj is null )
+            {
+                return null;
+            }
+            Type type = obj.GetType();
+            DescriptionAttribute? description = type.GetCustomAttribute<DescriptionAttribute>();
+            if ( type.IsEnum )
+            {
+                FieldInfo? field = type.GetFields().FirstOrDefault(p=>!p.IsSpecialName && StringComparer.InvariantCulture.Compare(p.Name,obj?.ToString()) == 0);
+                if(field is null )
+                {
+                    return null;
+                }
+                description = field.GetCustomAttribute<DescriptionAttribute>();
+            }
+            if(description is null )
+            {
+                return null;
+            }
+            return description.Description;
         }
     }
 }
