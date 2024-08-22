@@ -323,6 +323,10 @@ namespace TMod.Blog.Api.Controllers.Admin
             {
                 return BadRequest(ModelState);
             }
+            if(((short)model.State & ((short)model.State) - 1) != 0 )
+            {
+                return BadRequest($"");
+            }
             try
             {
                 Guid articleId = await _articleStoreService.UpdateArticleStateAsync(id,model.State);
@@ -351,6 +355,29 @@ namespace TMod.Blog.Api.Controllers.Admin
             {
                 _logger.LogError(ex, $"删除文章{id}时发生异常");
                 return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpPatch("state")]
+        public async Task<IActionResult> BatchUpdateArticleStateAsync([FromBody] BatchUpdateArticleStateModel model)
+        {
+            if ( !ModelState.IsValid || model.ArticleStates.Count == 0)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                bool result = await _articleStoreService.BatchUpdateArticleStateAsync(model.ArticleStates);
+                if ( !result )
+                {
+                    return UnprocessableEntity();
+                }
+                return Ok();
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"批量修改文章的状态时发生异常");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"批量修改文章的状态失败");
             }
         }
     }

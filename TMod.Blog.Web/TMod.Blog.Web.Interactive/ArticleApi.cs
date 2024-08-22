@@ -51,6 +51,33 @@ namespace TMod.Blog.Web.Interactive
             }
         }
 
+        public async Task<bool> BatchUpdateArticleStateAsync(Dictionary<Guid, ArticleStateEnum> articleStates)
+        {
+            if(articleStates is null || articleStates.Count == 0 )
+            {
+                return true;
+            }
+            try
+            {
+                string apiUrl = "api/v1/admin/articles/state";
+                HttpResponseMessage? response = await _apiClient.PatchAsJsonAsync(apiUrl,new
+                {
+                    articleStates
+                });
+                if(response is null )
+                {
+                    return false;
+                }
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"请求接口批量修改文章状态时发生异常");
+                return false;
+            }
+        }
+
         public async Task<PagingResult<ArticleViewModel?>> GetAllArticleByPaging(int pageSize, QueryArticleFilterModel? filterModel, int pageIndex = 1)
         {
             try
@@ -75,6 +102,21 @@ namespace TMod.Blog.Web.Interactive
             }
         }
 
+        public async Task<ArticleViewModel?> LoadArticleAsync(Guid articleId)
+        {
+            try
+            {
+                string apiUrl = $"api/v1/admin/articles/{articleId}";
+                ArticleViewModel? result = await _apiClient.GetFromJsonAsync<ArticleViewModel>(apiUrl);
+                return result;
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"请求接口加载编号是{articleId}的文章时发生异常");
+                return null;
+            }
+        }
+
         public async Task<ArticleViewModel?> UpdateArticleCommentIsEnabledAsync(Guid articleId, bool isEnabled)
         {
             try
@@ -88,6 +130,31 @@ namespace TMod.Blog.Web.Interactive
             catch ( Exception ex )
             {
                 _logger.LogError(ex, $"请求接口修改文章是否允许评论时发生异常，文章编号:{articleId}");
+                return null;
+            }
+        }
+
+        public async Task<ArticleViewModel?> UpdateArticleStateAsync(Guid articleId, ArticleStateEnum articleState)
+        {
+            if(((short)articleState & ((short)articleState - 1)) != 0 )
+            {
+                _logger.LogWarning($"请求接口修改文章{articleId}的状态时，传入了一个无效的枚举值:{articleState}");
+                return null;
+            }
+            string apiUrl = $"api/v1/admin/articles/{articleId}/state";
+            try
+            {
+                HttpResponseMessage? response = await _apiClient.PatchAsJsonAsync(apiUrl,new
+                {
+                    state = articleState
+                });
+                response.EnsureSuccessStatusCode();
+                Guid articleIdJson = await response.Content.ReadFromJsonAsync<Guid>();
+                return await LoadArticleAsync(articleIdJson);
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"请求接口修改文章{articleId}的状态时发生异常");
                 return null;
             }
         }

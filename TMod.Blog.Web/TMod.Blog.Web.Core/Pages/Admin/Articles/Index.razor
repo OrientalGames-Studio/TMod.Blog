@@ -120,8 +120,8 @@
             <MudStack Row Wrap="Wrap.Wrap">
                 <MudButton StartIcon="@Icons.Material.Filled.NoteAdd">创建文章</MudButton>
                 <MudButton StartIcon="@Icons.Material.Filled.Delete">删除已选文章</MudButton>
-                <MudButton StartIcon="@Icons.Material.Filled.Publish">发布已选文章</MudButton>
-                <MudButton StartIcon="@Icons.Material.Filled.VisibilityOff">隐藏已选文章</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Publish" Disabled="@((_selectedArticles?.Count??0) == 0)"  OnClick="@(_=>BatchUpdateArticleStateAsync(ArticleStateEnum.Published))">发布已选文章</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.VisibilityOff" Disabled="@((_selectedArticles?.Count??0) == 0)" OnClick="@(_=>BatchUpdateArticleStateAsync(ArticleStateEnum.Hidden))">隐藏已选文章</MudButton>
                 <MudTooltip Text="批量切换选中文章的是否可以评论状态，如果是允许评论的会变为不可评论，如果是不可评论的会变为允许评论">
                     <MudButton StartIcon="@Icons.Material.Filled.SwitchLeft" Disabled="@((_selectedArticles?.Count??0) == 0)" OnClick="BatchChangeArticleCommentIsEnabledAsync">切换已选文章是否允许评论状态</MudButton>
                 </MudTooltip>
@@ -160,15 +160,19 @@
                             @switch(article.Item.State)
                             {
                                 case ArticleStateEnum.Draft:
-                                    <MudMenuItem Icon="@Icons.Material.Filled.Publish">发布文章</MudMenuItem> 
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Publish" OnClick="@(_=>UpdateArticleStateAsync(article.Item.Id,ArticleStateEnum.Published))">发布文章</MudMenuItem> 
                                     break;
                                 case ArticleStateEnum.Published:
-                                    <MudMenuItem Icon="@Icons.Material.Filled.Drafts">设为草稿</MudMenuItem>
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Drafts" OnClick="@(_=>UpdateArticleStateAsync(article.Item.Id,ArticleStateEnum.Draft))">设为草稿</MudMenuItem>
+                                    break;
+                                case ArticleStateEnum.Hidden:
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Drafts" OnClick="@(_=>UpdateArticleStateAsync(article.Item.Id,ArticleStateEnum.Draft))">设为草稿</MudMenuItem>
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Publish" OnClick="@(_=>UpdateArticleStateAsync(article.Item.Id,ArticleStateEnum.Published))">发布文章</MudMenuItem>
                                     break;
                             }
                             @if(article.Item.State != ArticleStateEnum.Hidden)
                             {
-                                <MudMenuItem Icon="@Icons.Material.Filled.VisibilityOff">隐藏文章</MudMenuItem>
+                                <MudMenuItem Icon="@Icons.Material.Filled.VisibilityOff" OnClick="@(_=>UpdateArticleStateAsync(article.Item.Id,ArticleStateEnum.Hidden))">隐藏文章</MudMenuItem>
                             }
                         </MudMenu>
                     </MudStack>

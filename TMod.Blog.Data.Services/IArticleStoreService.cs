@@ -29,6 +29,8 @@ namespace TMod.Blog.Data.Services
 
         Task<Guid> UpdateArticleStateAsync(Guid articleId, ArticleStateEnum state);
 
+        Task<bool> BatchUpdateArticleStateAsync(Dictionary<Guid, ArticleStateEnum> dic);
+
         Task<Guid> UpdateArticleCommentEnabledFlagAsync(Guid articleId, bool isEnabled);
 
         Task<bool> BatchUpdateArticleCommentEnabledFlagAsync(Dictionary<Guid, bool> dic);

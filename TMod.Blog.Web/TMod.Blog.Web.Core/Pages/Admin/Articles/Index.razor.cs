@@ -195,5 +195,56 @@ namespace TMod.Blog.Web.Core.Pages.Admin.Articles
                 Snackbar!.Add("修改失败，请重试", Severity.Warning);
             }
         }
+
+        private async Task UpdateArticleStateAsync(Guid articleId,ArticleStateEnum state)
+        {
+            ArticleViewModel? article = await ArticleService!.UpdateArticleStateAsync(articleId, state);
+            if ( article is null )
+            {
+                Snackbar!.Add("修改文章状态失败，请稍后再试",Severity.Warning);
+            }
+            else
+            {
+                Snackbar!.Add("修改文章状态成功", Severity.Success);
+                _dataGrid?.ReloadServerData();
+            }
+        }
+
+        private async Task BatchUpdateArticleStateAsync(ArticleStateEnum state)
+        {
+            if (_selectedArticles is null || !_selectedArticles.Any() )
+            {
+                return;
+            }
+            if(((short)state & ( ( ( short )state ) - 1 ) ) != 0 )
+            {
+                Snackbar!.Add($"无效的枚举值 {state} ，文章状态必须是一个有效的枚举值");
+                return;
+            }
+            Dictionary<Guid,ArticleStateEnum> articleStates = new Dictionary<Guid, ArticleStateEnum>();
+            foreach ( ArticleViewModel? article in _selectedArticles )
+            {
+                if(article is null )
+                {
+                    continue;
+                }
+                if(article.State == state )
+                {
+                    continue;
+                }
+                articleStates[article.Id] = state;
+            }
+            bool result = await ArticleService!.BatchUpdateArticleStateAsync(articleStates);
+            if ( result )
+            {
+                Snackbar!.Add($"批量修改文章状态成功",Severity.Success);
+                _selectedArticles?.Clear();
+                _dataGrid?.ReloadServerData();
+            }
+            else
+            {
+                Snackbar!.Add($"批量修改文章状态失败，请稍后再试",Severity.Warning);
+            }
+        }
     }
 }

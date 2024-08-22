@@ -17,5 +17,11 @@ namespace TMod.Blog.Web.Interactive.Abstraction
         Task<ArticleViewModel?> UpdateArticleCommentIsEnabledAsync(Guid articleId, bool isEnabled);
 
         Task<bool> BatchUpdateArticleCommentIsEnabledAsync(Dictionary<Guid, bool> dic);
+
+        Task<ArticleViewModel?> UpdateArticleStateAsync(Guid articleId, ArticleStateEnum articleState);
+
+        Task<ArticleViewModel?> LoadArticleAsync(Guid articleId);
+
+        Task<bool> BatchUpdateArticleStateAsync(Dictionary<Guid, ArticleStateEnum> articleStates);
     }
 }

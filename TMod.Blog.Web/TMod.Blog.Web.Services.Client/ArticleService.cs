@@ -27,8 +27,14 @@ namespace TMod.Blog.Web.Services.Client
 
         public Task<bool> BatchUpdateArticleCommentIsEnabledAsync(Dictionary<Guid, bool> dic) => _articleApi.BatchUpdateArticleCommentIsEnabledAsync(dic);
 
+        public Task<bool> BatchUpdateArticleStateAsync(Dictionary<Guid, ArticleStateEnum> articleStates) => _articleApi.BatchUpdateArticleStateAsync(articleStates);
+
         public Task<PagingResult<ArticleViewModel?>> GetAllArticleByPaging(int pageSize, QueryArticleFilterModel? filterModel, int pageIndex = 1)=>_articleApi.GetAllArticleByPaging(pageSize, filterModel, pageIndex);
 
+        public Task<ArticleViewModel?> LoadArticleAsync(Guid articleId) => _articleApi.LoadArticleAsync(articleId);
+
         public Task<ArticleViewModel?> UpdateArticleCommentIsEnabledAsync(Guid articleId, bool isEnabled)=>_articleApi.UpdateArticleCommentIsEnabledAsync(articleId, isEnabled);
+
+        public Task<ArticleViewModel?> UpdateArticleStateAsync(Guid articleId, ArticleStateEnum articleState) => _articleApi.UpdateArticleStateAsync(articleId, articleState);
     }
 }

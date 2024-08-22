@@ -82,13 +82,13 @@ public partial class Article:IGuidKey,IVersionControl,ICreate,IUpdate,IRemove,IE
     public DateTime? RemoveDate { get; set; }
 
     [InverseProperty("Article")]
-    public virtual ICollection<ArticleArchive> ArticleArchives { get; set; } = new List<ArticleArchive>();
+    public ICollection<ArticleArchive> ArticleArchives { get; set; } = new List<ArticleArchive>();
 
     [InverseProperty("Article")]
     public virtual ICollection<ArticleCategory> ArticleCategories { get; set; } = new List<ArticleCategory>();
 
     [InverseProperty("Article")]
-    public virtual ICollection<ArticleComment> ArticleComments { get; set; } = new List<ArticleComment>();
+    public ICollection<ArticleComment> ArticleComments { get; set; } = new List<ArticleComment>();
 
     [InverseProperty("Article")]
     public ArticleContent ArticleContent { get; set; } = null!;

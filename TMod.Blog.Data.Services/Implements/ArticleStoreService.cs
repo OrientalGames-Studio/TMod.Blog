@@ -77,6 +77,46 @@ namespace TMod.Blog.Data.Services.Implements
 			}
         }
 
+        public async Task<bool> BatchUpdateArticleStateAsync(Dictionary<Guid, ArticleStateEnum> dic)
+        {
+			using ( var trans = await _blogContext.Database.BeginTransactionAsync() )
+			{
+				try
+				{
+					foreach ( var item in dic )
+					{
+						Article? article = await _articleRepository.LoadAsync(item.Key);
+						if(article is null )
+						{
+							_logger.LogWarning($"批量修改文章状态时，没有找到 id 为 {item.Key} 的文章，跳过该文章的修改。");
+							continue;
+						}
+						if(((short)item.Value & ((short)item.Value - 1)) != 0 )
+						{
+							_logger.LogWarning($"批量修改文章时，试图把 id 为 {item.Key} 的文章的状态修改为 {item.Value}，这不是一个有效的枚举值");
+							continue;
+						}
+						if(article.State == (short)item.Value )
+						{
+							_logger.LogDebug($"批量修改文章时，id 为 {item.Key} 的状态已经是 {item.Value} 状态");
+							continue;
+						}
+						article.UpdateMetaRecord(true);
+						article.State = (short)item.Value;
+						article = await _articleRepository.UpdateAsync(article);
+					}
+					await trans.CommitAsync();
+					return true;
+				}
+				catch ( Exception ex )
+				{
+					_logger.LogError(ex, $"批量修改文章状态时发生异常，数据已尝试回滚。入参：{JsonSerializer.Serialize(dic)}");
+					await trans.RollbackAsync();
+					return false;
+				}
+			}
+        }
+
         public async Task<Guid> CreateArticleAsync(AddArticleModel articleModel, IEnumerable<AddArticleArchiveModel> archiveModels)
 		{
 			using ( var trans = await _blogContext.Database.BeginTransactionAsync() )
