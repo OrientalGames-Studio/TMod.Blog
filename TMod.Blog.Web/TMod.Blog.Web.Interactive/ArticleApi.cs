@@ -3,9 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -25,6 +27,31 @@ namespace TMod.Blog.Web.Interactive
         {
             _apiClient = httpClientFactory.CreateClient("apiClient");
             _logger = logger;
+        }
+
+        public async Task<bool> BatchRemoveArticleAsync(List<Guid> articleIds)
+        {
+            string apiUrl = $"api/v1/admin/articles";
+            try
+            {
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete,apiUrl);
+                request.Content = new StringContent(JsonSerializer.Serialize(new
+                {
+                    articleIds
+                }), Encoding.UTF8, MediaTypeHeaderValue.Parse("application/json"));
+                HttpResponseMessage? response = await _apiClient.SendAsync(request);
+                if(response is null )
+                {
+                    return false;
+                }
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"请求接口批量删除文章时发生异常");
+                return false;
+            }
         }
 
         public async Task<bool> BatchUpdateArticleCommentIsEnabledAsync(Dictionary<Guid, bool> dic)
@@ -78,6 +105,29 @@ namespace TMod.Blog.Web.Interactive
             }
         }
 
+        public async Task CommitReplyAsync(Guid replyArticleId, string? replyContent, string? email, string? nickName,bool notifyWhenReply, Guid? replyCommentId = null)
+        {
+            try
+            {
+                string apiUrl = $"api/v1/Articles/{replyArticleId}/Comments{((replyCommentId is null || !replyCommentId.HasValue)?"":$"/{replyCommentId.Value}")}";
+                object param = new
+                {
+                    articleId = replyArticleId,
+                    parentCommentId = replyCommentId,
+                    email = email,
+                    nickName = nickName,
+                    notifyNewReply = notifyWhenReply,
+                    comment = replyContent
+                };
+                HttpResponseMessage response = await _apiClient.PostAsJsonAsync(apiUrl, param);
+                response.EnsureSuccessStatusCode();
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex,$"请求接口发表评论时发生异常");
+            }
+        }
+
         public async Task<PagingResult<ArticleViewModel?>> GetAllArticleByPaging(int pageSize, QueryArticleFilterModel? filterModel, int pageIndex = 1)
         {
             try
@@ -102,6 +152,25 @@ namespace TMod.Blog.Web.Interactive
             }
         }
 
+        public async Task<PagingResult<ArticleCommentViewModel?>> GetArticleCommentByPaging(int pageSize, Guid articleId, Guid? parentId = null, int pageIndex = 1,bool showAll = false)
+        {
+            string apiUrl = $"api/v1/articles/{articleId}/comments{((parentId is not null && parentId.HasValue)?$"/{parentId.Value}":"")}?pageIndex={pageIndex}&pageSize={pageSize}&showAll={showAll}";
+            try
+            {
+                PagingResult<ArticleCommentViewModel?>? result = await _apiClient.GetFromJsonAsync<PagingResult<ArticleCommentViewModel?>>(apiUrl);
+                if (result is null )
+                {
+                    return PagingResult<ArticleCommentViewModel?>.Empty;
+                }
+                return result;
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"请求接口加载文章 {articleId} 的{((parentId is not null && parentId.HasValue)?"子":"")}评论时发生异常");
+                return PagingResult<ArticleCommentViewModel?>.Empty;
+            }
+        }
+
         public async Task<ArticleViewModel?> LoadArticleAsync(Guid articleId)
         {
             try
@@ -114,6 +183,46 @@ namespace TMod.Blog.Web.Interactive
             {
                 _logger.LogError(ex, $"请求接口加载编号是{articleId}的文章时发生异常");
                 return null;
+            }
+        }
+
+        public async Task<ArticleContentViewModel> LoadArticleContentAsync(Guid articleId)
+        {
+            try
+            {
+                string apiUrl = $"api/v1/articles/{articleId}/content";
+                ArticleContentViewModel? content = await _apiClient.GetFromJsonAsync<ArticleContentViewModel>(apiUrl);
+                if(content is null )
+                {
+                    _logger.LogWarning($"请求接口加载 id 是 {articleId} 的文章正文时，接口返回数据为 null");
+                    return new ArticleContentViewModel() { ArticleId = articleId };
+                }
+                return content;
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"请求接口加载 id 是 {articleId} 的文章正文时发生异常");
+                return new ArticleContentViewModel() { ArticleId = articleId };
+            }
+        }
+
+        public async Task<bool> RemoveArticleAsync(Guid articleId)
+        {
+            string apiUrl = $"api/v1/admin/articles/{articleId}";
+            try
+            {
+                HttpResponseMessage? response = await _apiClient.DeleteAsync(apiUrl);
+                if(response is null )
+                {
+                    return false;
+                }
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"请求接口删除 id 是 {articleId} 的文章时发生异常");
+                return false;
             }
         }
 

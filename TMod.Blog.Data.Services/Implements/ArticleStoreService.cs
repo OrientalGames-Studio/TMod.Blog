@@ -42,6 +42,31 @@ namespace TMod.Blog.Data.Services.Implements
 			_blogContext = blogContext;
 		}
 
+        public async Task BatchRemoveArticleAsync(BatchRemoveArticleModel model)
+        {
+			using ( var trans = await _blogContext.Database.BeginTransactionAsync() )
+			{
+				try
+				{
+					foreach ( Guid articleId in model.ArticleIds )
+					{
+                        Article? article = await _articleRepository.LoadAsync(articleId);
+                        if ( article is null || article.IsRemove )
+                        {
+                            return;
+                        }
+                        await _articleRepository.RemoveAsync(article);
+                    }
+					await trans.CommitAsync();
+				}
+				catch ( Exception ex )
+				{
+					_logger.LogError(ex, $"批量删除文章时发生异常，数据已尝试回滚。入参:({JsonSerializer.Serialize(model)})");
+					await trans.RollbackAsync();
+				}
+			}
+        }
+
         public async Task<bool> BatchUpdateArticleCommentEnabledFlagAsync(Dictionary<Guid, bool> dic)
         {
 			using ( var trans = await _blogContext.Database.BeginTransactionAsync() )
@@ -277,7 +302,53 @@ namespace TMod.Blog.Data.Services.Implements
 			}
 		}
 
-		public IQueryable<ArticleViewModel?> Paging(int pageIndex, int pageSize, out int totalDataCount, out int totalPageCount, Func<ArticleViewModel?, bool>? filter = null)
+        public IEnumerable<ArticleCommentViewModel?> PaingLoadArticleComments(Guid articleId, int pageIndex, int pageSize, out int totalDataCount, out int totalPageCount, Guid? commentId = null,bool showAll = false)
+        {
+			Task<ArticleViewModel?> articleTask = GetArticleByIdAsync(articleId);
+			articleTask.Wait();
+			ArticleViewModel? article = articleTask.Result;
+			totalDataCount = 0;
+			totalPageCount = 1;
+			pageIndex = Math.Max(1, pageIndex);
+			pageSize = Math.Max(1,pageSize);
+			if(article is null )
+			{
+				return [];
+			}
+			Task<IEnumerable<ArticleComment>> commentTask = _articleCommentRepository.GetAllAsync();
+			commentTask.Wait();
+			IEnumerable<ArticleComment>? comments = commentTask.Result;
+			if(comments is null )
+			{
+				return [];
+			}
+			comments = comments.Where(p => p.ArticleId == articleId)
+				.Where(p => p.ParentId == (commentId.HasValue?commentId.Value:null))
+				.Where(p=>!p.IsRemove);
+			if ( !showAll )
+			{
+				comments = comments.Where(p => p.State == ( short )0);
+			}
+			totalDataCount = comments.Count();
+			totalPageCount = Math.Max(1, ( int )Math.Ceiling(( double )totalDataCount / ( double )pageSize));
+            pageIndex = Math.Max(1, Math.Min(pageIndex, totalPageCount));
+			comments = comments.Skip(( pageIndex - 1 ) * pageSize).Take(pageSize);
+			List<ArticleCommentViewModel?> commentViewmodels = [];
+			foreach ( ArticleComment comment in comments )
+			{
+				ArticleCommentViewModel? viewModel = comment;
+				if(viewModel is null )
+				{
+					continue;
+				}
+				Task<int> repliesTask =  CountCommentReplyCountAsync(articleId, comment.Id);
+				repliesTask.Wait();
+				commentViewmodels.Add(viewModel);
+            }
+			return commentViewmodels;
+        }
+
+        public IQueryable<ArticleViewModel?> Paging(int pageIndex, int pageSize, out int totalDataCount, out int totalPageCount, Func<ArticleViewModel?, bool>? filter = null)
 		{
 			IEnumerable<ArticleViewModel?> articles = GetArticlesAsync().ToBlockingEnumerable();
 			return Paging(articles, pageIndex, pageSize, out totalDataCount, out totalPageCount, filter);
@@ -434,5 +505,50 @@ namespace TMod.Blog.Data.Services.Implements
 			article = await _articleRepository.UpdateAsync(article);
 			return article.Id;
 		}
+
+        public async Task<int> CountCommentReplyCountAsync(Guid articleId, Guid commentId)
+        {
+			Article? article = await GetArticleByIdAsync(articleId);
+			if(article is null )
+			{
+				return 0;
+			}
+			ArticleComment? comment = await _articleCommentRepository.LoadAsync(commentId);
+			if(comment is null )
+			{
+				return 0;
+			}
+			IEnumerable<ArticleComment> replies = await _articleCommentRepository.GetAllAsync();
+			return replies.Count(p => p.ArticleId == articleId && p.ParentId == commentId && p.State == 0 && !p.IsRemove);
+        }
+
+        public async Task<ArticleCommentViewModel?> ReplyCommentAsync(ReplyCommentModel model)
+        {
+			Article? article = await GetArticleByIdAsync(model.ArticleId);
+			if(article is null )
+			{
+				return null;
+			}
+			ArticleComment? comment = null;
+			if(model.ParentCommentId is not { } && model.ParentCommentId.HasValue && !Guid.Empty.Equals(model.ParentCommentId.GetValueOrDefault()) )
+			{
+				comment = await _articleCommentRepository.LoadAsync(model.ParentCommentId.GetValueOrDefault());
+				if(comment is null || comment.IsRemove )
+				{
+					return null;
+				}
+			}
+			ArticleComment reply = new ArticleComment()
+			{
+				ArticleId = model.ArticleId,
+				ParentId = model.ParentCommentId,
+				Content = model.Comment??"",
+				ByteContent = Encoding.UTF8.GetBytes(model.Comment??""),
+				NotifitionWhenReply = model.NotifyNewReply,
+				CreateUserName = model.NickName??"",
+				CreateUserEmail = model.Email??""
+			};
+			return await _articleCommentRepository.CreateAsync(reply);
+        }
     }
 }

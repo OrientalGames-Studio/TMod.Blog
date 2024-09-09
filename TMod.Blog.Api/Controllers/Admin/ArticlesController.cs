@@ -358,6 +358,25 @@ namespace TMod.Blog.Api.Controllers.Admin
             }
         }
 
+        [HttpDelete]
+        public async Task<IActionResult> BatchRemoveArticleAsync([FromBody] BatchRemoveArticleModel model)
+        {
+            if ( !ModelState.IsValid )
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                await _articleStoreService.BatchRemoveArticleAsync(model);
+                return NoContent();
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogError(ex, $"批量删除文章时发生异常");
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
         [HttpPatch("state")]
         public async Task<IActionResult> BatchUpdateArticleStateAsync([FromBody] BatchUpdateArticleStateModel model)
         {

@@ -124,6 +124,7 @@ public partial class BlogContext : DbContext
             entity.Property(e => e.Version).HasComment("评论版本");
 
             entity.HasOne(d => d.Article).WithMany(p => p.ArticleComments).HasConstraintName("Fk__ArticleComments_ArticleId");
+            entity.HasOne(d => d.ParentComment).WithMany(p => p.Replies);
         });
 
         modelBuilder.Entity<ArticleContent>(entity =>

@@ -36,5 +36,13 @@ namespace TMod.Blog.Data.Services
         Task<bool> BatchUpdateArticleCommentEnabledFlagAsync(Dictionary<Guid, bool> dic);
 
         Task RemoveArticleByIdAsync(Guid articleId);
+
+        Task BatchRemoveArticleAsync(BatchRemoveArticleModel model);
+
+        IEnumerable<ArticleCommentViewModel?> PaingLoadArticleComments(Guid articleId, int pageIndex, int pageSize, out int totalDataCount, out int totalPageCount, Guid? commentId = null,bool showAll = false);
+
+        Task<int> CountCommentReplyCountAsync(Guid articleId, Guid commentId);
+
+        Task<ArticleCommentViewModel?> ReplyCommentAsync(ReplyCommentModel model);
     }
 }

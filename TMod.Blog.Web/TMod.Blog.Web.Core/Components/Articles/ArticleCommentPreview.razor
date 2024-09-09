@@ -1,0 +1,77 @@
+@using TMod.Blog.Data.Models.ViewModels.Articles
+@using TMod.Blog.Web.Core.Shared.EventCallbackArgs
+
+<MudPaper Outlined>
+    <MudStack>
+            <MudStack Row>
+                <MudTextField T="string" InputType="InputType.Email" Label="邮箱地址" AdornmentAriaLabel="邮箱地址" Clearable InputMode="InputMode.email" Validation="@(new System.ComponentModel.DataAnnotations.EmailAddressAttribute(){ErrorMessage = "请输入一个有效的邮箱地址" })" Required RequiredError="请输入一个有效的邮箱地址" @ref="_emailField" @bind-Value="_email"/>
+            <MudTextField T="string" InputType="InputType.Text" Label="昵称" AdornmentAriaLabel="昵称" Clearable InputMode="InputMode.text" Required RequiredError="请输入一个昵称" @ref="_nickNameField" @bind-Value="_nickName"/>
+            </MudStack>
+        <MudSpacer />
+        <MarkdownEditor MinHeight="100" MaxHeight="240" UploadImage="false" AllowResize="true" LineNumbers LinesStatusText="卧槽" WordsStatusText="" CharactersStatusText="" @bind-Value="_commentValue">
+            <Toolbar>
+                <MarkdownToolbarButton Title="预览" Name="Preview" Action="PSC.Blazor.Components.MarkdownEditor.Enums.MarkdownAction.Preview" />
+                <MarkdownToolbarButton Title="拆分预览" Name="SideBySide" Action="PSC.Blazor.Components.MarkdownEditor.Enums.MarkdownAction.SideBySide" />
+                <MarkdownToolbarButton Separator Title="全屏编辑" Name="Fullscreen" Action="PSC.Blazor.Components.MarkdownEditor.Enums.MarkdownAction.Fullscreen" />
+                <MarkdownToolbarButton Separator Title="语法帮助" Name="Guide" Action="PSC.Blazor.Components.MarkdownEditor.Enums.MarkdownAction.Guide" />
+            </Toolbar>
+        </MarkdownEditor>
+        <MudSpacer />
+        <MudStack>
+            <MudCheckBox Label="当有回复时通知我" T="bool" Dense @bind-Value="_notifyWhenReply"/>
+            <MudButton ButtonType="ButtonType.Button" Color="Color.Primary" Variant="Variant.Filled" OnClick="OnCommitButtonClickAsync" Disabled="@(string.IsNullOrWhiteSpace(_email) || string.IsNullOrWhiteSpace(_nickName) || string.IsNullOrWhiteSpace(_commentValue?.TrimEnd()))">发表评论</MudButton>
+        </MudStack>
+    </MudStack>
+    <MudTreeView T="ArticleCommentViewModel" Hover Items="Comments" Dense>
+        <ItemTemplate Context="comment">
+            <MudTreeViewItem T="ArticleCommentViewModel">
+                <BodyContent>
+                    <MudStack style="width:100%">
+                        <MudCard Outlined Square >
+                            <MudCardHeader>
+                                <CardHeaderAvatar>
+                                    <MudTooltip Text="@comment.CreateUserName">
+                                        <MudAvatar Rounded Variant="Variant.Text">@comment.CreateUserName[..1]</MudAvatar>
+                                    </MudTooltip>
+                                </CardHeaderAvatar>
+                                <CardHeaderContent>
+                                    <MudStack>
+                                        <MudText Typo="Typo.body1">@comment.CreateUserName</MudText>
+                                        <MudText Typo="Typo.body2">发表于 @GetFormattedReplyDate(comment.CreateDate)</MudText>
+                                    </MudStack>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudMarkdown Value="@comment.Content" />
+                            </MudCardContent>
+                            <MudCardActions class="justify-end">
+                                <MudStack Row Spacing="100" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
+                                    <MudTooltip Text="点赞">
+                                        <MudBadge Overlap Visible="false">
+                                            <MudToggleIconButton Icon="@Icons.Material.Filled.FavoriteBorder" ToggledIcon="@Icons.Material.Filled.Favorite" Color="Color.Secondary" ToggledColor="Color.Error" />
+                                        </MudBadge>
+                                    </MudTooltip>
+                                    <MudTooltip Text="评论">
+                                        <MudBadge Overlap Content="@comment.RepliesCount" Visible="@(comment.RepliesCount > 0)">
+                                            <MudToggleIconButton Icon="@Icons.Material.Filled.Comment" ToggledIcon="@Icons.Material.Filled.Comment" ToggledChanged="@(isToggle=>_showCommentsDic.AddOrUpdate(comment.Id,isToggle,(id,oldVal)=>isToggle))" />
+                                        </MudBadge>
+                                    </MudTooltip>
+                                    @if ( IsAdmin )
+                                    {
+                                        <MudTooltip Text="删除">
+                                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" />
+                                        </MudTooltip>
+                                    }
+                                </MudStack>
+                            </MudCardActions>
+                        </MudCard>
+                        <MudCollapse @bind-Expanded="_showCommentsDic[comment.Id]">
+                            <ArticleCommentPreview Comments="@(new HashSet<ArticleCommentViewModel>(comment.Replies))" CurrentComment="comment" IsAdmin="IsAdmin" OnCommentCommitedEvent="OnCommentCommitedAsync"/>
+                        </MudCollapse>
+                    </MudStack>
+                </BodyContent>
+            </MudTreeViewItem>
+        </ItemTemplate>
+    </MudTreeView>
+</MudPaper>
+

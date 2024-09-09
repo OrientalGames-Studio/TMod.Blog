@@ -1,0 +1,12 @@
+<MudDialog style="height:600px">
+    <DialogContent>
+        <MudPaper>
+            <MudMarkdown Value="@_articleContent?.Content" />
+            <MudDivider />
+            <MudPaper>
+                <ArticleCommentPreview Comments="new HashSet<Data.Models.ViewModels.Articles.ArticleCommentViewModel?>(_articleComments?.Data??[])" IsAdmin="IsAdmin" OnCommentCommitedEvent="OnCommentCommitedAsync"/>
+                <MudPagination Count="@(_articleComments?.PageCount??1)" Rectangular Selected="_pageIndex" SelectedChanged="OnPageIndexChangedAsync"/>
+            </MudPaper>
+        </MudPaper>
+    </DialogContent>
+</MudDialog>

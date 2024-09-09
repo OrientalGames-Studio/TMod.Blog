@@ -68,7 +68,7 @@ public partial class ArticleComment:IGuidKey,IVersionControl,ICreate,IUpdate,IRe
     /// <summary>
     /// 评论者邮箱，用于通知有新回复
     /// </summary>
-    [StringLength(20)]
+    [StringLength(50)]
     public string CreateUserEmail { get; set; } = null!;
 
     /// <summary>
@@ -98,4 +98,11 @@ public partial class ArticleComment:IGuidKey,IVersionControl,ICreate,IUpdate,IRe
     [ForeignKey("ArticleId")]
     [InverseProperty("ArticleComments")]
     public virtual Article Article { get; set; } = null!;
+
+    [ForeignKey("ParentId")]
+    [InverseProperty("Replies")]
+    public virtual ArticleComment? ParentComment { get; set; }
+
+    [InverseProperty("ParentComment")]
+    public virtual ICollection<ArticleComment> Replies { get; set; } = [];
 }

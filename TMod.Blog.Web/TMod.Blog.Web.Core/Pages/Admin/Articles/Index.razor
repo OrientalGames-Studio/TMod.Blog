@@ -119,7 +119,7 @@
         <ToolBarContent>
             <MudStack Row Wrap="Wrap.Wrap">
                 <MudButton StartIcon="@Icons.Material.Filled.NoteAdd">创建文章</MudButton>
-                <MudButton StartIcon="@Icons.Material.Filled.Delete">删除已选文章</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Delete" Disabled="@((_selectedArticles?.Count??0) == 0)" OnClick="OnBatchRemoveButtonClick">删除已选文章</MudButton>
                 <MudButton StartIcon="@Icons.Material.Filled.Publish" Disabled="@((_selectedArticles?.Count??0) == 0)"  OnClick="@(_=>BatchUpdateArticleStateAsync(ArticleStateEnum.Published))">发布已选文章</MudButton>
                 <MudButton StartIcon="@Icons.Material.Filled.VisibilityOff" Disabled="@((_selectedArticles?.Count??0) == 0)" OnClick="@(_=>BatchUpdateArticleStateAsync(ArticleStateEnum.Hidden))">隐藏已选文章</MudButton>
                 <MudTooltip Text="批量切换选中文章的是否可以评论状态，如果是允许评论的会变为不可评论，如果是不可评论的会变为允许评论">
@@ -148,13 +148,13 @@
                 <CellTemplate>
                     <MudStack Row Wrap="Wrap.Wrap">
                         <MudTooltip Text="查看文章">
-                            <MudIconButton ButtonType="ButtonType.Button" Icon="@Icons.Material.Filled.RemoveRedEye" />
+                            <MudIconButton ButtonType="ButtonType.Button" Icon="@Icons.Material.Filled.RemoveRedEye" OnClick="@(_=>OpenArticlePreviewDialogAsync(article))"/>
                         </MudTooltip>
                         <MudTooltip Text="编辑文章">
                             <MudIconButton ButtonType="ButtonType.Button" Icon="@Icons.Material.Filled.EditNote" />
                         </MudTooltip>
                         <MudTooltip Text="删除文章">
-                            <MudIconButton ButtonType="ButtonType.Button" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" />
+                            <MudIconButton ButtonType="ButtonType.Button" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(_=>OnArticleRemoveButtonClick(article))"/>
                         </MudTooltip>
                         <MudMenu Icon="@Icons.Material.Filled.MoreVert">
                             @switch(article.Item.State)

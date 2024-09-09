@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 
 using MudBlazor;
+using MudBlazor.Extensions;
 
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 using TMod.Blog.Data.Models.ViewModels.Articles;
 using TMod.Blog.Data.Models.ViewModels.Categories;
+using TMod.Blog.Web.Core.Components.Articles;
 using TMod.Blog.Web.Models;
 using TMod.Blog.Web.Models.Articles;
 using TMod.Blog.Web.Services.Abstraction;
@@ -44,6 +46,12 @@ namespace TMod.Blog.Web.Core.Pages.Admin.Articles
 
         [Inject]
         public ISnackbar? Snackbar { get; set; }
+
+        [Inject]
+        public IDialogService? DialogService { get; set; }
+
+        [Inject]
+        public NavigationManager? NavigationManager { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -245,6 +253,78 @@ namespace TMod.Blog.Web.Core.Pages.Admin.Articles
             {
                 Snackbar!.Add($"批量修改文章状态失败，请稍后再试",Severity.Warning);
             }
+        }
+
+        private async Task BatchRemoveArticleAsync(List<ArticleViewModel?> articles)
+        {
+            if(articles is null || articles.Count == 0 )
+            {
+                return;
+            }
+            string confirmMessage = $"是否要删除{(articles.Count == 1?$"[{articles?.First()?.Title}]这一篇":articles.Count > 5?$"{string.Join("\r\n",articles.Take(5).Select(p=>$"[{p?.Title}]"))}等共{articles.Count}篇":$"{string.Join("\r\n",articles.Select(p=>$"[{p?.Title}]"))}这几篇")}文章？";
+            bool? confirm = await DialogService!.ShowMessageBox("删除确认",confirmMessage,"是","否",options:new DialogOptions()
+            {
+                DisableBackdropClick = true
+            });
+            if(confirm != true )
+            {
+                return;
+            }
+            bool result = false;
+            if(articles!.Count == 1 )
+            {
+                result = await ArticleService!.RemoveArticleAsync(articles!.First()!.Id);
+            }
+            else
+            {
+                result = await ArticleService!.BatchRemoveArticleAsync(articles.Where(q=>q is not null).Select(p => p!.Id).ToList());
+            }
+            if ( result )
+            {
+                Snackbar!.Add("删除成功", Severity.Success);
+            }
+        }
+
+        private async Task OnArticleRemoveButtonClick(CellContext<ArticleViewModel> context)
+        {
+            if(context is null || context.Item is null )
+            {
+                return;
+            }
+            await BatchRemoveArticleAsync([context.Item]);
+        }
+
+        private async Task OnBatchRemoveButtonClick()
+        {
+            if(_selectedArticles is null || _selectedArticles.Count == 0 )
+            {
+                return;
+            }
+            await BatchRemoveArticleAsync(_selectedArticles.ToList());
+        }
+
+        private async Task OpenArticlePreviewDialogAsync(CellContext<ArticleViewModel> context)
+        {
+            if(context is null || context.Item is null )
+            {
+                return;
+            }
+            DialogParameters parameter = new DialogParameters()
+            {
+                {"Article",context.Item },
+                {"IsAdmin", true }
+            };
+            DialogOptions options = new DialogOptions()
+            {
+                //FullScreen = true,
+                DisableBackdropClick = true,
+                MaxWidth = MaxWidth.Medium,
+                FullWidth = true,
+                //NoHeader = true,
+                CloseButton = true,
+                CloseOnEscapeKey = true
+            };
+            await DialogService!.ShowAsync<ArticlePreview>("", parameter, options);
         }
     }
 }

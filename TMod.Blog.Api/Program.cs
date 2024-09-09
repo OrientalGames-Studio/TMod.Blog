@@ -6,12 +6,16 @@ using TMod.Blog.Data.Repositories;
 using TMod.Blog.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 
 builder.Services.AddControllers(op =>
 {
     op.ModelBinderProviders.Add(new UpdateArticleModelBinderProvider());
+});
+
+builder.Services.ConfigureHttpJsonOptions(op =>
+{
+    op.SerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -80,6 +84,7 @@ app.MapControllers();
 app.MapArticleCommentsEndpoints()
     .MapArticleCategoriesEndpoints()
     .MapArticleTagsEndpoints()
+    .MapArticleContentEndpoints()
     .MapAntiforgeryTokenEndpoints();
 
 app.Run();
