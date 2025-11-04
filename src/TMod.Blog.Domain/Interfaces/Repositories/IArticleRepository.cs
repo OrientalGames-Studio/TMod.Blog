@@ -25,10 +25,12 @@ namespace TMod.Blog.Domain.Interfaces.Repositories
         /// 按照分类分页查询文章
         /// </summary>
         /// <param name="categoryId">分类Id</param>
+        /// <param name="keyword">文章标题或Slug模糊查询</param>
+        /// <param name="articleStatus">文章状态筛选</param>
         /// <param name="pageIndex">当前页码</param>
         /// <param name="pageSize">单页数据大小</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<IReadOnlyList<Article>> PagingArticleByCategoryAsync(Guid categoryId, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<Article>> PagingArticleByCategoryAsync(Guid categoryId,string? keyword = null, ArticleStatusEnum articleStatus = ArticleStatusEnum.Draft|ArticleStatusEnum.Published|ArticleStatusEnum.Unpublished, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default);
     }
 }

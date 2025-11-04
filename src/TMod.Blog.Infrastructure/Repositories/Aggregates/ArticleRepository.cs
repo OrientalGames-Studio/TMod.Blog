@@ -22,7 +22,7 @@ namespace TMod.Blog.Infrastructure.Repositories.Aggregates
             return await GetEntityAsync(getDetailSpecification,cancellationToken);
         }
 
-        public async Task<IReadOnlyList<Article>> PagingArticleByCategoryAsync(Guid categoryId, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyList<Article>> PagingArticleByCategoryAsync(Guid categoryId,string? keyword = null, ArticleStatusEnum articleStatus = ArticleStatusEnum.Draft| ArticleStatusEnum.Published| ArticleStatusEnum.Unpublished , int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default)
         {
             int skip = (Math.Max(1,pageIndex) - 1) * pageSize;
             ISpecification<Article> pagingArticleSpecification = ArticleSpecification.CreatePagingByCategoryId(categoryId,skip,pageSize);

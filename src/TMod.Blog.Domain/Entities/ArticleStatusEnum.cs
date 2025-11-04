@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace TMod.Blog.Domain.Entities
 {
+    [Flags]
     public enum ArticleStatusEnum
     {
-        Draft = 0,
-        Published = 1,
-        Unpublished = 2,
+        Draft = 2,
+        Published = 4,
+        Unpublished = 8,
     }
 }
