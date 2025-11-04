@@ -74,5 +74,27 @@ namespace TMod.Blog.Infrastructure.Repositories
             }
             return await set.FindAsync([id], cancellationToken);
         }
+
+        public async Task<IReadOnlyList<T>> QueryAllAsync<T>(ISpecification<T> specification, CancellationToken cancellationToken = default) where T : class
+        {
+            return await QueryAllAsync<T>(context.Set<T>().AsQueryable(), specification,cancellationToken);
+        }
+
+        public async Task<IReadOnlyList<T>> QueryAllAsync<T>(IQueryable<T> items, ISpecification<T> specification, CancellationToken cancellationToken = default) where T : class
+        {
+            var query = SpecificationEvaluator.GetQuery(items,specification);
+            return await query.ToListAsync(cancellationToken);
+        }
+
+        public async Task<T?> QueryAsync<T>(ISpecification<T> specification, CancellationToken cancellationToken = default) where T : class
+        {
+            return await QueryAsync<T>(context.Set<T>().AsQueryable(),specification,cancellationToken);
+        }
+
+        public async Task<T?> QueryAsync<T>(IQueryable<T> items, ISpecification<T> specification, CancellationToken cancellationToken = default) where T : class
+        {
+            var query = SpecificationEvaluator.GetQuery(items,specification);
+            return await query.FirstOrDefaultAsync(cancellationToken);
+        }
     }
 }

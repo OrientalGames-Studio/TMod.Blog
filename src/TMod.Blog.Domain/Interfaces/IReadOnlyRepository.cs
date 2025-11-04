@@ -57,5 +57,43 @@ namespace TMod.Blog.Domain.Interfaces
         /// <param name="specification">筛选条件</param>
         /// <returns></returns>
         Task<int> CountAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 高级查询，跨聚合根查数据
+        /// </summary>
+        /// <typeparam name="T">实体类型</typeparam>
+        /// <param name="specification">筛选条件</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<T?> QueryAsync<T>(ISpecification<T> specification, CancellationToken cancellationToken = default) where T : class;
+
+        /// <summary>
+        /// 高级查询，跨聚合根查数据
+        /// </summary>
+        /// <typeparam name="T">实体类型</typeparam>
+        /// <param name="items">数据集</param>
+        /// <param name="specification">筛选条件</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<T?> QueryAsync<T>(IQueryable<T> items,ISpecification<T> specification,CancellationToken cancellationToken = default) where T : class;
+
+        /// <summary>
+        /// 高级查询，跨聚合根查数据
+        /// </summary>
+        /// <typeparam name="T">实体类型</typeparam>
+        /// <param name="specification">筛选条件</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<IReadOnlyList<T>> QueryAllAsync<T>(ISpecification<T> specification, CancellationToken cancellationToken = default) where T : class;
+
+        /// <summary>
+        /// 高级查询，跨聚合根查数据
+        /// </summary>
+        /// <typeparam name="T">实体类型</typeparam>
+        /// <param name="items">数据集</param>
+        /// <param name="specification">筛选条件</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<IReadOnlyList<T>> QueryAllAsync<T>(IQueryable<T> items, ISpecification<T> specification, CancellationToken cancellationToken = default) where T : class;
     }
 }
