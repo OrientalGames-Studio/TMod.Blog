@@ -19,6 +19,8 @@ namespace TMod.Blog.Domain.Specifications
 
         public Expression<Func<TEntity, object>>? OrderByDescending { get; protected set; }
 
+        public List<Expression<Func<TEntity,object>>> ThenByChain { get; protected set; }
+
         public int? Skip { get; protected set; }
 
         public int? Take { get; protected set; }
@@ -51,6 +53,15 @@ namespace TMod.Blog.Domain.Specifications
         }
 
         protected void ApplyOrderBy(Expression<Func<TEntity, object>>? orderByExpression) => OrderBy = orderByExpression;
+
+        protected void ApplyThenBy(Expression<Func<TEntity,object>> thenByExpression)
+        {
+            if(OrderBy is null || OrderByDescending is null )
+            {
+                throw new NotSupportedException($"添加 {nameof(ThenByChain)} 之前必须先应用 {nameof(OrderBy)} 或 {nameof(OrderByDescending)}");
+            }
+            ThenByChain.Add(thenByExpression);
+        }
 
         protected void ApplyOrderByDescending(Expression<Func<TEntity, object>> orderByExpression) => OrderByDescending = orderByExpression;
 

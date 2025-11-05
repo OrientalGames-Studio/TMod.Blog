@@ -39,6 +39,11 @@ namespace TMod.Blog.Domain.Specifications
         Expression<Func<TEntity,object>>? OrderByDescending { get; }
 
         /// <summary>
+        /// 多级 OrderBy
+        /// </summary>
+        List<Expression<Func<TEntity, object>>> ThenByChain { get; }
+
+        /// <summary>
         /// 偏移量（分页）
         /// </summary>
         int? Skip { get; }
