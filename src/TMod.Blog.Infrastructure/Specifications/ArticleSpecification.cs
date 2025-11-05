@@ -50,5 +50,23 @@ namespace TMod.Blog.Infrastructure.Specifications
             }
             return specification;
         }
+
+        public static ISpecification<Article> CreatePaging(int skip, int take, string? keyword = null, ArticleStatusEnum articleStatus = ArticleStatusEnum.Draft | ArticleStatusEnum.Published | ArticleStatusEnum.Unpublished, bool showDeleted = false)
+        {
+            ArticleSpecification specification = new ArticleSpecification();
+            specification.ApplyPaging(skip, take);
+            specification.AddInclude(c => c.Category);
+            specification.AddInclude(c => c.Tags);
+            specification.AddCriteria(a => ( a.Status & articleStatus ) == articleStatus);
+            if ( !string.IsNullOrWhiteSpace(keyword) )
+            {
+                specification.AddCriteria(a => a.Title.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) || a.Slug.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
+            }
+            if ( !showDeleted )
+            {
+                specification.AddCriteria(c => !c.IsDeleted);
+            }
+            return specification;
+        }
     }
 }
