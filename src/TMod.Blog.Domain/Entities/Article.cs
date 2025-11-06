@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TMod.Blog.Domain.Entities
 {
-    public class Article:BaseEntity<Guid>
+    public class Article:BaseEntity<Guid>,ISharable
     {
         [MaxLength(128)]
         public required string Title { get; set; }

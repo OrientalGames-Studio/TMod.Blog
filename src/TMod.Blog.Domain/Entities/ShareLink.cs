@@ -34,6 +34,6 @@ namespace TMod.Blog.Domain.Entities
         public string? CreatorIp { get; set; }
 
         [NotMapped]
-        public object? Target {  get; set; }
+        public ISharable? Target {  get; set; }
     }
 }

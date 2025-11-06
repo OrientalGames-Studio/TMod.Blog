@@ -11,7 +11,7 @@ namespace TMod.Blog.Infrastructure.Specifications
 {
     internal class ShareLinkSpecification : BaseSpecification<ShareLink>
     {
-        public ISpecification<ShareLink> CreateGetShareLinkByShortCode(string shortCode)
+        public static ISpecification<ShareLink> CreateGetShareLinkByShortCode(string shortCode)
         {
             ShareLinkSpecification result = new ShareLinkSpecification();
             result.AddCriteria(s => StringComparer.InvariantCulture.Compare(s.ShortCode, shortCode) == 0);

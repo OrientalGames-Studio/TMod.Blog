@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TMod.Blog.Domain.Entities
 {
-    public class Comment:BaseEntity<Guid>
+    public class Comment : BaseEntity<Guid>, ISharable
     {
         public required Guid ArticleId { get; set; }
 
@@ -20,6 +20,7 @@ namespace TMod.Blog.Domain.Entities
         public required string AuthorEmail { get; set; }
 
         public required string Content { get; set; }
+        public bool IsShareEnabled { get; set; } = true;
 
         public Guid? ParentId { get; set; }
 
