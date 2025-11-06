@@ -47,7 +47,7 @@ namespace TMod.Blog.Domain.Specifications
             {
                 foreach ( var thenBy in specification.ThenByChain )
                 {
-                    orderedQuery.ThenBy(thenBy);
+                    orderedQuery = orderedQuery.ThenBy(thenBy);
                 }
                 query = orderedQuery;
             }

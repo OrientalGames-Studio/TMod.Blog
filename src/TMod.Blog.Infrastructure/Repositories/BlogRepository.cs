@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TMod.Blog.Domain.Entities;
 using TMod.Blog.Domain.Interfaces;
 using TMod.Blog.Infrastructure.Contextes;
 
@@ -48,11 +49,15 @@ namespace TMod.Blog.Infrastructure.Repositories
             }
             else
             {
-                var prop = entity.GetType().GetProperty("IsDeleted");
-                if ( prop != null )
-                    prop.SetValue(entity, true);
+                if(entity is ISoftDeleteable softDeleteable )
+                {
+                    softDeleteable.IsDeleted = true;
+                    softDeleteable.DeleteDate = DateTime.Now;
+                }
                 else
+                {
                     set.Remove(entity);
+                }
             }
 
             return true;
@@ -67,6 +72,10 @@ namespace TMod.Blog.Infrastructure.Repositories
         {
             try
             {
+                if(entity is IUpdateFlagable updateFlagable )
+                {
+                    updateFlagable.UpdateDate = DateTime.Now;
+                }
                 set.Update(entity);
                 return true;
             }

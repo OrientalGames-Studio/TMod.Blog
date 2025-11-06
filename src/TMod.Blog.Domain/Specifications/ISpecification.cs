@@ -26,6 +26,7 @@ namespace TMod.Blog.Domain.Specifications
         /// <summary>
         /// 字符串形式的 Include 导航属性
         /// </summary>
+        [Obsolete("为了更好的支持 AOT，建议使用 {Includes}")]
         List<string> IncludeStrings { get; }
 
         /// <summary>

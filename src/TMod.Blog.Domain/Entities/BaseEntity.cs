@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TMod.Blog.Domain.Entities
 {
-    public abstract class BaseEntity<TKey>
+    public abstract class BaseEntity<TKey>: ISoftDeleteable,IUpdateFlagable
     {
         public required TKey Id { get; set; }
 
