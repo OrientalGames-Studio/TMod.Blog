@@ -12,7 +12,7 @@ using TMod.Blog.Infrastructure.Specifications;
 
 namespace TMod.Blog.Infrastructure.Repositories.Aggregates
 {
-    internal class SiteConfigurationRepository(TMod_Blog_RW_Context context) : BlogRepository<SiteConfiguration, Guid>(context), ISiteConfigurationRepository
+    internal class SiteConfigurationRepository(TMod_Blog_RW_Context context) : BlogRepository<SiteConfiguration, int>(context), ISiteConfigurationRepository
     {
         public async Task<SiteConfiguration?> GetConfigurationAsync(string configKey, CancellationToken cancellationToken = default)
         {

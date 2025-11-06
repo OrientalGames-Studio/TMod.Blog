@@ -11,7 +11,7 @@ namespace TMod.Blog.Domain.Interfaces.Repositories
     /// <summary>
     /// 站点配置聚合根仓储接口
     /// </summary>
-    public interface ISiteConfigurationRepository:IRepository<SiteConfiguration,Guid>,IReadOnlyRepository<SiteConfiguration,Guid>
+    public interface ISiteConfigurationRepository:IRepository<SiteConfiguration,int>,IReadOnlyRepository<SiteConfiguration,int>
     {
         /// <summary>
         /// 获取配置
