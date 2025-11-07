@@ -125,6 +125,8 @@ namespace TMod.Blog.Infrastructure.Contextes
         {
             modelBuilder.Entity<Article>(entity =>
             {
+                entity.ToTable("articles");
+
                 entity.Property(a => a.Id)
                 .HasDefaultValueSql<Guid>("NEWSEQUENTIALID()");
 
