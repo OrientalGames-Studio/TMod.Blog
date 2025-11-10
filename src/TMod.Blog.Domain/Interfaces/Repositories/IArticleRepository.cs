@@ -32,5 +32,13 @@ namespace TMod.Blog.Domain.Interfaces.Repositories
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<IReadOnlyList<Article>> PagingArticleByCategoryAsync(Guid categoryId,string? keyword = null, ArticleStatusEnum articleStatus = ArticleStatusEnum.Draft|ArticleStatusEnum.Published|ArticleStatusEnum.Unpublished, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 计算一个 SEO 友好的 Slug 出现的次数
+        /// </summary>
+        /// <param name="slug">字符串</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<int> CountSlugAsync(string slug,CancellationToken cancellationToken = default);
     }
 }

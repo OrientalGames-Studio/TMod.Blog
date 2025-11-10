@@ -68,5 +68,12 @@ namespace TMod.Blog.Infrastructure.Specifications
             }
             return specification;
         }
+
+        public static ISpecification<Article> CreateCountSlug(string slug)
+        {
+            ArticleSpecification articleSpecification = new ArticleSpecification(a=>a.Slug.IsSimilarTo(slug,0.85));
+            articleSpecification.AddCriteria(a => !a.IsDeleted);
+            return articleSpecification;
+        }
     }
 }

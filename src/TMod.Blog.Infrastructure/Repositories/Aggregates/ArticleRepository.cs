@@ -16,6 +16,13 @@ namespace TMod.Blog.Infrastructure.Repositories.Aggregates
 {
     internal class ArticleRepository(TMod_Blog_RW_Context context) : BlogRepository<Article, Guid>(context), IArticleRepository
     {
+        public async Task<int> CountSlugAsync(string slug, CancellationToken cancellationToken = default)
+        {
+            ISpecification<Article> specification = ArticleSpecification.CreateCountSlug(slug);
+            IReadOnlyList<Article> articles = await GetAllEntitiesAsync(specification, cancellationToken);
+            return articles.Count();
+        }
+
         public async Task<Article?> GetArticleWithDetailByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             ISpecification<Article> getDetailSpecification = ArticleSpecification.CreateGetDetail(id);

@@ -9,10 +9,12 @@ using System.Threading.Tasks;
 using TMod.Blog.Domain.Entities;
 using TMod.Blog.Domain.Interfaces;
 using TMod.Blog.Domain.Interfaces.Repositories;
+using TMod.Blog.Domain.Interfaces.Services;
 using TMod.Blog.Domain.Interfaces.UnitOfWorks;
 using TMod.Blog.Infrastructure.Repositories;
 using TMod.Blog.Infrastructure.Repositories.Aggregates;
 using TMod.Blog.Infrastructure.Repositories.UnitOfWorks;
+using TMod.Blog.Infrastructure.Services;
 
 namespace TMod.Blog.Infrastructure
 {
@@ -49,6 +51,8 @@ namespace TMod.Blog.Infrastructure
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IReadOnlyRepository<Tag,Guid>,TagRepository>();
             services.AddScoped<IRepository<Tag,Guid>, TagRepository>();
+
+            services.AddSingleton<ISiteConfigurationCacheService, SiteConfigurationCacheService>();
             return services;
         }
     }
