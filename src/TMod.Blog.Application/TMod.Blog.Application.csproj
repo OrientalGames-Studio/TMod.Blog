@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TMod.Blog.Domain\TMod.Blog.Domain.csproj" />
+    <ProjectReference Include="..\TMod.Blog.Infrastructure\TMod.Blog.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

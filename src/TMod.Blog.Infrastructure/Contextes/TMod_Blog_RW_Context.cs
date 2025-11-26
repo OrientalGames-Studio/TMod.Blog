@@ -64,7 +64,7 @@ namespace TMod.Blog.Infrastructure.Contextes
                     new SiteConfiguration()
                     {
                         Id = 1,
-                        ConfigKey = "SITE_TITLE",
+                        ConfigKey = SITE_TITLE,
                         ConfigValue = "我的个人博客",
                         Description = "站点标题配置项",
                         CreateDate = DateTime.Parse("2025-11-04 10:41")
@@ -72,7 +72,7 @@ namespace TMod.Blog.Infrastructure.Contextes
                     new SiteConfiguration()
                     {
                         Id = 2,
-                        ConfigKey = "SITE_SHORT_CODE_WORKER_ID",
+                        ConfigKey = SITE_SHORT_CODE_WORKER_ID,
                         ConfigValue = "522",
                         Description = "短码服务的 Worker Id",
                         CreateDate = DateTime.Parse("2025-11-07 17:40")
@@ -80,7 +80,7 @@ namespace TMod.Blog.Infrastructure.Contextes
                     new SiteConfiguration()
                     {
                         Id = 3,
-                        ConfigKey = "SITE_SHORT_CODE_EPOCH",
+                        ConfigKey = SITE_SHORT_CODE_EPOCH,
                         ConfigValue = "2025-01-01",
                         Description = "短码服务的 epoch",
                         CreateDate = DateTime.Parse("2025-11-07 17:40")
@@ -88,7 +88,7 @@ namespace TMod.Blog.Infrastructure.Contextes
                     new SiteConfiguration()
                     {
                         Id = 4,
-                        ConfigKey = "SITE_SHORT_CODE_SECRET_KEY",
+                        ConfigKey = SITE_SHORT_CODE_SECRET_KEY,
                         ConfigValue = "ZyfPassw0rd!Blog",
                         Description = "短码服务的密钥",
                         CreateDate = DateTime.Parse("2025-11-07 17:40")
@@ -96,7 +96,7 @@ namespace TMod.Blog.Infrastructure.Contextes
                     new SiteConfiguration()
                     {
                         Id = 5,
-                        ConfigKey = "SITE_SHORT_CODE_MIN_LENGTH",
+                        ConfigKey = SITE_SHORT_CODE_MIN_LENGTH,
                         ConfigValue = "6",
                         Description = "短码服务生成的短码最少几位",
                         CreateDate = DateTime.Parse("2025-11-07 17:40")
@@ -104,7 +104,7 @@ namespace TMod.Blog.Infrastructure.Contextes
                     new SiteConfiguration()
                     {
                         Id = 6,
-                        ConfigKey = "SITE_SHORT_CODE_MAX_LENGTH",
+                        ConfigKey = SITE_SHORT_CODE_MAX_LENGTH,
                         ConfigValue = "20",
                         Description = "短码服务生成的短码最多几位",
                         CreateDate = DateTime.Parse("2025-11-07 17:40")

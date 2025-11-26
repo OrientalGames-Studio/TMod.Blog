@@ -27,22 +27,22 @@ namespace TMod.Blog.Infrastructure.Services
         {
             _configurationCacheService = configurationCacheService;
             _logger = logger;
-            string secret = _configurationCacheService.GetConfiguration("SITE_SHORT_CODE_SECRET_KEY")!;
-            if(!int.TryParse(_configurationCacheService.GetConfiguration("SITE_SHORT_CODE_WORKER_ID"), out int workerId) )
+            string secret = _configurationCacheService.GetConfiguration(SITE_SHORT_CODE_SECRET_KEY)!;
+            if(!int.TryParse(_configurationCacheService.GetConfiguration(SITE_SHORT_CODE_WORKER_ID), out int workerId) )
             {
                 workerId = 1;
             }
-            if(!DateTime.TryParse(_configurationCacheService.GetConfiguration("SITE_SHORT_CODE_EPOCH"),out DateTime epoch) )
+            if(!DateTime.TryParse(_configurationCacheService.GetConfiguration(SITE_SHORT_CODE_EPOCH),out DateTime epoch) )
             {
                 epoch = DateTime.Parse("2025-01-01");
             }
             _snowflakeIdGenerator = new SnowflakeIdGenerator(workerId,epoch);
             _mask = DeriveMask(secret);
-            if(!int.TryParse(_configurationCacheService.GetConfiguration("SITE_SHORT_CODE_MIN_LENGTH"),out _minLength) )
+            if(!int.TryParse(_configurationCacheService.GetConfiguration(SITE_SHORT_CODE_MIN_LENGTH),out _minLength) )
             {
                 _minLength = 4;
             }
-            if(!int.TryParse(_configurationCacheService.GetConfiguration("SITE_SHORT_CODE_MAX_LENGTH"),out _maxLength) )
+            if(!int.TryParse(_configurationCacheService.GetConfiguration(SITE_SHORT_CODE_MAX_LENGTH),out _maxLength) )
             {
                 _maxLength = 20;
             }

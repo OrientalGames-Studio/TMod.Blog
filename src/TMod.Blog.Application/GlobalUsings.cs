@@ -1,0 +1,1 @@
+﻿global using static TMod.Blog.Domain.Constants.ConfigKeyConstants;
