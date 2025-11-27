@@ -75,5 +75,41 @@ namespace TMod.Blog.Infrastructure.Specifications
             articleSpecification.AddCriteria(a => !a.IsDeleted);
             return articleSpecification;
         }
+
+        public static ISpecification<Article> CreateGetBySlug(string slug,bool showDeleted = false)
+        {
+            ArticleSpecification specification = new ArticleSpecification(a=>a.Slug.Equals(slug,StringComparison.InvariantCulture));
+            if ( !showDeleted )
+            {
+                specification.AddCriteria(c => !c.IsDeleted);
+            }
+            return specification;
+        }
+
+        public static ISpecification<Article> CreatePagingWithFullFilter(int skip,int take,Guid? categoryId = null,Guid? tagId = null,string? keyword = null,ArticleStatusEnum articleStatus = ArticleStatusEnum.Draft|ArticleStatusEnum.Published|ArticleStatusEnum.Unpublished,bool showDeleted = false)
+        {
+            ArticleSpecification specification = new ArticleSpecification();
+            if(categoryId is not null && categoryId != Guid.Empty )
+            {
+                specification.AddInclude(a => a.Category);
+                specification.AddCriteria(a=>a.CategoryId == categoryId);
+            }
+            if(tagId is not null && tagId != Guid.Empty )
+            {
+                specification.AddInclude(a => a.Tags);
+                specification.AddCriteria(a=>a.Tags.Any(t=>t.Id == tagId));
+            }
+            if ( !string.IsNullOrWhiteSpace(keyword) )
+            {
+                specification.AddCriteria(a => a.Title.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) || a.Slug.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
+            }
+            if ( !showDeleted )
+            {
+                specification.AddCriteria(a => !a.IsDeleted);
+            }
+            specification.AddCriteria(a=>(a.Status & articleStatus ) == articleStatus);
+            specification.ApplyPaging(skip, take);
+            return specification;
+        }
     }
 }

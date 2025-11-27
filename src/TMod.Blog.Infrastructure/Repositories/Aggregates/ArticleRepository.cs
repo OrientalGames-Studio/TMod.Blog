@@ -23,6 +23,12 @@ namespace TMod.Blog.Infrastructure.Repositories.Aggregates
             return articles.Count();
         }
 
+        public async Task<Article?> GetArticleBySlugAsync(string slug, CancellationToken cancellationToken = default)
+        {
+            ISpecification<Article> getBySlugSpecification = ArticleSpecification.CreateGetBySlug(slug);
+            return await GetEntityAsync(getBySlugSpecification,cancellationToken);
+        }
+
         public async Task<Article?> GetArticleWithDetailByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             ISpecification<Article> getDetailSpecification = ArticleSpecification.CreateGetDetail(id);

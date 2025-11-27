@@ -40,5 +40,13 @@ namespace TMod.Blog.Domain.Interfaces.Repositories
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<int> CountSlugAsync(string slug,CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 通过 Slug 获取文章
+        /// </summary>
+        /// <param name="slug">Slug</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<Article?> GetArticleBySlugAsync(string slug,CancellationToken cancellationToken = default);
     }
 }
