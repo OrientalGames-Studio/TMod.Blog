@@ -31,5 +31,15 @@ namespace TMod.Blog.Infrastructure.Specifications
             }
             return specification;
         }
+
+        public static ISpecification<Category> CreatePagingCategoriesByParentIdWithNameFilter(Guid? parentId,string? categoryName, int skip, int take, bool showDeleted = false)
+        {
+            CategorySpecification specification = (CategorySpecification)CreatePagingCategoriesByParentId(parentId,skip,take,showDeleted);
+            if ( !string.IsNullOrWhiteSpace(categoryName) )
+            {
+                specification.AddCriteria(c => c.Name.Contains(categoryName, StringComparison.InvariantCultureIgnoreCase));
+            }
+            return specification;
+        }
     }
 }
