@@ -26,6 +26,8 @@ namespace TMod.Blog.Infrastructure.Contextes
 
         public DbSet<SiteConfiguration> SiteConfigurations => Set<SiteConfiguration>();
 
+        public DbSet<Favorite> Favorites => Set<Favorite>();
+
         public TMod_Blog_RW_Context(DbContextOptions options) : base(options)
         {
         }
@@ -43,7 +45,18 @@ namespace TMod.Blog.Infrastructure.Contextes
             ConfigureComment(modelBuilder);
             ConfigureShareLink(modelBuilder);
             ConfigureSiteConfiguration(modelBuilder);
+            ConfigureFavories(modelBuilder);
             SeedInitialData(modelBuilder);
+        }
+
+        private void ConfigureFavories(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Favorite>(entity =>
+            {
+                entity.Property(f => f.Id)
+                .HasDefaultValueSql<Guid>("NEWSEQUENTIALID()");
+                entity.ToTable("favorites");
+            });
         }
 
         private void SeedInitialData(ModelBuilder modelBuilder)

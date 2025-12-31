@@ -19,5 +19,11 @@ namespace TMod.Blog.Application.Dtos
         public bool IsShareEnabled { get; set; }
 
         public Guid? ParentId { get; set; }
+
+        public Guid? ArticleId { get; set; }
+
+        public bool IsDeleted { get; set; }
+
+        public string? AuthorIp { get; set; }
     }
 }

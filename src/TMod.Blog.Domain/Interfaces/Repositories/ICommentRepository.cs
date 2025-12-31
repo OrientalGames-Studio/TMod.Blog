@@ -32,13 +32,5 @@ namespace TMod.Blog.Domain.Interfaces.Repositories
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<IReadOnlyList<Comment>> PagingCommentRepliesAsync(Guid commentId, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// 删除评论
-        /// </summary>
-        /// <param name="commentId">评论Id</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        Task<bool> DeleteCommentAsync(Guid commentId,CancellationToken cancellationToken = default);
     }
 }

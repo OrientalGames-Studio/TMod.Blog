@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TMod.Blog.Domain.Entities
 {
-    public class Comment : BaseEntity<Guid>, ISharable
+    public class Comment : BaseEntity<Guid>, ISharable,IFavoriteable
     {
         public required Guid ArticleId { get; set; }
 
