@@ -15,10 +15,13 @@ namespace TMod.Blog.Infrastructure.Repositories.UnitOfWorks
         public IArticleRepository ArticleRepository { get; set; }
 
         public ICommentRepository CommentRepository { get; set; }
-        public CommentUnitOfWork(TMod_Blog_RW_Context _context,IArticleRepository articleRepository,ICommentRepository commentRepository) : base(_context)
+
+        public IFavoriteRepository FavoriteRepository { get; set; }
+        public CommentUnitOfWork(TMod_Blog_RW_Context _context,IArticleRepository articleRepository,ICommentRepository commentRepository,IFavoriteRepository favoriteRepository) : base(_context)
         {
             ArticleRepository = articleRepository;
             CommentRepository = commentRepository;
+            FavoriteRepository = favoriteRepository;
         }
     }
 }

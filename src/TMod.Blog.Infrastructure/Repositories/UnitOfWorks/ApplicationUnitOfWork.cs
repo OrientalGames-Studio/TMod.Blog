@@ -24,13 +24,17 @@ namespace TMod.Blog.Infrastructure.Repositories.UnitOfWorks
         public ISiteConfigurationRepository SiteConfigurationRepository { get; set; }
 
         public ITagRepository TagRepository { get; set; }
+
+        public IFavoriteRepository FavoriteRepository { get; set; }
+
         public ApplicationUnitOfWork(TMod_Blog_RW_Context _context
             ,IArticleRepository articleRepository
             ,ICategoryRepository categoryRepository
             ,ICommentRepository commentRepository
             ,IShareLinkRepository shareLinkRepository
             ,ISiteConfigurationRepository siteConfigurationRepository
-            ,ITagRepository tagRepository) : base(_context)
+            ,ITagRepository tagRepository
+            ,IFavoriteRepository favoriteRepository) : base(_context)
         {
             ArticleRepository = articleRepository;
             CategoryRepository = categoryRepository;
@@ -38,6 +42,7 @@ namespace TMod.Blog.Infrastructure.Repositories.UnitOfWorks
             ShareLinkRepository = shareLinkRepository;
             SiteConfigurationRepository = siteConfigurationRepository;
             TagRepository = tagRepository;
+            FavoriteRepository = favoriteRepository;
         }
     }
 }
