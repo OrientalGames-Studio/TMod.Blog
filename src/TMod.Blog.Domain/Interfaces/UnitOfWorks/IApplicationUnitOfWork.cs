@@ -24,5 +24,7 @@ namespace TMod.Blog.Domain.Interfaces.UnitOfWorks
         ISiteConfigurationRepository SiteConfigurationRepository { get; }
 
         ITagRepository TagRepository { get; }
+
+        IFavoriteRepository FavoriteRepository { get; }
     }
 }

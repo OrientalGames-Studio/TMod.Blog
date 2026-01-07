@@ -13,5 +13,7 @@ namespace TMod.Blog.Domain.Interfaces.UnitOfWorks
         IArticleRepository ArticleRepository { get; }
 
         ICommentRepository CommentRepository { get; }
+
+        IFavoriteRepository FavoriteRepository { get; }
     }
 }

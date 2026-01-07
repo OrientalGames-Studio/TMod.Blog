@@ -20,7 +20,5 @@ namespace TMod.Blog.Application.Services
         Task<PagingDto<CommentDto>> PagingCommentsByCommentAsync(Guid commentId,int pageIndex = 1,int pageSize = 20, CancellationToken cancellationToken = default);
 
         Task<CommentDto?> GetCommentByIdAsync(Guid commentId, CancellationToken cancellationToken = default);
-
-        Task FavoriteAsync(Guid commentId,CancellationToken cancellationToken = default);
     }
 }

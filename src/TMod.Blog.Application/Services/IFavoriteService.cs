@@ -8,9 +8,9 @@ namespace TMod.Blog.Application.Services
 {
     public interface IFavoriteService
     {
-        Task FavoriteArticleAsync(Guid articleId,CancellationToken token = default);
+        Task FavoriteArticleAsync(Guid articleId, string fingerprint, string clientIp, CancellationToken token = default);
 
-        Task FavoriteCommentAsync(Guid commentId,CancellationToken token = default);
+        Task FavoriteCommentAsync(Guid commentId, string fingerprint, string clientIp, CancellationToken token = default);
 
         Task<int> CountArticleFavoritesAsync(Guid articleId,CancellationToken token = default);
 

@@ -13,6 +13,7 @@ using TMod.Blog.Application.Requests.Comment;
 using TMod.Blog.Domain.Entities;
 using TMod.Blog.Domain.Interfaces.Repositories;
 using TMod.Blog.Domain.Interfaces.UnitOfWorks;
+using TMod.Blog.Infrastructure.Specifications;
 
 namespace TMod.Blog.Application.Services.Implements
 {
@@ -71,24 +72,78 @@ namespace TMod.Blog.Application.Services.Implements
             return true;
         }
 
-        public Task FavoriteAsync(Guid commentId, CancellationToken cancellationToken = default)
+        public async Task<CommentDto?> GetCommentByIdAsync(Guid commentId, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            Comment? comment = await _unitOfWork.CommentRepository.GetEntityByIdAsync(commentId,true,cancellationToken);
+            if(comment is null )
+            {
+                return null;
+            }
+            return _mapper.Map<CommentDto>(comment);
         }
 
-        public Task<CommentDto?> GetCommentByIdAsync(Guid commentId, CancellationToken cancellationToken = default)
+        public async Task<PagingDto<CommentDto>> PagingCommentsByArticleAsync(Guid articleId, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            pageIndex = Math.Max(1, pageIndex);
+            int skip = (pageIndex - 1) * pageSize;
+            Article? article = await _unitOfWork.ArticleRepository.GetEntityByIdAsync(articleId,true,cancellationToken);
+            if(article is null)
+            {
+                return new PagingDto<CommentDto>()
+                {
+                    PageIndex = pageIndex,
+                    PageSize = pageSize,
+                    DataCount = 0,
+                    PageCount = 1,
+                    Items = Array.Empty<CommentDto>()
+                };
+            }
+            var specification = CommentSpecification.CreatePagingArticleComment(articleId,skip,pageSize);
+            int totalCount = await _unitOfWork.CommentRepository.CountAsync(specification,cancellationToken);
+            var comments = await _unitOfWork.CommentRepository.GetAllEntitiesAsync(specification,cancellationToken);
+            int pageCount = (int)Math.Ceiling((double)totalCount / (double)pageSize);
+            pageCount = Math.Max(1, pageCount);
+            var commentDtos = _mapper.Map<List<CommentDto>>(comments)??[];
+            return new PagingDto<CommentDto>()
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                PageCount = pageCount,
+                DataCount = totalCount,
+                Items = commentDtos
+            };
         }
 
-        public Task<PagingDto<CommentDto>> PagingCommentsByArticleAsync(Guid articleId, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default)
+        public async Task<PagingDto<CommentDto>> PagingCommentsByCommentAsync(Guid commentId, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<PagingDto<CommentDto>> PagingCommentsByCommentAsync(Guid commentId, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
+            pageIndex = Math.Max(1, pageIndex);
+            int skip = (pageIndex - 1) * pageSize;
+            Comment? comment = await _unitOfWork.CommentRepository.GetEntityByIdAsync(commentId,true,cancellationToken);
+            if(comment is null )
+            {
+                return new PagingDto<CommentDto>()
+                {
+                    PageIndex = pageIndex,
+                    PageSize = pageSize,
+                    DataCount = 0,
+                    PageCount = 1,
+                    Items = Array.Empty<CommentDto>()
+                };
+            }
+            var specification = CommentSpecification.CreatePagingCommentReplies(commentId,skip,pageSize);
+            int totalCount = await _unitOfWork.CommentRepository.CountAsync(specification,cancellationToken);
+            var comments = await _unitOfWork.CommentRepository.GetAllEntitiesAsync(specification,cancellationToken);
+            int pageCount = (int)Math.Ceiling((double)totalCount / (double)pageSize);
+            pageCount = Math.Max(1, pageCount);
+            var commentDtos = _mapper.Map<List<CommentDto>>(comments)??[];
+            return new PagingDto<CommentDto>()
+            {
+                PageIndex = pageIndex,
+                PageCount = pageCount,
+                PageSize = pageSize,
+                DataCount = totalCount,
+                Items = commentDtos
+            };
         }
     }
 }
