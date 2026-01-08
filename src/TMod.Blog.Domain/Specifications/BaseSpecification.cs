@@ -19,7 +19,7 @@ namespace TMod.Blog.Domain.Specifications
 
         public Expression<Func<TEntity, object>>? OrderByDescending { get; protected set; }
 
-        public List<Expression<Func<TEntity,object>>> ThenByChain { get; protected set; }
+        public List<Expression<Func<TEntity, object>>> ThenByChain { get; protected set; } = [];
 
         public int? Skip { get; protected set; }
 

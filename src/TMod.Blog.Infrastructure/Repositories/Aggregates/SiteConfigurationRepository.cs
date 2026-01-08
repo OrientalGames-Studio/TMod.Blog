@@ -14,7 +14,7 @@ namespace TMod.Blog.Infrastructure.Repositories.Aggregates
 {
     internal class SiteConfigurationRepository(TMod_Blog_RW_Context context) : BlogRepository<SiteConfiguration, int>(context), ISiteConfigurationRepository
     {
-        public async Task<SiteConfiguration?> GetConfigurationAsync(string configKey, CancellationToken cancellationToken = default)
+        public async Task<SiteConfiguration?> GetConfigurationAsync(string configKey,bool asNoTracking = true, CancellationToken cancellationToken = default)
         {
             ISpecification<SiteConfiguration> specification = SiteConfigurationSpecification.CreateGetConfiguration(configKey);
             return await GetEntityAsync(specification, cancellationToken);

@@ -17,9 +17,10 @@ namespace TMod.Blog.Domain.Interfaces.Repositories
         /// 获取配置
         /// </summary>
         /// <param name="configKey">配置项</param>
+        /// <param name="asNoTracking"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<SiteConfiguration?> GetConfigurationAsync(string configKey,CancellationToken cancellationToken = default);
+        Task<SiteConfiguration?> GetConfigurationAsync(string configKey,bool asNoTracking = true,CancellationToken cancellationToken = default);
 
         /// <summary>
         /// 分页查询配置项

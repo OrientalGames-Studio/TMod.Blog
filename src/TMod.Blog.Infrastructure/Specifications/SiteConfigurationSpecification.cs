@@ -20,13 +20,17 @@ namespace TMod.Blog.Infrastructure.Specifications
         {
         }
 
-        public static ISpecification<SiteConfiguration> CreateGetConfiguration(string configurationKey, bool showDeleted = false)
+        public static ISpecification<SiteConfiguration> CreateGetConfiguration(string configurationKey,bool asNoTracking = true, bool showDeleted = false)
         {
             SiteConfigurationSpecification specification = new SiteConfigurationSpecification(c=>StringComparer.InvariantCulture.Compare(configurationKey,c.ConfigKey) == 0);
             specification.AddCriteria(c => c.IsEnabled == true);
             if ( !showDeleted )
             {
                 specification.AddCriteria(c => !c.IsDeleted);
+            }
+            if ( asNoTracking )
+            {
+                specification.EnabledNoTracking();
             }
             return specification;
         }
