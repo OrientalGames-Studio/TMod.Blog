@@ -45,5 +45,17 @@ namespace TMod.Blog.Infrastructure.Specifications
             specification.ApplyOrderBy(t => t.Name);
             return specification;
         }
+
+        public static ISpecification<Tag> CreateGetAllByArticle(Guid articleId,bool showDeleted = false)
+        {
+            TagSpecification specification = new TagSpecification(t=>t.Articles.Any(a=> a.Id == articleId));
+            specification.AddInclude(t => t.Articles);
+            if ( !showDeleted )
+            {
+                specification.AddCriteria(t => !t.IsDeleted);
+            }
+            specification.EnabledNoTracking();
+            return specification;
+        }
     }
 }
