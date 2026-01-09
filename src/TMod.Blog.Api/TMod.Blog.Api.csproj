@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>24b27681-456b-485a-afdb-730282c2a68d</UserSecretsId>
@@ -17,15 +17,17 @@
 		<PublishAot>true</PublishAot>
 	</PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.10">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
+    </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TMod.Blog.Infrastructure\TMod.Blog.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
+
+
