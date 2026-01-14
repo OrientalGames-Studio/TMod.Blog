@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Logging;
 
 using System;
 using System.Collections.Concurrent;
@@ -17,33 +18,40 @@ namespace TMod.Blog.Infrastructure.Services
     {
         private readonly ISiteConfigurationRepository _siteConfigurationRepository;
         private readonly ILogger<SiteConfigurationCacheService> _logger;
-        private readonly ConcurrentDictionary<string,string?> _cache = new ConcurrentDictionary<string, string?>();
+        private readonly HybridCache _hybridCache;
 
-        public SiteConfigurationCacheService(ISiteConfigurationRepository siteConfigurationRepository, ILogger<SiteConfigurationCacheService> logger)
+        public SiteConfigurationCacheService(ISiteConfigurationRepository siteConfigurationRepository, ILogger<SiteConfigurationCacheService> logger,
+          HybridCache hybridCache)
         {
             _siteConfigurationRepository = siteConfigurationRepository;
             _logger = logger;
+            _hybridCache = hybridCache;
         }
 
         public string? GetConfiguration(string key)
         {
-            if(_cache.TryGetValue(key,out string? value) )
-            {
-                return value;
-            }
+            //if(_cache.TryGetValue(key,out string? value) )
+            //{
+            //    return value;
+            //}
 
-            SiteConfiguration? config = _siteConfigurationRepository.GetConfigurationAsync(key).GetAwaiter().GetResult();
-            if(config is not null && !string.IsNullOrWhiteSpace(config.ConfigValue) )
+            //SiteConfiguration? config = _siteConfigurationRepository.GetConfigurationAsync(key).GetAwaiter().GetResult();
+            //if(config is not null && !string.IsNullOrWhiteSpace(config.ConfigValue) )
+            //{
+            //    value = config.ConfigValue;
+            //    _cache.AddOrUpdate(key, config.ConfigValue, (key, value) => config.ConfigValue);
+            //}
+            //return value;
+            return _hybridCache.GetOrCreateAsync<string?>(key, async cancel =>
             {
-                value = config.ConfigValue;
-                _cache.AddOrUpdate(key, config.ConfigValue, (key, value) => config.ConfigValue);
-            }
-            return value;
+                var configuration = await _siteConfigurationRepository.GetConfigurationAsync(key,true,cancel);
+                return configuration?.ConfigValue;
+            }, tags: [key,"site-configurations"]).Result;
         }
 
         public void Refresh()
         {
-            _cache.Clear();
+            _hybridCache.RemoveByTagAsync("site-configurations");
             _logger.LogInformation("Site configuration cache refreshed.");
         }
     }

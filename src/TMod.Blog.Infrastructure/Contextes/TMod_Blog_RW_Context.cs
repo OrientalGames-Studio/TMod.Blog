@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,6 +14,18 @@ namespace TMod.Blog.Infrastructure.Contextes
 {
     public class TMod_Blog_RW_Context : DbContext
     {
+        #region Database UDFs
+
+        //[DbFunction("UDF_GetSimilarity","dbo")]
+        //public static double Similarity(string s1, string s2, double levWeight = 0.6, double jwWeight = 0.4) => throw new NotImplementedException();
+
+        //[DbFunction("UDF_IsSimilarTo","dbo")]
+        //public static bool IsSimilarTo(string s1, string s2, double threshold = 0.85) => throw new NotImplementedException();
+        #endregion
+
+        #region UDF Definitions
+        private static readonly MethodInfo? _isSimilarToMethod = typeof(StringSimilarityExtensions).GetMethod(nameof(StringSimilarityExtensions.IsSimilarTo),BindingFlags.Static|BindingFlags.Public,[typeof(string),typeof(string),typeof(double)]);
+        #endregion
 
         public DbSet<Article> Articles => Set<Article>();
 
@@ -46,7 +59,18 @@ namespace TMod.Blog.Infrastructure.Contextes
             ConfigureShareLink(modelBuilder);
             ConfigureSiteConfiguration(modelBuilder);
             ConfigureFavories(modelBuilder);
+            MappingUDF(modelBuilder);
             SeedInitialData(modelBuilder);
+        }
+
+        private void MappingUDF(ModelBuilder modelBuilder)
+        {
+            if(_isSimilarToMethod is not null )
+            {
+                modelBuilder.HasDbFunction(_isSimilarToMethod)
+                    .HasSchema("dbo")
+                    .HasName("UDF_IsSimilarTo");
+            }
         }
 
         private void ConfigureFavories(ModelBuilder modelBuilder)
@@ -121,6 +145,14 @@ namespace TMod.Blog.Infrastructure.Contextes
                         ConfigValue = "20",
                         Description = "短码服务生成的短码最多几位",
                         CreateDate = DateTime.Parse("2025-11-07 17:40")
+                    },
+                    new SiteConfiguration()
+                    {
+                        Id = 7,
+                        ConfigKey = SLUG_STRING_LENGTH,
+                        ConfigValue = "24",
+                        Description = "文章用于SEO的Slug字符串长度",
+                        CreateDate = DateTime.Parse("2026-01-12 16:31")
                     }
                 );
         }

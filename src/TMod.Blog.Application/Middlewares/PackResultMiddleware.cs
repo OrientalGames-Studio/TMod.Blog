@@ -31,7 +31,7 @@ namespace TMod.Blog.Application.Middlewares
                 return;
             }
             // 跳过包装的标识
-            if ( context.Request.Headers.ContainsKey("X-No-Result-Wrap") )
+            if ( context.Request.Headers.ContainsKey("X-No-Result-Wrap") || !context.Request.Path.StartsWithSegments("/api"))
             {
                 await _next(context);
                 return;

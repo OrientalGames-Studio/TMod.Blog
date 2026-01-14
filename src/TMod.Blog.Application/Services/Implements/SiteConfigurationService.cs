@@ -2,6 +2,7 @@
 
 using MapsterMapper;
 
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 
 using System;
@@ -23,12 +24,14 @@ namespace TMod.Blog.Application.Services.Implements
         private readonly IMapper _mapper;
         private readonly ILogger<SiteConfigurationService> _logger;
         private readonly ISiteConfigurationRepository _siteConfigurationRepository;
+        private readonly HybridCache _hybridCache;
 
-        public SiteConfigurationService(IMapper mapper, ILogger<SiteConfigurationService> logger, ISiteConfigurationRepository siteConfigurationRepository)
+        public SiteConfigurationService(IMapper mapper, ILogger<SiteConfigurationService> logger, ISiteConfigurationRepository siteConfigurationRepository,HybridCache hybridCache)
         {
             _mapper = mapper;
             _logger = logger;
             _siteConfigurationRepository = siteConfigurationRepository;
+            _hybridCache = hybridCache;
         }
 
         public async Task<SiteConfigurationDto> AddConfigurationAsync(CreateConfigurationRequest request, CancellationToken token = default)
@@ -41,6 +44,7 @@ namespace TMod.Blog.Application.Services.Implements
             SiteConfigurationDto dto = _mapper.Map<SiteConfigurationDto>(request);
             SiteConfiguration entity = _mapper.Map<SiteConfiguration>(dto);
             await _siteConfigurationRepository.AddAsync(entity, token);
+            await _hybridCache.SetAsync(dto.ConfigKey, dto, tags: [dto.ConfigKey, "site-configurations"],cancellationToken: token);
             return _mapper.Map<SiteConfigurationDto>(entity);
         }
 
@@ -53,6 +57,7 @@ namespace TMod.Blog.Application.Services.Implements
             }
             _siteConfigurationRepository.Delete(siteConfiguration);
             await _siteConfigurationRepository.SaveChangesAsync(token);
+            await _hybridCache.RemoveAsync(configKey, token);
             return true;
         }
 
@@ -65,27 +70,34 @@ namespace TMod.Blog.Application.Services.Implements
             }
             _siteConfigurationRepository.Delete(siteConfiguration);
             await _siteConfigurationRepository.SaveChangesAsync(token);
+            await _hybridCache.RemoveAsync(siteConfiguration.ConfigKey, token);
             return true;
         }
 
         public async Task<SiteConfigurationDto?> GetConfigurationAsync(string configKey, CancellationToken token = default)
         {
-            SiteConfiguration? siteConfiguration = await _siteConfigurationRepository.GetConfigurationAsync(configKey,true,token);
-            if(siteConfiguration is null || siteConfiguration.IsDeleted)
+            return await _hybridCache.GetOrCreateAsync(configKey, async cancel =>
             {
-                return null;
-            }
-            return _mapper.Map<SiteConfigurationDto>(siteConfiguration);
+                SiteConfiguration? siteConfiguration = await _siteConfigurationRepository.GetConfigurationAsync(configKey,true,token);
+                if ( siteConfiguration is null || siteConfiguration.IsDeleted )
+                {
+                    return null;
+                }
+                return _mapper.Map<SiteConfigurationDto>(siteConfiguration);
+            }, tags: [configKey, "site-configurations"], cancellationToken:token);
         }
 
         public async Task<SiteConfigurationDto?> GetConfigurationByIdAsync(int configId, CancellationToken token = default)
         {
-            SiteConfiguration? siteConfiguration = await _siteConfigurationRepository.GetEntityByIdAsync(configId,true,token);
-            if ( siteConfiguration is null || siteConfiguration.IsDeleted )
+            return await _hybridCache.GetOrCreateAsync($"site-configuration-id:{configId}", async cancel =>
             {
-                return null;
-            }
-            return _mapper.Map<SiteConfigurationDto>(siteConfiguration);
+                SiteConfiguration? siteConfiguration = await _siteConfigurationRepository.GetEntityByIdAsync(configId,true,token);
+                if ( siteConfiguration is null || siteConfiguration.IsDeleted )
+                {
+                    return null;
+                }
+                return _mapper.Map<SiteConfigurationDto>(siteConfiguration);
+            }, tags: ["site-configurations", $"site-configuration-id:{configId}"], cancellationToken: token);
         }
 
         public async Task<PagingDto<SiteConfigurationDto>> PagingConfigurationsAsync(string? keyword = null, int pageIndex = 1, int pageSize = 20, CancellationToken token = default)
@@ -120,6 +132,7 @@ namespace TMod.Blog.Application.Services.Implements
             siteConfiguration = _mapper.Map<SiteConfiguration>(dto);
             _siteConfigurationRepository.Update(siteConfiguration);
             await _siteConfigurationRepository.SaveChangesAsync(token);
+            await _hybridCache.SetAsync(dto.ConfigKey, dto, tags: [dto.ConfigKey, "site-configurations"], cancellationToken: token);
             return _mapper.Map<SiteConfigurationDto>(siteConfiguration);
         }
 
@@ -137,7 +150,16 @@ namespace TMod.Blog.Application.Services.Implements
             siteConfiguration.IsEnabled = request.IsEnabled;
             _siteConfigurationRepository.Update(siteConfiguration);
             await _siteConfigurationRepository.SaveChangesAsync();
-            return _mapper.Map<SiteConfigurationDto>(siteConfiguration);
+            SiteConfigurationDto dto = _mapper.Map<SiteConfigurationDto>(siteConfiguration);
+            if ( !request.IsEnabled )
+            {
+                await _hybridCache.RemoveAsync(siteConfiguration.ConfigKey, token);
+            }
+            else
+            {
+                await _hybridCache.SetAsync(dto.ConfigKey, dto, tags: [dto.ConfigKey, "site-configurations"], cancellationToken: token);
+            }
+            return dto;
         }
 
         public async Task<SiteConfigurationDto?> UpdateConfigurationValueByKeyAsync(string configKey, string? configValue, CancellationToken token = default)
@@ -150,7 +172,9 @@ namespace TMod.Blog.Application.Services.Implements
             siteConfiguration.ConfigValue = configValue;
             _siteConfigurationRepository.Update(siteConfiguration);
             await _siteConfigurationRepository.SaveChangesAsync(token);
-            return _mapper.Map<SiteConfigurationDto>(siteConfiguration);
+            SiteConfigurationDto dto = _mapper.Map<SiteConfigurationDto>(siteConfiguration);
+            await _hybridCache.SetAsync(dto.ConfigKey, dto, tags: [dto.ConfigKey, "site-configurations"], cancellationToken: token);
+            return dto;
         }
     }
 }

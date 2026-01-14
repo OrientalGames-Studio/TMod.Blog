@@ -43,7 +43,8 @@ namespace TMod.Blog.Application.Services.Implements
                 throw new NotSupportedException($"分类[{createArticleRequest.CategoryId}]不存在，不允许添加文章");
             }
             string slug = await _slugService.GenerateSlugAsync(createArticleRequest.Title,cancellationToken:cancellationToken);
-            Article article = _mapper.Map<Article>(createArticleRequest);
+            ArticleDto articleDto = _mapper.Map<ArticleDto>(createArticleRequest);
+            Article article = _mapper.Map<Article>(articleDto);
             article.Slug = slug;
             await _applicationUnitOfWork.BeginTransactionAsync(cancellationToken);
             foreach ( string tagName in createArticleRequest.Tags )
