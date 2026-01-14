@@ -18,9 +18,10 @@ namespace TMod.Blog.Application.Mapping
         {
             config.NewConfig<Category, CategoryDto>()
                 .Map(dest => dest.ParentName, src => src.Parent == null ? "默认分类" : src.Parent.Name)
-                .Map(dest=>dest.Children,src=>src.Children)
+                .Map(dest => dest.Children, src => src.Children)
                 .TwoWays();
 
+            // Requests should map to DTOs only
             config.NewConfig<CreateCategoryRequest, CategoryDto>();
             config.NewConfig<UpdateCategoryRequest, CategoryDto>();
         }

@@ -15,7 +15,8 @@ namespace TMod.Blog.Application.Mapping
     {
         public void Register(TypeAdapterConfig config)
         {
-            config.NewConfig<ShareLink, ShareLinkDto>();
+            config.NewConfig<ShareLink, ShareLinkDto>()
+                .TwoWays();
         }
     }
 }

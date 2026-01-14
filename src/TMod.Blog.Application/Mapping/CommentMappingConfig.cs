@@ -16,8 +16,12 @@ namespace TMod.Blog.Application.Mapping
     {
         public void Register(TypeAdapterConfig config)
         {
-            config.NewConfig<Comment, CommentDto>();
+            config.NewConfig<Comment, CommentDto>()
+                .Map(dest => dest.AuthorIp, src => src.AuthorIp)
+                .Map(dest => dest.IsShareEnabled, src => src.IsShareEnabled)
+                .TwoWays();
 
+            // Requests should map to DTOs only
             config.NewConfig<CreateCommentRequest, CommentDto>();
             config.NewConfig<UpdateCommentRequest, CommentDto>();
         }

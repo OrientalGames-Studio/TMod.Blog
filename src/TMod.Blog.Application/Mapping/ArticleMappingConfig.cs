@@ -18,8 +18,10 @@ namespace TMod.Blog.Application.Mapping
         {
             config.NewConfig<Article, ArticleDto>()
                 .Map(dest => dest.CategoryName, src => src.Category != null ? src.Category.Name : "未分类")
-                .Map(dest=>dest.Tags,src=>src.Tags == null || src.Tags.Count == 0? new List<string>() : src.Tags.Select(t=>t.Name))
-                .TwoWays();
+                .Map(dest => dest.Tags, src => src.Tags == null || src.Tags.Count == 0 ? new List<string>() : src.Tags.Select(t => t.Name));
+            config.NewConfig<ArticleDto, Article>()
+                .Ignore(src=>src.Category)
+                .Ignore(src=>src.Tags);
 
             config.NewConfig<CreateArticleRequest, ArticleDto>();
             config.NewConfig<UpdateArticleRequest, ArticleDto>();

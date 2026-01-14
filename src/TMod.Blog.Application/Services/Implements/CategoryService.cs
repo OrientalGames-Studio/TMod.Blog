@@ -60,7 +60,10 @@ namespace TMod.Blog.Application.Services.Implements
 
         public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryRequest request, CancellationToken cancellationToken = default)
         {
-            Category category = _mapper.Map<Category>(request);
+            // Map request -> DTO -> Entity (enforce chain)
+            CategoryDto dto = _mapper.Map<CategoryDto>(request);
+            Category category = _mapper.Map<Category>(dto);
+
             if(request.ParentId != Guid.Empty && request.ParentId != null )
             {
                 Category? parent = await _categoryRepository.GetEntityByIdAsync(request.ParentId,true,cancellationToken);

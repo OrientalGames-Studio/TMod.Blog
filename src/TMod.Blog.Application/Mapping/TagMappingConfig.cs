@@ -16,10 +16,11 @@ namespace TMod.Blog.Application.Mapping
     {
         public void Register(TypeAdapterConfig config)
         {
-            config.NewConfig<Tag,TagDto>()
-                .Map(dest=>dest.ArticleCount,src=>src.Articles == null || src.Articles.Count == 0?0:src.Articles.Count)
+            config.NewConfig<Tag, TagDto>()
+                .Map(dest => dest.ArticleCount, src => src.Articles == null || src.Articles.Count == 0 ? 0 : src.Articles.Count)
                 .TwoWays();
 
+            // Requests should map to DTOs only
             config.NewConfig<CreateTagRequest, TagDto>();
             config.NewConfig<UpdateTagRequest, TagDto>();
         }
