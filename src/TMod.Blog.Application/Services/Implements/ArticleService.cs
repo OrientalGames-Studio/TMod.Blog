@@ -45,6 +45,7 @@ namespace TMod.Blog.Application.Services.Implements
             string slug = await _slugService.GenerateSlugAsync(createArticleRequest.Title,cancellationToken:cancellationToken);
             ArticleDto articleDto = _mapper.Map<ArticleDto>(createArticleRequest);
             Article article = _mapper.Map<Article>(articleDto);
+            article.CategoryId = category.Id;
             article.Slug = slug;
             await _applicationUnitOfWork.BeginTransactionAsync(cancellationToken);
             foreach ( string tagName in createArticleRequest.Tags )

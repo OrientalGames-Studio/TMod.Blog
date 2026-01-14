@@ -49,7 +49,7 @@ namespace TMod.Blog.Infrastructure.Services
                 _logger.LogError("未配置Slug最大长度，且传入的maxLength参数无效，无法生成Slug");
                 throw new ArgumentException($"生成Slug使用了无效的长度:{maxLength}",nameof(maxLength));
             }
-            string spell = await _characterService.ParseCharacterToSpellAsync(title,Domain.Common.ChineseCharacterToSpellOptions.Default,cancellationToken);
+            string spell = await _characterService.ParseCharacterToSpellAsync(title,title.Length<=15?Domain.Common.ChineseCharacterToSpellOptions.Default:Domain.Common.ChineseCharacterToSpellOptions.AbbreviationOnlyPattern,cancellationToken);
             string normalizedTitle = spell.Normalize(NormalizationForm.FormC)
                 .ToLowerInvariant();
             string noSpecialCharsTitle = Regex.Replace(normalizedTitle,@"[^\p{L}\p{N}\s-]", " ");

@@ -21,7 +21,8 @@ namespace TMod.Blog.Api.Endpoints
                 .WithGroupName("v1")
                 .WithSummary("博客的文章接口")
                 .WithTags("articles")
-                .ProducesProblem(StatusCodes.Status429TooManyRequests);
+                .ProducesProblem(StatusCodes.Status429TooManyRequests)
+                .ProducesProblem(StatusCodes.Status500InternalServerError) ;
             //group.MapPost("/", Test)
             //    .WithName("Test")
             //    .WithSummary("测试接口")
@@ -37,8 +38,13 @@ namespace TMod.Blog.Api.Endpoints
                 .WithSummary("创建文章")
                 .WithDescription("这个接口会创建一条 Article 数据")
                 .Produces(StatusCodes.Status201Created)
-                .ProducesValidationProblem(StatusCodes.Status400BadRequest)
-                .Produces(StatusCodes.Status500InternalServerError);
+                .ProducesValidationProblem(StatusCodes.Status400BadRequest);
+            group.MapGet("/{articleId:guid}", GetArticleByIdAsync)
+                .WithName("GetArticleById")
+                .WithSummary("根据 Id 获取文章")
+                .WithDescription("这个接口会根据 Id 去查找文章并关联数据")
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status404NotFound);
             group.MapHealthChecks("articles-api-health");
             return app;
         }
@@ -64,11 +70,32 @@ namespace TMod.Blog.Api.Endpoints
                     _logger?.LogCritical("因为不明原因导致文章创建返回空值");
                     return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
                 }
-                return TypedResults.CreatedAtRoute(article, "", new { articleId = article.Id });
+                return TypedResults.CreatedAtRoute(article, "GetArticleById", new { articleId = article.Id });
             }
             catch ( Exception ex )
             {
-                return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
+                _logger?.LogCritical(ex, "创建文章发生错误");
+                throw;
+                //return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        private static async Task<Results<JsonHttpResult<ArticleDto>,NotFound<string>,StatusCodeHttpResult>> GetArticleByIdAsync([FromRoute]Guid articleId,IArticleService articleService,CancellationToken token)
+        {
+            try
+            {
+                var article = await articleService.GetArticleDetailAsync(articleId,token);
+                if(article is null )
+                {
+                    return TypedResults.NotFound("文章不存在");
+                }
+                return TypedResults.Json(article);
+            }
+            catch ( Exception ex )
+            {
+                _logger?.LogCritical(ex, "加载文章发生错误");
+                //return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
+                throw;
             }
         }
     }
