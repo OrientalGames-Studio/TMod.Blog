@@ -59,7 +59,9 @@ namespace TMod.Blog.Infrastructure.CompiledModels
                 typeof(DateTime),
                 propertyInfo: typeof(BaseEntity<Guid>).GetProperty("CreateDate", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(BaseEntity<Guid>).GetField("<CreateDate>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                valueGenerated: ValueGenerated.OnAdd,
                 sentinel: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+            createDate.AddAnnotation("Relational:DefaultValueSql", "CURRENT_TIMESTAMP");
             createDate.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var deleteDate = runtimeEntityType.AddProperty(
@@ -122,8 +124,11 @@ namespace TMod.Blog.Infrastructure.CompiledModels
                 "Status",
                 typeof(ArticleStatusEnum),
                 propertyInfo: typeof(Article).GetProperty("Status", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(Article).GetField("<Status>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-            status.SetSentinelFromProviderValue(0);
+                fieldInfo: typeof(Article).GetField("<Status>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                valueGenerated: ValueGenerated.OnAdd,
+                providerPropertyType: typeof(int));
+            status.SetSentinelFromProviderValue(-1);
+            status.AddAnnotation("Relational:DefaultValue", ArticleStatusEnum.Draft);
             status.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var title = runtimeEntityType.AddProperty(

@@ -51,7 +51,7 @@ namespace TMod.Blog.Infrastructure.Contextes
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder);            
             ConfigureCategory(modelBuilder);
             ConfigureArticle(modelBuilder);
             ConfigureTag(modelBuilder);
@@ -79,6 +79,8 @@ namespace TMod.Blog.Infrastructure.Contextes
             {
                 entity.Property(f => f.Id)
                 .HasDefaultValueSql<Guid>("NEWSEQUENTIALID()");
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.ToTable("favorites");
             });
         }
@@ -162,14 +164,20 @@ namespace TMod.Blog.Infrastructure.Contextes
             modelBuilder.Entity<SiteConfiguration>(entity =>
             {
                 entity.HasIndex(c => c.ConfigKey);
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.ToTable("system_configurations");
             });
         }
 
         private void ConfigureShareLink(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ShareLink>()
-                .ToTable("share_links");
+            modelBuilder.Entity<ShareLink>(entity =>
+            {
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.ToTable("share_links");
+            });
         }
 
         private void ConfigureComment(ModelBuilder modelBuilder)
@@ -190,7 +198,8 @@ namespace TMod.Blog.Infrastructure.Contextes
                 .WithMany(c=>c.Replies)
                 .HasForeignKey(c=>c.ParentId)
                 .OnDelete(DeleteBehavior.Restrict);
-
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.ToTable("comments");
             });
         }
@@ -201,7 +210,8 @@ namespace TMod.Blog.Infrastructure.Contextes
             {
                 entity.Property(t => t.Id)
                 .HasDefaultValueSql<Guid>("NEWSEQUENTIALID()");
-
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.ToTable("tags");
             });
         }
@@ -218,11 +228,19 @@ namespace TMod.Blog.Infrastructure.Contextes
                 entity.HasIndex(a => a.Slug)
                 .IsUnique();
 
+                entity.Property(a => a.Status)
+                .HasDefaultValue(ArticleStatusEnum.Draft)
+                .HasConversion<int>()
+                .HasSentinel((ArticleStatusEnum)(-1));
+
                 entity.Property(a => a.IsShareEnabled)
                 .HasDefaultValue(true);
 
                 entity.Property(a=>a.IsCommentEnabled)
                 .HasDefaultValue(true);
+
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.HasMany(a => a.Tags)
                 .WithMany(t => t.Articles)
@@ -260,7 +278,8 @@ namespace TMod.Blog.Infrastructure.Contextes
                 .WithOne(a => a.Category)
                 .HasForeignKey(a => a.CategoryId)
                 .OnDelete(DeleteBehavior.SetNull);
-
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.ToTable("categories");
             });
         }

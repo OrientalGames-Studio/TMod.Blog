@@ -83,7 +83,9 @@ namespace TMod.Blog.Infrastructure.CompiledModels
                 typeof(DateTime),
                 propertyInfo: typeof(BaseEntity<Guid>).GetProperty("CreateDate", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(BaseEntity<Guid>).GetField("<CreateDate>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                valueGenerated: ValueGenerated.OnAdd,
                 sentinel: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+            createDate.AddAnnotation("Relational:DefaultValueSql", "CURRENT_TIMESTAMP");
             createDate.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var deleteDate = runtimeEntityType.AddProperty(

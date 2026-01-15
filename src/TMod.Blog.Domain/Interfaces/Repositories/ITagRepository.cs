@@ -22,6 +22,14 @@ namespace TMod.Blog.Domain.Interfaces.Repositories
         Task<Tag?> GetByNameAsync(string? name, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// 通过名称获取标签
+        /// </summary>
+        /// <param name="name">标签名称</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<Tag?> GetByNameWithDetailAsync(string? name, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// 按照标签分页查询文章
         /// </summary>
         /// <param name="tagId">标签Id</param>

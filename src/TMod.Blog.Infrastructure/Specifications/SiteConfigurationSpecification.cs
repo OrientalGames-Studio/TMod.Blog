@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -40,7 +42,7 @@ namespace TMod.Blog.Infrastructure.Specifications
             SiteConfigurationSpecification specification = new SiteConfigurationSpecification();
             if ( !string.IsNullOrWhiteSpace(keyword) )
             {
-                specification.AddCriteria(c => c.ConfigKey.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
+                specification.AddCriteria(c => EF.Functions.Like(c.ConfigKey,$"%{keyword}%"));
             }
             if ( !showDisabled )
             {

@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -42,7 +45,7 @@ namespace TMod.Blog.Infrastructure.Specifications
             specification.AddCriteria(a => ( a.Status & articleStatus ) == articleStatus);
             if ( !string.IsNullOrWhiteSpace(keyword) )
             {
-                specification.AddCriteria(a=>a.Title.Contains(keyword,StringComparison.InvariantCultureIgnoreCase) || a.Slug.Contains(keyword,StringComparison.InvariantCultureIgnoreCase));
+                specification.AddCriteria(a=>EF.Functions.Like(a.Title, $"%{keyword}%") || ( a.Slug != null && EF.Functions.Like(a.Slug, $"%{keyword}%") ));
             }
             if ( !showDeleted )
             {
@@ -60,7 +63,7 @@ namespace TMod.Blog.Infrastructure.Specifications
             specification.AddCriteria(a => ( a.Status & articleStatus ) == articleStatus);
             if ( !string.IsNullOrWhiteSpace(keyword) )
             {
-                specification.AddCriteria(a => a.Title.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) || a.Slug.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
+                specification.AddCriteria(a => EF.Functions.Like(a.Title, $"%{keyword}%") || (a.Slug != null && EF.Functions.Like(a.Slug, $"%{keyword}%") ));
             }
             if ( !showDeleted )
             {
@@ -78,7 +81,10 @@ namespace TMod.Blog.Infrastructure.Specifications
 
         public static ISpecification<Article> CreateGetBySlug(string slug,bool showDeleted = false)
         {
-            ArticleSpecification specification = new ArticleSpecification(a=>a.Slug.Equals(slug,StringComparison.InvariantCulture));
+            ArticleSpecification specification = new ArticleSpecification(a=>a.Slug!=null && a.Slug.Equals(slug));
+            specification.AddInclude(c => c.Category);
+            specification.AddInclude(c => c.Tags);
+            specification.AddInclude(c => c.Comments);
             if ( !showDeleted )
             {
                 specification.AddCriteria(c => !c.IsDeleted);
@@ -89,26 +95,51 @@ namespace TMod.Blog.Infrastructure.Specifications
         public static ISpecification<Article> CreatePagingWithFullFilter(int skip,int take,Guid? categoryId = null,Guid? tagId = null,string? keyword = null,ArticleStatusEnum articleStatus = ArticleStatusEnum.Draft|ArticleStatusEnum.Published|ArticleStatusEnum.Unpublished,bool showDeleted = false)
         {
             ArticleSpecification specification = new ArticleSpecification();
-            if(categoryId is not null && categoryId != Guid.Empty )
+            specification.AddInclude(a => a.Category);
+            specification.AddInclude(a => a.Tags);
+            if (categoryId is not null && categoryId != Guid.Empty )
             {
-                specification.AddInclude(a => a.Category);
                 specification.AddCriteria(a=>a.CategoryId == categoryId);
             }
             if(tagId is not null && tagId != Guid.Empty )
             {
-                specification.AddInclude(a => a.Tags);
                 specification.AddCriteria(a=>a.Tags.Any(t=>t.Id == tagId));
             }
             if ( !string.IsNullOrWhiteSpace(keyword) )
             {
-                specification.AddCriteria(a => a.Title.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) || a.Slug.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
+                specification.AddCriteria(a => EF.Functions.Like(a.Title,$"%{keyword}%") || (a.Slug != null && EF.Functions.Like(a.Slug,$"%{keyword}%")));
             }
             if ( !showDeleted )
             {
                 specification.AddCriteria(a => !a.IsDeleted);
             }
-            specification.AddCriteria(a=>(a.Status & articleStatus ) == articleStatus);
+            specification.AddCriteria(a=>(a.Status & articleStatus ) == a.Status);
             specification.ApplyPaging(skip, take);
+            return specification;
+        }
+
+        public static ISpecification<Article> CreateCountForPreparePaging(Guid? categoryId = null, Guid? tagId = null, string? keyword = null, ArticleStatusEnum articleStatus = ArticleStatusEnum.Draft | ArticleStatusEnum.Published | ArticleStatusEnum.Unpublished, bool showDeleted = false)
+        {
+            ArticleSpecification specification = new ArticleSpecification();
+            if ( categoryId is not null && categoryId != Guid.Empty )
+            {
+                specification.AddInclude(a => a.Category);
+                specification.AddCriteria(a => a.CategoryId == categoryId);
+            }
+            if ( tagId is not null && tagId != Guid.Empty )
+            {
+                specification.AddInclude(a => a.Tags);
+                specification.AddCriteria(a => a.Tags.Any(t => t.Id == tagId));
+            }
+            if ( !string.IsNullOrWhiteSpace(keyword) )
+            {
+                specification.AddCriteria(a => EF.Functions.Like(a.Title, $"%{keyword}%") || ( a.Slug != null && EF.Functions.Like(a.Slug, $"%{keyword}%") ));
+            }
+            if ( !showDeleted )
+            {
+                specification.AddCriteria(a => !a.IsDeleted);
+            }
+            specification.AddCriteria(a => ( a.Status & articleStatus ) == a.Status);
             return specification;
         }
     }

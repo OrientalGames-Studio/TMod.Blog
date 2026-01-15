@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TMod.Blog.Infrastructure.Contextes;
 
@@ -11,9 +12,11 @@ using TMod.Blog.Infrastructure.Contextes;
 namespace TMod.Blog.Infrastructure.Migrations
 {
     [DbContext(typeof(TMod_Blog_RW_Context))]
-    partial class TMod_Blog_RW_ContextModelSnapshot : ModelSnapshot
+    [Migration("20260114062335_SetArticleStatusDefaultValue")]
+    partial class SetArticleStatusDefaultValue
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

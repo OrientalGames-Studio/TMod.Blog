@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -22,7 +24,19 @@ namespace TMod.Blog.Infrastructure.Specifications
 
         public static ISpecification<Tag> CreateGetByName(string name,bool showDeleted = false)
         {
-            TagSpecification specification = new TagSpecification(t=>StringComparer.InvariantCultureIgnoreCase.Compare(t.Name,name) == 0);
+            TagSpecification specification = new TagSpecification(t=>t.Name == name);
+            specification.AddInclude(t => t.Articles);
+            if ( !showDeleted )
+            {
+                specification.AddCriteria(t => !t.IsDeleted);
+            }
+            return specification;
+        }
+
+        public static ISpecification<Tag> CreateGetByNameWithDetail(string name, bool showDeleted = false)
+        {
+            TagSpecification specification = new TagSpecification(t=>t.Name == name);
+            specification.AddInclude(t => t.Articles);
             if ( !showDeleted )
             {
                 specification.AddCriteria(t => !t.IsDeleted);
@@ -35,7 +49,7 @@ namespace TMod.Blog.Infrastructure.Specifications
             TagSpecification specification = new TagSpecification();
             if ( !string.IsNullOrWhiteSpace(keyword) )
             {
-                specification.AddCriteria(t => StringComparer.InvariantCultureIgnoreCase.Compare(t.Name, keyword) == 0);
+                specification.AddCriteria(t => EF.Functions.Like(t.Name,$"%{keyword}%"));
             }
             if ( !showDeleted )
             {

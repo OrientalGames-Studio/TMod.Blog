@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 
 using System;
 using System.Collections.Generic;
@@ -18,11 +19,13 @@ namespace TMod.Blog.Application.Middlewares
     {
         private readonly RequestDelegate? _next;
         private readonly ILogger<PackResultMiddleware> _logger;
+        private readonly IHostEnvironment _env;
 
-        public PackResultMiddleware(RequestDelegate next, ILogger<PackResultMiddleware> logger)
+        public PackResultMiddleware(RequestDelegate next, ILogger<PackResultMiddleware> logger, IHostEnvironment env)
         {
             _next = next;
             _logger = logger;
+            _env = env;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -177,11 +180,25 @@ namespace TMod.Blog.Application.Middlewares
             }
             catch (Exception ex)
             {
+                // 记录详细错误到日志（包含堆栈）
                 _logger.LogError(ex, "包装 Result 结构体时发生异常");
+
                 context.Response.StatusCode = 500;
                 context.Response.ContentType = "application/json";
                 context.Response.Body = originalBody;
-                await context.Response.WriteAsync(JsonSerializer.Serialize(Result.Fail(null, ex.Message), ApplicationJsonSerializerOptions.Default));
+
+                if (_env.IsDevelopment())
+                {
+                    // 开发环境返回完整异常信息（用于调试）
+                    var devResult = Result.Fail(null, ex.ToString());
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(devResult, ApplicationJsonSerializerOptions.Default));
+                }
+                else
+                {
+                    // 生产环境仅返回友好消息，详细信息写入日志
+                    var prodResult = Result.Fail(null, "服务器发生错误，请稍后重试");
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(prodResult, ApplicationJsonSerializerOptions.Default));
+                }
             }
         }
     }

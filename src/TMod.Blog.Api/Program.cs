@@ -8,6 +8,8 @@ using Microsoft.Extensions.Caching.Hybrid;
 using TMod.Blog.Api.Extensions;
 using System.Threading.RateLimiting;
 using TMod.Blog.Infrastructure.CompiledModels;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging.Console;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
@@ -21,10 +23,20 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddDbContextPool<TMod_Blog_RW_Context>(options =>
+builder.Services.AddDbContextPool<TMod_Blog_RW_Context>((provider, options) =>
 {
+    ILoggerFactory loggerFactory = provider.GetRequiredService<ILoggerFactory>();
+    IMemoryCache memoryCache = provider.GetRequiredService<IMemoryCache>();
     options.UseSqlServer(builder.Configuration.GetConnectionString("TMod.Blog_RW"))
-    .UseModel(TMod_Blog_RW_ContextModel.Instance);
+    .UseModel(TMod_Blog_RW_ContextModel.Instance)
+    .UseLoggerFactory(loggerFactory)
+    .UseMemoryCache(memoryCache);
+    IHostEnvironment hostEnvironment = provider.GetRequiredService<IHostEnvironment>();
+    if ( hostEnvironment.IsDevelopment() )
+    {
+        options.EnableSensitiveDataLogging()
+        .EnableDetailedErrors();
+    }
 });
 
 builder.Services.AddHybridCache(options =>
