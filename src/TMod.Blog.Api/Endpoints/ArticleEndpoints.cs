@@ -82,6 +82,12 @@ namespace TMod.Blog.Api.Endpoints
                 .Produces(StatusCodes.Status201Created)
                 .Produces(StatusCodes.Status400BadRequest)
                 .ProducesValidationProblem(StatusCodes.Status400BadRequest);
+            group.MapDelete("/{articleId:guid}", DeleteArticleAsync)
+                .WithName("DeleteArticle")
+                .WithSummary("删除文章")
+                .WithDescription("这个接口可以删除文章数据")
+                .Produces(StatusCodes.Status204NoContent)
+                .Produces(StatusCodes.Status404NotFound);
             group.MapHealthChecks("articles-api-health");
             return app;
         }
@@ -159,7 +165,8 @@ namespace TMod.Blog.Api.Endpoints
             catch ( Exception ex )
             {
                 _logger?.LogCritical(ex, "分页查询文章发生错误");
-                return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
+                //return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
+                throw;
             }
         }
 
@@ -261,6 +268,24 @@ namespace TMod.Blog.Api.Endpoints
             catch ( Exception ex )
             {
                 _logger?.LogCritical(ex, "更新文章发生错误");
+                throw;
+            }
+        }
+
+        private static async Task<Results<NoContent,NotFound<string>,StatusCodeHttpResult>> DeleteArticleAsync([FromRoute]Guid articleId,IArticleService articleService,CancellationToken token)
+        {
+            try
+            {
+                bool isDeleted = await articleService.DeleteArticleAsync(articleId,token);
+                if ( isDeleted )
+                {
+                    return TypedResults.NoContent();
+                }
+                return TypedResults.NotFound("删除文章失败");
+            }
+            catch ( Exception ex )
+            {
+                _logger?.LogCritical(ex, "删除文章发生错误");
                 throw;
             }
         }

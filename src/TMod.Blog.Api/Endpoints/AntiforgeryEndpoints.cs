@@ -8,7 +8,7 @@ using TMod.Blog.Application.Common.Options;
 
 namespace TMod.Blog.Api.Endpoints
 {
-    public static class AntiforgeryEndpoints
+    internal static class AntiforgeryEndpoints
     {
         public static IEndpointRouteBuilder MapAntiforgeryEndpoints(this IEndpointRouteBuilder app)
         {

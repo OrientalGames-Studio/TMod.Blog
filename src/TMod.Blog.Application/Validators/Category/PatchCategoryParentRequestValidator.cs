@@ -14,10 +14,10 @@ namespace TMod.Blog.Application.Validators.Category
     {
         public PatchCategoryParentRequestValidator()
         {
-            RuleFor(c => c.ParentId)
-                .NotNull()
-                .NotEqual(Guid.Empty)
-                .WithMessage("请选择一个父级分类");
+            //RuleFor(c => c.ParentId)
+            //    .NotNull()
+            //    .NotEqual(Guid.Empty)
+            //    .WithMessage("请选择一个父级分类");
         }
     }
 }

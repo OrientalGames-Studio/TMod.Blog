@@ -104,10 +104,14 @@ builder.Services.AddRateLimiter(options =>
         QueueLimit = 0
     }));
 
-    options.AddPolicy("default", httpcontext => RateLimitPartition.GetFixedWindowLimiter(httpcontext.GetClientIp(), _ => new FixedWindowRateLimiterOptions()
+
+
+    options.AddPolicy("default", httpcontext => RateLimitPartition.GetTokenBucketLimiter(httpcontext.GetClientIp(), _ => new TokenBucketRateLimiterOptions
     {
-        PermitLimit = 30,
-        Window = TimeSpan.FromSeconds(1)
+        TokenLimit = 10,
+        ReplenishmentPeriod = TimeSpan.FromSeconds(20),
+        TokensPerPeriod = 5,
+        QueueLimit = 0
     }));
 
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpcontext => RateLimitPartition.GetFixedWindowLimiter("global", _ => new FixedWindowRateLimiterOptions()
@@ -129,5 +133,6 @@ app.UseCors("default")
     .UseApplicationMiddleware();
 app .MapAntiforgeryEndpoints()
     .MapArticleEndpoints()
+    .MapCategoryEndpoints()
     .MapOpenApi();
 app.Run();

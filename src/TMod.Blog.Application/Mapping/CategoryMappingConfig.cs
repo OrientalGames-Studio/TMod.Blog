@@ -17,7 +17,7 @@ namespace TMod.Blog.Application.Mapping
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<Category, CategoryDto>()
-                .Map(dest => dest.ParentName, src => src.Parent == null ? "默认分类" : src.Parent.Name)
+                .Map(dest => dest.ParentName, src => src.Parent == null ? null : src.Parent.Name)
                 .Map(dest => dest.Children, src => src.Children)
                 .TwoWays();
 
