@@ -35,6 +35,7 @@ namespace TMod.Blog.Infrastructure.Specifications
             {
                 specification.AddCriteria(c => !c.IsDeleted);
             }
+            specification.EnabledNoTracking();
             return specification;
         }
 
