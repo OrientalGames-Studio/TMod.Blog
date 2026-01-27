@@ -27,7 +27,7 @@ namespace TMod.Blog.Api.Endpoints
                 .ProducesProblem(StatusCodes.Status429TooManyRequests)
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
             ILoggerProvider loggerProvider = app.ServiceProvider.GetRequiredService<ILoggerProvider>();
-            _logger = loggerProvider.CreateLogger("TMod.Blog.Api.Article");
+            _logger = loggerProvider.CreateLogger("TMod.Blog.Api.Category");
             group.MapPost("/", CreateCategoryAsync)
                 .WithName("CreateCategory")
                 .WithSummary("创建分类")

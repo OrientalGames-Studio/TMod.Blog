@@ -15,8 +15,11 @@ namespace TMod.Blog.Application.Mapping
     {
         public void Register(TypeAdapterConfig config)
         {
-            config.NewConfig<ShareLink, ShareLinkDto>()
-                .TwoWays();
+            config.NewConfig<ShareLink, ShareLinkDto>();
+
+            // DTO -> Entity: ignore not-mapped Target property to avoid accidental assignment
+            config.NewConfig<ShareLinkDto, ShareLink>()
+                .Ignore(dest => dest.Target);
         }
     }
 }

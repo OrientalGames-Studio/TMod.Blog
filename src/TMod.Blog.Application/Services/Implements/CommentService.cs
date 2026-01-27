@@ -82,7 +82,7 @@ namespace TMod.Blog.Application.Services.Implements
             return _mapper.Map<CommentDto>(comment);
         }
 
-        public async Task<PagingDto<CommentDto>> PagingCommentsByArticleAsync(Guid articleId, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default)
+        public async Task<PagingDto<CommentDto>> PagingCommentsByArticleAsync(Guid articleId, int pageIndex = 1, int pageSize = 20, SortRuleEnum sortRule = SortRuleEnum.Latest, CancellationToken cancellationToken = default)
         {
             pageIndex = Math.Max(1, pageIndex);
             int skip = (pageIndex - 1) * pageSize;
@@ -98,8 +98,9 @@ namespace TMod.Blog.Application.Services.Implements
                     Items = Array.Empty<CommentDto>()
                 };
             }
-            var specification = CommentSpecification.CreatePagingArticleComment(articleId,skip,pageSize);
-            int totalCount = await _unitOfWork.CommentRepository.CountAsync(specification,cancellationToken);
+            var countSpecification = CommentSpecification.CreateCountPagingByArticle(articleId);
+            int totalCount = await _unitOfWork.CommentRepository.CountAsync(countSpecification,cancellationToken);
+            var specification = CommentSpecification.CreatePagingArticleComment(articleId,skip,pageSize,sortRule);
             var comments = await _unitOfWork.CommentRepository.GetAllEntitiesAsync(specification,cancellationToken);
             int pageCount = (int)Math.Ceiling((double)totalCount / (double)pageSize);
             pageCount = Math.Max(1, pageCount);
@@ -114,7 +115,7 @@ namespace TMod.Blog.Application.Services.Implements
             };
         }
 
-        public async Task<PagingDto<CommentDto>> PagingCommentsByCommentAsync(Guid commentId, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default)
+        public async Task<PagingDto<CommentDto>> PagingCommentsByCommentAsync(Guid commentId, int pageIndex = 1, int pageSize = 20, SortRuleEnum sortRule = SortRuleEnum.Latest, CancellationToken cancellationToken = default)
         {
             pageIndex = Math.Max(1, pageIndex);
             int skip = (pageIndex - 1) * pageSize;
@@ -130,8 +131,9 @@ namespace TMod.Blog.Application.Services.Implements
                     Items = Array.Empty<CommentDto>()
                 };
             }
-            var specification = CommentSpecification.CreatePagingCommentReplies(commentId,skip,pageSize);
-            int totalCount = await _unitOfWork.CommentRepository.CountAsync(specification,cancellationToken);
+            var countSpecification = CommentSpecification.CreateCountPagingByComment(commentId);
+            int totalCount = await _unitOfWork.CommentRepository.CountAsync(countSpecification,cancellationToken);
+            var specification = CommentSpecification.CreatePagingCommentReplies(commentId,skip,pageSize,sortRule);
             var comments = await _unitOfWork.CommentRepository.GetAllEntitiesAsync(specification,cancellationToken);
             int pageCount = (int)Math.Ceiling((double)totalCount / (double)pageSize);
             pageCount = Math.Max(1, pageCount);

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using TMod.Blog.Application.Dtos;
 using TMod.Blog.Application.Requests.Comment;
+using TMod.Blog.Domain.Entities;
 
 namespace TMod.Blog.Application.Services
 {
@@ -15,9 +16,9 @@ namespace TMod.Blog.Application.Services
 
         Task<bool> DeleteCommentAsync(Guid commentId, CancellationToken cancellationToken = default);
 
-        Task<PagingDto<CommentDto>> PagingCommentsByArticleAsync(Guid articleId,int pageIndex = 1,int pageSize = 20, CancellationToken cancellationToken = default);
+        Task<PagingDto<CommentDto>> PagingCommentsByArticleAsync(Guid articleId,int pageIndex = 1,int pageSize = 20, SortRuleEnum sortRule = SortRuleEnum.Latest, CancellationToken cancellationToken = default);
 
-        Task<PagingDto<CommentDto>> PagingCommentsByCommentAsync(Guid commentId,int pageIndex = 1,int pageSize = 20, CancellationToken cancellationToken = default);
+        Task<PagingDto<CommentDto>> PagingCommentsByCommentAsync(Guid commentId,int pageIndex = 1,int pageSize = 20, SortRuleEnum sortRule = SortRuleEnum.Latest, CancellationToken cancellationToken = default);
 
         Task<CommentDto?> GetCommentByIdAsync(Guid commentId, CancellationToken cancellationToken = default);
     }

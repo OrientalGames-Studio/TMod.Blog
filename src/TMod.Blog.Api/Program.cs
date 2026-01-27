@@ -134,5 +134,6 @@ app.UseCors("default")
 app .MapAntiforgeryEndpoints()
     .MapArticleEndpoints()
     .MapCategoryEndpoints()
+    .MapCommentEndpoints()
     .MapOpenApi();
 app.Run();
