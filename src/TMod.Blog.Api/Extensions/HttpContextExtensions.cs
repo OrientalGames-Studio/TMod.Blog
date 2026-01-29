@@ -24,5 +24,28 @@
             }
             return context.Connection.RemoteIpAddress?.ToString() ?? "UNKNOW IP";
         }
+
+        internal static string? GetFingerPrint(this HttpContext context)
+        {
+            if ( context.Request.Headers.ContainsKey("X-Fingerprint") )
+            {
+                return context.Request.Headers["X-Fingerprint"].ToString();
+            }
+            return null;
+        }
+
+        internal static string? GetFingerPrint(this IHttpContextAccessor httpContextAccessor)
+        {
+            var context = httpContextAccessor.HttpContext;
+            if ( context == null )
+            {
+                return null;
+            }
+            if ( context.Request.Headers.ContainsKey("X-Fingerprint") )
+            {
+                return context.Request.Headers["X-Fingerprint"].ToString();
+            }
+            return null;
+        }
     }
 }

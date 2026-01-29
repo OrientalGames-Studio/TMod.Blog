@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
+using TMod.Blog.Api.Extensions;
 using TMod.Blog.Application.Common.Results;
 using TMod.Blog.Application.Dtos;
 using TMod.Blog.Application.Requests.Article;
@@ -57,13 +58,13 @@ namespace TMod.Blog.Api.Endpoints
                 .Produces(StatusCodes.Status201Created)
                 .Produces(StatusCodes.Status400BadRequest)
                 .ProducesValidationProblem(StatusCodes.Status400BadRequest);
-            group.MapPatch("/{articleId:guid}/is-comment-enabled",PatchArticleIsCommentEnabledAsync)
+            group.MapPatch("/{articleId:guid}/is-comment-enabled", PatchArticleIsCommentEnabledAsync)
                 .WithName("SetArticleCommentEnable")
                 .WithSummary("修改文章是否允许评论")
                 .WithDescription("这个接口可以修改文章是否允许评论")
                 .Produces(StatusCodes.Status201Created)
                 .Produces(StatusCodes.Status400BadRequest);
-            group.MapPatch("/{articleId:guid}/is-share-enabled",PatchArticleIsShareEnabledAsync)
+            group.MapPatch("/{articleId:guid}/is-share-enabled", PatchArticleIsShareEnabledAsync)
                 .WithName("SetArticleShareEnable")
                 .WithSummary("修改文章是否允许分享")
                 .WithDescription("这个接口可以修改文章是否允许分享")
@@ -88,7 +89,24 @@ namespace TMod.Blog.Api.Endpoints
                 .WithDescription("这个接口可以删除文章数据")
                 .Produces(StatusCodes.Status204NoContent)
                 .Produces(StatusCodes.Status404NotFound);
+
             group.MapHealthChecks("articles-api-health");
+            // 扩展
+            group.MapPost("/{articleId:guid}/favorites", FavoriteArticleAsync)
+                .WithName("FavoriteArticle")
+                .WithSummary("给文章点赞")
+                .WithDescription("这个接口可以给文章点赞")
+                .Produces(StatusCodes.Status200OK);
+            group.MapGet("/{articleId:guid}/favorites", CountArticleFavoriteAsync)
+                .WithName("CountArticleFavorites")
+                .WithSummary("获取文章点赞数量")
+                .WithDescription("这个接口可以获取文章被几个人点赞过")
+                .Produces(StatusCodes.Status200OK);
+            group.MapDelete("/{articleId:guid}/favorites", DisfavoriteArticleAsync)
+                .WithName("DisfavoriteArticle")
+                .WithSummary("取消给文章的点赞")
+                .WithDescription("这个接口可以取消给文章的点赞")
+                .Produces(StatusCodes.Status204NoContent);
             return app;
         }
 
@@ -155,12 +173,12 @@ namespace TMod.Blog.Api.Endpoints
             }
         }
 
-        private static async Task<Results<JsonHttpResult<Result>, StatusCodeHttpResult>> PagingArticleAsync([FromServices] IArticleService articleService, [FromQuery]Guid? categoryId = null, [FromQuery]Guid? tagId = null, [FromQuery] string? keyword = null, [FromQuery] ArticleStatusEnum status = (ArticleStatusEnum.Unpublished | ArticleStatusEnum.Draft | ArticleStatusEnum.Published), [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 20, CancellationToken token = default)
+        private static async Task<Results<JsonHttpResult<Result>, StatusCodeHttpResult>> PagingArticleAsync([FromServices] IArticleService articleService, [FromQuery] Guid? categoryId = null, [FromQuery] Guid? tagId = null, [FromQuery] string? keyword = null, [FromQuery] ArticleStatusEnum status = ( ArticleStatusEnum.Unpublished | ArticleStatusEnum.Draft | ArticleStatusEnum.Published ), [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 20, CancellationToken token = default)
         {
             try
             {
                 var articleList = await articleService.PagingArticleAsync(categoryId,tagId,keyword,status,pageIndex,pageSize,token);
-                return TypedResults.Json((Result)articleList);
+                return TypedResults.Json(( Result )articleList);
             }
             catch ( Exception ex )
             {
@@ -170,7 +188,7 @@ namespace TMod.Blog.Api.Endpoints
             }
         }
 
-        private static async Task<Results<CreatedAtRoute<ArticleDto>,ValidationProblem,BadRequest<string>,StatusCodeHttpResult>> PatchArticleCategoryAsync([FromRoute]Guid articleId,[FromBody] PatchArticleCategoryRequest request,IValidator<PatchArticleCategoryRequest> validator,IArticleService articleService,CancellationToken token)
+        private static async Task<Results<CreatedAtRoute<ArticleDto>, ValidationProblem, BadRequest<string>, StatusCodeHttpResult>> PatchArticleCategoryAsync([FromRoute] Guid articleId, [FromBody] PatchArticleCategoryRequest request, IValidator<PatchArticleCategoryRequest> validator, IArticleService articleService, CancellationToken token)
         {
             var validationResult = await validator.ValidateAsync(request,token);
             if ( !validationResult.IsValid )
@@ -181,7 +199,7 @@ namespace TMod.Blog.Api.Endpoints
             try
             {
                 var article = await articleService.PatchArticleCategoryAsync(articleId,request,token);
-                if(article is null )
+                if ( article is null )
                 {
                     return TypedResults.BadRequest("修改文章分类失败");
                 }
@@ -194,7 +212,7 @@ namespace TMod.Blog.Api.Endpoints
             }
         }
 
-        private static async Task<Results<CreatedAtRoute<ArticleDto>, BadRequest<string>, StatusCodeHttpResult>> PatchArticleIsCommentEnabledAsync([FromRoute]Guid articleId, [FromBody]PatchArticleIsCommentEnabledRequest request,IArticleService articleService,CancellationToken token)
+        private static async Task<Results<CreatedAtRoute<ArticleDto>, BadRequest<string>, StatusCodeHttpResult>> PatchArticleIsCommentEnabledAsync([FromRoute] Guid articleId, [FromBody] PatchArticleIsCommentEnabledRequest request, IArticleService articleService, CancellationToken token)
         {
             try
             {
@@ -230,12 +248,12 @@ namespace TMod.Blog.Api.Endpoints
             }
         }
 
-        private static async Task<Results<CreatedAtRoute<ArticleDto>, BadRequest<string>, StatusCodeHttpResult>> PatchArticleTagsAsync([FromRoute]Guid articleId, [FromBody]PatchArticleTagsRequest request,IArticleService articleService,CancellationToken token)
+        private static async Task<Results<CreatedAtRoute<ArticleDto>, BadRequest<string>, StatusCodeHttpResult>> PatchArticleTagsAsync([FromRoute] Guid articleId, [FromBody] PatchArticleTagsRequest request, IArticleService articleService, CancellationToken token)
         {
             try
             {
                 var article = await articleService.PatchArticleTagsAsync(articleId,request,token);
-                if(article is null )
+                if ( article is null )
                 {
                     return TypedResults.BadRequest("修改文章标签失败");
                 }
@@ -248,7 +266,7 @@ namespace TMod.Blog.Api.Endpoints
             }
         }
 
-        private static async Task<Results<CreatedAtRoute<ArticleDto>, ValidationProblem, BadRequest<string>, StatusCodeHttpResult>> UpdateArticleAsync([FromRoute]Guid articleId, [FromBody]UpdateArticleRequest request,IValidator<UpdateArticleRequest> validator,IArticleService articleService,CancellationToken token)
+        private static async Task<Results<CreatedAtRoute<ArticleDto>, ValidationProblem, BadRequest<string>, StatusCodeHttpResult>> UpdateArticleAsync([FromRoute] Guid articleId, [FromBody] UpdateArticleRequest request, IValidator<UpdateArticleRequest> validator, IArticleService articleService, CancellationToken token)
         {
             var validationResults = await validator.ValidateAsync(request,token);
             if ( !validationResults.IsValid )
@@ -259,7 +277,7 @@ namespace TMod.Blog.Api.Endpoints
             try
             {
                 var article = await articleService.UpdateArticleAsync(articleId,request,token);
-                if(article is null )
+                if ( article is null )
                 {
                     return TypedResults.BadRequest("更新文章失败");
                 }
@@ -272,7 +290,7 @@ namespace TMod.Blog.Api.Endpoints
             }
         }
 
-        private static async Task<Results<NoContent,NotFound<string>,StatusCodeHttpResult>> DeleteArticleAsync([FromRoute]Guid articleId,IArticleService articleService,CancellationToken token)
+        private static async Task<Results<NoContent, NotFound<string>, StatusCodeHttpResult>> DeleteArticleAsync([FromRoute] Guid articleId, IArticleService articleService, CancellationToken token)
         {
             try
             {
@@ -286,6 +304,59 @@ namespace TMod.Blog.Api.Endpoints
             catch ( Exception ex )
             {
                 _logger?.LogCritical(ex, "删除文章发生错误");
+                throw;
+            }
+        }
+
+        private static async Task<Results<Ok, StatusCodeHttpResult>> FavoriteArticleAsync([FromRoute] Guid articleId, IFavoriteService favoriteService, IHttpContextAccessor httpContextAccessor, CancellationToken token)
+        {
+            try
+            {
+                string clientIp = httpContextAccessor.GetClientIp();
+                string? fingerprint = httpContextAccessor.GetFingerPrint();
+                if(!await favoriteService.GetArticleIsFavoritedAsync(articleId, fingerprint, clientIp, token) )
+                {
+                    await favoriteService.FavoriteArticleAsync(articleId, fingerprint, clientIp, token);
+                }
+                return TypedResults.Ok();
+            }
+            catch ( Exception ex )
+            {
+                _logger?.LogCritical(ex, "文章点赞发生错误，文章Id:{}", articleId);
+                throw;
+            }
+        }
+
+        private static async Task<Results<Ok<int>,StatusCodeHttpResult>> CountArticleFavoriteAsync([FromRoute]Guid articleId,IFavoriteService favoriteService,IHttpContextAccessor httpContextAccessor,CancellationToken token)
+        {
+            try
+            {
+                int count = await favoriteService.CountArticleFavoritesAsync(articleId, token);
+                return TypedResults.Ok(count);
+            }
+            catch(Exception ex )
+            {
+                _logger?.LogCritical(ex, "计算文章点赞数量发生错误");
+                throw;
+            }
+        }
+
+        private static async Task<Results<NoContent,StatusCodeHttpResult>> DisfavoriteArticleAsync([FromRoute]Guid articleId,IFavoriteService favoriteService,IHttpContextAccessor httpContextAccessor,CancellationToken token)
+        {
+            try
+            {
+                string ip = httpContextAccessor.GetClientIp();
+                string? fingerprint = httpContextAccessor.GetFingerPrint();
+                bool res = await favoriteService.DisfavoriteArticleAsync(articleId, fingerprint, ip, token);
+                if ( !res )
+                {
+                    _logger?.LogWarning("取消文章点赞时返回 false，文章 Id:{}", articleId);
+                }
+                return TypedResults.NoContent();
+            }
+            catch ( Exception ex )
+            {
+                _logger?.LogCritical(ex, "取消文章点赞发生错误");
                 throw;
             }
         }

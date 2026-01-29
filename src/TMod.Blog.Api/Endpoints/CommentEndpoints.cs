@@ -52,6 +52,27 @@ namespace TMod.Blog.Api.Endpoints
                 .WithSummary("获取评论的回复")
                 .WithDescription("这个接口可以获取评论的所有回复")
                 .Produces(StatusCodes.Status200OK);
+            group.MapHealthChecks("comments-api-health");
+
+            // 扩展
+            group.MapPost("/{commentId:guid}/favorites", FavoriteCommentAsync)
+                .WithName("FavoriteComment")
+                .WithSummary("给评论点赞")
+                .WithDescription("这个接口可以给文章点赞")
+                .Produces(StatusCodes.Status200OK);
+
+            group.MapGet("/{commentId:guid}/favorites", CountCommentFavoriteAsync)
+                .WithName("CountCommentFavorites")
+                .WithSummary("获取评论的点赞数量")
+                .WithDescription("这个接口可以获取评论被几个人点赞过")
+                .Produces(StatusCodes.Status200OK);
+
+            group.MapDelete("/{commentId:guid}/favorites", DisfavoriteCommentAsync)
+                .WithName("DisfavoriteComment")
+                .WithSummary("取消给评论点赞")
+                .WithDescription("这个接口可以取消给评论的点赞")
+                .Produces(StatusCodes.Status204NoContent);
+
             return app;
         }
 
@@ -127,6 +148,59 @@ namespace TMod.Blog.Api.Endpoints
             catch ( Exception ex )
             {
                 _logger?.LogCritical(ex, "分页查询评论{}的回复失败", commentId);
+                throw;
+            }
+        }
+
+        private static async Task<Results<Ok,StatusCodeHttpResult>> FavoriteCommentAsync([FromRoute]Guid commentId,IFavoriteService favoriteService,IHttpContextAccessor httpContextAccessor,CancellationToken token)
+        {
+            try
+            {
+                string clientIp = httpContextAccessor.GetClientIp();
+                string? fingerprint = httpContextAccessor.GetFingerPrint();
+                if(!await favoriteService.GetCommentIsFavoritedAsync(commentId, fingerprint, clientIp, token) )
+                {
+                    await favoriteService.FavoriteCommentAsync(commentId, fingerprint, clientIp, token);
+                }
+                return TypedResults.Ok();
+            }
+            catch ( Exception ex )
+            {
+                _logger?.LogCritical(ex, "评论点赞发生错误");
+                throw;
+            }
+        }
+
+        private static async Task<Results<Ok<int>,StatusCodeHttpResult>> CountCommentFavoriteAsync([FromRoute]Guid commentId,IFavoriteService favoriteService,IHttpContextAccessor httpContextAccessor,CancellationToken token)
+        {
+            try
+            {
+                int count = await favoriteService.CountCommentFavoritesAsync(commentId,token);
+                return TypedResults.Ok(count);
+            }
+            catch ( Exception ex )
+            {
+                _logger?.LogCritical(ex, "计算评论点赞数量发生错误");
+                throw;
+            }
+        }
+
+        private static async Task<Results<NoContent, StatusCodeHttpResult>> DisfavoriteCommentAsync([FromRoute]Guid commentId,IFavoriteService favoriteService,IHttpContextAccessor httpContextAccessor,CancellationToken token)
+        {
+            try
+            {
+                string ip = httpContextAccessor.GetClientIp();
+                string? fingerprint = httpContextAccessor.GetFingerPrint();
+                bool res = await favoriteService.DisfavoriteArticleAsync(commentId,fingerprint,ip,token);
+                if ( !res )
+                {
+                    _logger?.LogWarning("取消评论点赞时返回 false，评论 Id:{}", commentId);
+                }
+                return TypedResults.NoContent();
+            }
+            catch ( Exception ex )
+            {
+                _logger?.LogCritical(ex, "取消评论点赞发生错误");
                 throw;
             }
         }

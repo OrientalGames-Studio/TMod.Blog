@@ -23,5 +23,7 @@ namespace TMod.Blog.Application.Services
         Task<IReadOnlyList<string>> GetArticleFavoritedListAsync(Guid articleId, CancellationToken token = default);
 
         Task<IReadOnlyList<string>> GetCommentFavoirtedListAsync(Guid commentId, CancellationToken token = default);
+
+        Task<bool> DisfavoriteArticleAsync(Guid articleId, string fingerprint, string clientIp, CancellationToken token = default);
     }
 }
