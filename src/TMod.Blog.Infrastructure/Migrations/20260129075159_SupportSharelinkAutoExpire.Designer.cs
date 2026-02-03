@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TMod.Blog.Infrastructure.Contextes;
 
@@ -11,9 +12,11 @@ using TMod.Blog.Infrastructure.Contextes;
 namespace TMod.Blog.Infrastructure.Migrations
 {
     [DbContext(typeof(TMod_Blog_RW_Context))]
-    partial class TMod_Blog_RW_ContextModelSnapshot : ModelSnapshot
+    [Migration("20260129075159_SupportSharelinkAutoExpire")]
+    partial class SupportSharelinkAutoExpire
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -446,17 +449,6 @@ namespace TMod.Blog.Infrastructure.Migrations
                             ConfigValue = "24",
                             CreateDate = new DateTime(2026, 1, 12, 16, 31, 0, 0, DateTimeKind.Unspecified),
                             Description = "文章用于SEO的Slug字符串长度",
-                            IsDeleted = false,
-                            IsEnabled = true,
-                            RowVersion = new byte[0]
-                        },
-                        new
-                        {
-                            Id = 8,
-                            ConfigKey = "SITE_IS_SHARE_ENABLE",
-                            ConfigValue = "true",
-                            CreateDate = new DateTime(2026, 2, 2, 11, 10, 0, 0, DateTimeKind.Unspecified),
-                            Description = "是否允许分享文章和评论",
                             IsDeleted = false,
                             IsEnabled = true,
                             RowVersion = new byte[0]

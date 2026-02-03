@@ -41,6 +41,7 @@ namespace TMod.Blog.Application
             services.TryAddEnumerable(ServiceDescriptor.Scoped<IFavoriteService, FavoriteService>());
             services.TryAddEnumerable(ServiceDescriptor.Scoped<ISiteConfigurationService, SiteConfigurationService>());
             services.TryAddEnumerable(ServiceDescriptor.Scoped<ITagService, TagService>());
+            services.TryAddEnumerable(ServiceDescriptor.Scoped<IShareLinkService, ShareLinkService>());
         }
     }
 }

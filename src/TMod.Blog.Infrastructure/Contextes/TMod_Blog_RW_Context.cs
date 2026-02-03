@@ -155,6 +155,14 @@ namespace TMod.Blog.Infrastructure.Contextes
                         ConfigValue = "24",
                         Description = "文章用于SEO的Slug字符串长度",
                         CreateDate = DateTime.Parse("2026-01-12 16:31")
+                    },
+                    new SiteConfiguration()
+                    {
+                        Id = 8,
+                        ConfigKey = SITE_IS_SHARE_ENABLE,
+                        ConfigValue = "true",
+                        Description = "是否允许分享文章和评论",
+                        CreateDate = DateTime.Parse("2026-02-02 11:10")
                     }
                 );
         }

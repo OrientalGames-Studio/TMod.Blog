@@ -19,7 +19,7 @@ namespace TMod.Blog.Infrastructure.CompiledModels
                 "TMod.Blog.Domain.Entities.ShareLink",
                 typeof(ShareLink),
                 baseEntityType,
-                propertyCount: 10,
+                propertyCount: 12,
                 keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
@@ -31,6 +31,14 @@ namespace TMod.Blog.Infrastructure.CompiledModels
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            var autoExpire = runtimeEntityType.AddProperty(
+                "AutoExpire",
+                typeof(bool),
+                propertyInfo: typeof(ShareLink).GetProperty("AutoExpire", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(ShareLink).GetField("<AutoExpire>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: false);
+            autoExpire.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var createDate = runtimeEntityType.AddProperty(
                 "CreateDate",
@@ -58,6 +66,14 @@ namespace TMod.Blog.Infrastructure.CompiledModels
                 fieldInfo: typeof(BaseEntity<int>).GetField("<DeleteDate>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             deleteDate.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var expireDate = runtimeEntityType.AddProperty(
+                "ExpireDate",
+                typeof(DateTime?),
+                propertyInfo: typeof(ShareLink).GetProperty("ExpireDate", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(ShareLink).GetField("<ExpireDate>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            expireDate.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var isDeleted = runtimeEntityType.AddProperty(
                 "IsDeleted",

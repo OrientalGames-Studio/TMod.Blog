@@ -20,10 +20,10 @@ namespace TMod.Blog.Application.Services.Implements
     internal class CommentService : ICommentService
     {
         private readonly ILogger<CommentService> _logger;
-        private readonly ICommentUnitOfWork _unitOfWork;
+        private readonly IArtifactUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public CommentService(ILogger<CommentService> logger, ICommentUnitOfWork unitOfWork, IMapper mapper)
+        public CommentService(ILogger<CommentService> logger, IArtifactUnitOfWork unitOfWork, IMapper mapper)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;

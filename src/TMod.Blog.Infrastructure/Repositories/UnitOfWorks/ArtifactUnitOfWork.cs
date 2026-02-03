@@ -10,18 +10,22 @@ using TMod.Blog.Infrastructure.Contextes;
 
 namespace TMod.Blog.Infrastructure.Repositories.UnitOfWorks
 {
-    internal class CommentUnitOfWork : UnitOfWork, ICommentUnitOfWork
+    internal class ArtifactUnitOfWork : UnitOfWork, IArtifactUnitOfWork
     {
         public IArticleRepository ArticleRepository { get; set; }
 
         public ICommentRepository CommentRepository { get; set; }
 
         public IFavoriteRepository FavoriteRepository { get; set; }
-        public CommentUnitOfWork(TMod_Blog_RW_Context _context,IArticleRepository articleRepository,ICommentRepository commentRepository,IFavoriteRepository favoriteRepository) : base(_context)
+
+        public IShareLinkRepository ShareLinkRepository { get; set; }
+
+        public ArtifactUnitOfWork(TMod_Blog_RW_Context _context,IArticleRepository articleRepository,ICommentRepository commentRepository,IFavoriteRepository favoriteRepository,IShareLinkRepository shareLinkRepository) : base(_context)
         {
             ArticleRepository = articleRepository;
             CommentRepository = commentRepository;
             FavoriteRepository = favoriteRepository;
+            ShareLinkRepository = shareLinkRepository;
         }
     }
 }

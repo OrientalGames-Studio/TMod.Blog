@@ -64,8 +64,8 @@ namespace TMod.Blog.Infrastructure
             services.AddScoped<IRepository<Favorite, Guid>, FavoriteRepository>();
 
             services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
-            services.AddScoped<ICommentUnitOfWork, CommentUnitOfWork>();
-            services.TryAddEnumerable([ServiceDescriptor.Scoped<IUnitOfWork, ApplicationUnitOfWork>(),ServiceDescriptor.Scoped<IUnitOfWork,CommentUnitOfWork>()]);
+            services.AddScoped<IArtifactUnitOfWork, ArtifactUnitOfWork>();
+            services.TryAddEnumerable([ServiceDescriptor.Scoped<IUnitOfWork, ApplicationUnitOfWork>(),ServiceDescriptor.Scoped<IUnitOfWork,ArtifactUnitOfWork>()]);
             return services;
         }
     }

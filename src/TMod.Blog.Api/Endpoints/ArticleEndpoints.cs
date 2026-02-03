@@ -2,11 +2,13 @@
 
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 using TMod.Blog.Api.Extensions;
 using TMod.Blog.Application.Common.Results;
 using TMod.Blog.Application.Dtos;
 using TMod.Blog.Application.Requests.Article;
+using TMod.Blog.Application.Requests.Share;
 using TMod.Blog.Application.Services;
 using TMod.Blog.Domain.Entities;
 
@@ -107,6 +109,19 @@ namespace TMod.Blog.Api.Endpoints
                 .WithSummary("取消给文章的点赞")
                 .WithDescription("这个接口可以取消给文章的点赞")
                 .Produces(StatusCodes.Status204NoContent);
+
+            group.MapPost("/{articleId:guid}/shares", ShareArticleAsync)
+                .WithName("ShareArticle")
+                .WithSummary("分享文章")
+                .WithDescription("这个接口会创建一个分享短码，通过分享短码可以访问到文章")
+                .Produces(StatusCodes.Status200OK)
+                .ProducesValidationProblem();
+
+            //group.MapGet("/shares/{shareCode}", LoadSharedArticleAsync)
+            //    .WithName("GetShareArticle")
+            //    .WithSummary("通过分享链获取文章")
+            //    .WithDescription("这个接口可以解析分享短码，加载分享的文章")
+            //    .Produces(StatusCodes.Status200OK);
             return app;
         }
 
@@ -360,5 +375,69 @@ namespace TMod.Blog.Api.Endpoints
                 throw;
             }
         }
+
+        private static async Task<Results<Ok<string>,ValidationProblem,StatusCodeHttpResult>> ShareArticleAsync([FromRoute]Guid articleId, [FromBody]CreateShareRequest request,IValidator<CreateShareRequest> validator,IShareLinkService shareLinkService,IHttpContextAccessor httpContextAccessor,LinkGenerator linkGenerator,CancellationToken token)
+        {
+            var validationResult = await validator.ValidateAsync(request,token);
+            if ( !validationResult.IsValid )
+            {
+                _logger?.LogError("创建分享链时，分享预设参数校验失败：{}", validationResult.ToString());
+                return TypedResults.ValidationProblem(validationResult.ToDictionary());
+            }
+            try
+            {
+                DateTime now = DateTime.Now;
+                DateTime? expireAt = null;
+                if ( request.AutoExpire )
+                {
+                    expireAt = request.DaysUnit switch
+                    {
+                        Application.Common.Enums.DaysUnitEnum.Days => now.AddDays(request.ExpireAt),
+                        Application.Common.Enums.DaysUnitEnum.Weeks => now.AddDays(request.ExpireAt * 7),
+                        Application.Common.Enums.DaysUnitEnum.Months => now.AddMonths(request.ExpireAt),
+                        Application.Common.Enums.DaysUnitEnum.Seasons => now.AddMonths(request.ExpireAt * 3),
+                        Application.Common.Enums.DaysUnitEnum.Years => now.AddYears(request.ExpireAt),
+                        _ => now.AddDays(request.ExpireAt)
+                    };
+                }
+                string clientIp = httpContextAccessor.GetClientIp();
+                string? fingerprint = httpContextAccessor.GetFingerPrint();
+                var shortCode = await shareLinkService.CreateShareAsync(ShareTargetTypeEnum.Article,articleId,clientIp,expireAt,token);
+                //string url = linkGenerator.GetUriByName(httpContextAccessor.HttpContext,)
+                //string? url = linkGenerator.GetUriByRouteValues(httpContextAccessor.HttpContext, "GetShareArticle", new { shareCode = shortCode });
+                if ( string.IsNullOrWhiteSpace(shortCode) )
+                {
+                    _logger?.LogCritical("生成文章分享链失败，文章 Id:{}，分享短码: {}",articleId,shortCode);
+                    return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
+                }
+                return TypedResults.Ok(shortCode);
+            }
+            catch ( Exception ex )
+            {
+                _logger?.LogCritical(ex, "分享文章时发生错误");
+                throw;
+            }
+        }
+
+        //private static async Task<Results<JsonHttpResult<object>,NotFound,StatusCodeHttpResult>> LoadSharedArticleAsync([FromRoute]string shareCode,IShareLinkService shareLinkService,CancellationToken token)
+        //{
+        //    try
+        //    {
+        //        ISharable? sharable = await shareLinkService.LoadByShareAsync(shareCode,token);
+        //        if(sharable is null || sharable is not BaseEntity<Guid> entity )
+        //        {
+        //            return TypedResults.NotFound();
+        //        }
+        //        return TypedResults.Json<object>(new
+        //        {
+        //            articleId = entity.Id
+        //        });
+        //    }
+        //    catch ( Exception ex )
+        //    {
+        //        _logger?.LogCritical(ex, "获取分享的文章时发生错误");
+        //        throw;
+        //    }
+        //}
     }
 }

@@ -13,7 +13,7 @@ namespace TMod.Blog.Infrastructure.CompiledModels
     public partial class TMod_Blog_RW_ContextModel
     {
         private TMod_Blog_RW_ContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("13635eec-ef66-4d60-961e-75afdb086e05"), entityTypeCount: 8)
+            : base(skipDetectChanges: false, modelId: new Guid("69ad0289-fd89-4f58-bed9-df8ff444ae83"), entityTypeCount: 8)
         {
         }
 

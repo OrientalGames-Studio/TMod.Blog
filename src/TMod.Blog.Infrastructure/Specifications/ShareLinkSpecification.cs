@@ -9,12 +9,13 @@ using TMod.Blog.Domain.Specifications;
 
 namespace TMod.Blog.Infrastructure.Specifications
 {
-    internal class ShareLinkSpecification : BaseSpecification<ShareLink>
+    public class ShareLinkSpecification : BaseSpecification<ShareLink>
     {
         public static ISpecification<ShareLink> CreateGetShareLinkByShortCode(string shortCode)
         {
             ShareLinkSpecification result = new ShareLinkSpecification();
             result.AddCriteria(s => s.ShortCode == shortCode);
+            result.EnabledNoTracking();
             return result;
         }
     }

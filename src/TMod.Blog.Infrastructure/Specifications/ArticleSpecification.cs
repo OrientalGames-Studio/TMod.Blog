@@ -28,7 +28,7 @@ namespace TMod.Blog.Infrastructure.Specifications
             ArticleSpecification specification = new ArticleSpecification(a=>a.Id == articleId);
             specification.AddInclude(c => c.Category);
             specification.AddInclude(c => c.Tags);
-            specification.AddInclude(c => c.Comments);
+            //specification.AddInclude(c => c.Comments);
             if ( !showDeleted )
             {
                 specification.AddCriteria(c => !c.IsDeleted);

@@ -65,5 +65,12 @@ namespace TMod.Blog.Infrastructure.Specifications
             specification.EnabledNoTracking();
             return specification;
         }
+
+        public static ISpecification<Comment> CreateGetCommentById(Guid commentId)
+        {
+            CommentSpecification specification = new CommentSpecification(c=>c.Id == commentId);
+            specification.EnabledNoTracking();
+            return specification;
+        }
     }
 }
