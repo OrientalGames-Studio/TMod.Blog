@@ -16,6 +16,6 @@ namespace TMod.Blog.Application.Dtos
 
         public string? Description { get; set; }
 
-        public bool IsEnabled { get; set; }
+        public bool IsEnabled { get; set; } = true;
     }
 }

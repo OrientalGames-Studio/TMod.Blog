@@ -136,5 +136,6 @@ app .MapAntiforgeryEndpoints()
     .MapCategoryEndpoints()
     .MapCommentEndpoints()
     .MapShareEndpoints()
+    .MapSiteConfigurationEndpoints()
     .MapOpenApi();
 app.Run();
