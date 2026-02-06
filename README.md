@@ -1,164 +1,131 @@
-# 🧭 项目路线图：React-TS + .NET 8 + MSSQL + Redis 博客系统
+# TMod.Blog
+
+> 一个以 **可维护性、可演进性、工程实践** 为目标的博客系统。
 
 ---
 
-## 🏗️ **阶段 1：项目初始化与架构搭建**
+## 一、项目当前状态（里程碑回顾）
 
-**目标：** 建立基础架构与开发环境，确定整体项目结构。
-**周期建议：1 周**
+### ✅ 已完成模块（Backend）
 
-| 模块       | 关键任务                                                                                                                                                       | 产出                               |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
-| 🔧 后端初始化 | 1. 使用 `dotnet new webapi` 创建主项目。<br>2. 引入必要依赖：EF Core、Swashbuckle（Swagger）、AutoMapper、Serilog。<br>3. 按分层架构组织（Domain / Application / Infrastructure / API）。 | 可运行的 .NET8 Web API + Swagger 文档。 |
-| 🧱 数据访问层 | 1. 连接 MSSQL。<br>2. 创建基础实体：Article、Category、Comment、User。<br>3. 配置 DbContext 与 Migration。                                                                   | 数据库结构 + 初始迁移。                    |
-| 📦 前端初始化 | 1. 使用 `Vite + React + TypeScript` 初始化前端项目。<br>2. 引入 React Router、Axios、Tailwind CSS。<br>3. 配置基本路由（Home / Categories / About / Admin）。                      | 可运行的前端项目 + 路由框架。                 |
-| ⚙️ 环境配置  | 建立 `.env` 文件体系，区分 dev / prod。                                                                                                                              | 环境配置标准化。                         |
+* **Article**：文章创建、更新、查询、Slug 访问、点赞、分享
+* **Category**：分类层级、分页、父子调整
+* **Comment**：文章评论、回复、分页、排序、点赞、分享
+* **Tag**：标签系统（已内聚至 Article / Category）
+* **SlugService**：标题 → Slug，唯一性控制
+* **ShortCodeService**：可溯源、不可预测的分享短码
+* **SiteConfiguration**：站点级配置管理
+* **Anti-forgery Token**：CSRF 防护基础设施
 
----
-
-## ✍️ **阶段 2：后端核心模块开发**
-
-**目标：** 完成文章、分类、评论的基础 API，支持前端调用。
-**周期建议：2–3 周**
-
-| 模块                  | 关键任务                                                                                   | 产出                          |
-| ------------------- | -------------------------------------------------------------------------------------- | --------------------------- |
-| 🧩 文章模块             | 1. ArticleController：CRUD 接口。<br>2. 支持 Markdown 字段。<br>3. EF Core + AutoMapper 实现 DTO。 | `/api/articles` 全功能接口。      |
-| 🧭 分类模块             | 1. CategoryController：查询分类与分类下文章。<br>2. 提供汇总信息（归档、数量）。                                 | `/api/categories` 接口。       |
-| 💬 评论模块             | 1. CommentController：游客评论（带邮箱/昵称）。<br>2. 审核与反垃圾机制（后续）。                                 | `/api/comments` 接口。         |
-| 👤 用户认证模块           | 1. 使用 JWT + ASP.NET Identity 实现单管理员登录。<br>2. 登录、刷新 Token、权限控制。                         | `/api/auth` 登录认证体系。         |
-| 🧠 Minimal API 辅助端点 | 暴露少量管理工具端点（如：缓存清理、健康检查）。                                                               | `/api/tools/*` Minimal API。 |
+📌 **结论**：
+后端 API 已达到 **稳定版本（v1）**，可以安全进入前端开发阶段。
 
 ---
 
-## 🎨 **阶段 3：前端核心模块开发**
+## 二、当前未启动模块（有意延期）
 
-**目标：** 实现博客主要页面与数据绑定。
-**周期建议：3–4 周**
+* **File Storage Service**
 
-| 模块        | 关键任务                                                                              | 产出       |
-| --------- | --------------------------------------------------------------------------------- | -------- |
-| 🏠 博客首页   | 1. 调用文章列表 API。<br>2. 模块化布局（日历、天气、归档、最新评论）。<br>3. 引入状态管理（Zustand 或 Redux Toolkit）。 | 首页完成。    |
-| 🗂️ 分类页   | 1. 动态生成分类导航。<br>2. 展示该分类下的文章。                                                     | 分类详情页完成。 |
-| 🧑‍💼 关于页 | 静态内容 + 服务器信息（后端返回时间、版本、构建时间）。                                                     | 关于页完成。   |
-| 📄 文章详情页  | 1. Markdown 渲染。<br>2. 评论区。<br>3. 分享与收藏（Cookie 本地存储）。                              | 文章页完成。   |
+  * 原因：暂无 NAS / 文件服务器
+  * 决策：接口设计可延后，不阻塞核心业务
+
+> 这是一个**正确的工程取舍**，避免过早引入基础设施复杂度。
 
 ---
 
-## 🧰 **阶段 4：后台管理模块**
+## 三、下一阶段目标（Frontend）
 
-**目标：** 构建管理员专用后台，实现博客管理能力。
-**周期建议：3–4 周**
+### 🎯 阶段目标
 
-| 模块       | 关键任务                                                               | 产出        |
-| -------- | ------------------------------------------------------------------ | --------- |
-| 📝 博文管理  | 1. 在线 Markdown 编辑器。<br>2. 文件上传（md/txt/doc/docx）。<br>3. 文章隐藏、封禁、删除。 | 可用的文章管理页。 |
-| 🎛️ 系统管理 | 1. “维护模式” 开关。<br>2. 一键主题切换（深色/节日主题）。<br>3. 附件管理、上传日志。              | 管理仪表盘完成。  |
-| 🔑 管理端安全 | 1. 前端路由保护。<br>2. 管理端部署独立域名（如 admin.myblog.com）。                    | 独立可访问管理端。 |
+* 构建一个 **可真实使用** 的博客前端
+* 通过前端反向验证后端 API 的合理性
+* 暴露真实使用场景下的设计问题
 
 ---
 
-## ⚡ **阶段 5：性能优化与扩展功能**
+## 四、前端技术选型（建议）
 
-**目标：** 提升响应速度与系统稳定性。
-**周期建议：2–3 周**
+| 领域   | 方案                          |
+| ---- | --------------------------- |
+| 构建工具 | Vite                        |
+| 框架   | React                       |
+| 路由   | React Router                |
+| 数据请求 | TanStack Query              |
+| 状态管理 | 先不用 Redux（必要时再引入）           |
+| UI   | 可选：AntD / MUI / Headless UI |
 
-| 模块                  | 关键任务                                                                        | 产出          |
-| ------------------- | ----------------------------------------------------------------------------- | ----------- |
-| 🧩 Redis 缓存         | 1. 缓存首页文章列表、热门文章、统计信息。<br>2. 添加缓存中间件与失效机制。                                  | Redis 缓存系统。 |
-| 🔍 Elasticsearch 搜索 | 1. 同步文章数据到 ES。<br>2. 提供搜索接口 + 前端搜索框。                                        | 全文搜索功能。     |
-| 🔄 博文同步服务           | 1. 构建后台 Worker（Hangfire 或 BackgroundService）。<br>2. 实现同步微信公众号 / CSDN 的最小版本。 | 自动同步后台任务。   |
-
----
-
-## 🧱 **阶段 6：自动化与部署**
-
-**目标：** 将系统上线并建立可持续部署机制。
-**周期建议：1–2 周**
-
-| 模块       | 关键任务                                                            | 产出           |
-| -------- | --------------------------------------------------------------- | ------------ |
-| 🐳 ~容器化~   | ~1. 为前后端各写 Dockerfile。<br>2. 使用 Docker Compose 统一编排。~             | ~一键启动的本地容器环境。~ |
-| ☁️ 部署    | 1. 配置生产数据库 / Redis / Nginx 反向代理。<br>2. 启用 HTTPS。                | 线上可访问网站。     |
-| 🔔 CI/CD | 1. GitHub Actions 或 Azure DevOps 自动构建。<br>2. 自动注入版本号与构建时间（前后端）。 | 自动化构建与版本信息。  |
+原则：**MVP 优先，避免过度设计**。
 
 ---
 
-## 🧠 **阶段 7：维护与演进**
+## 五、前端开发顺序（强烈建议）
 
-**目标：** 提升系统稳定性与可维护性。
-**持续进行**
+### Phase 1：核心用户路径
 
-| 模块         | 关键任务                                | 产出        |
-| ---------- | ----------------------------------- | --------- |
-| 🧩 日志与监控   | Serilog + Seq / Elastic APM 监控运行状况。 | 可视化监控仪表盘。 |
-| 🧹 优化与重构   | 定期代码审查、升级依赖、优化性能。                   | 稳定的长期版本。  |
-| 🧑‍🏫 文档维护 | 编写开发手册、部署文档、API 文档。                 | 完整文档体系。   |
+1. **首页（文章列表）**
+
+   * 分页
+   * 分类 / 关键词筛选
+
+2. **文章详情页（Slug 路由）**
+
+   * 内容展示
+   * 标签 / 分类
+   * 点赞 / 分享
+
+3. **评论区**
+
+   * 顶级评论分页
+   * 回复加载
+   * 排序规则
+
+4. **分享跳转页**
+
+   * 通过 shareCode 解析内容
+   * 自动跳转文章 / 评论
+
+> 完成以上，即可称为 **可用博客产品**。
 
 ---
 
-## 后期待办（阶段性评审）
+### Phase 2：体验与系统能力
 
-为推进项目完整性与可落地性，下面将阶段性评审的结果整理为后期待办（已按优先级排列）。该改动为单文件小改动，跳过单独计划。
+* 评论防刷（前端节流 + Token）
+* 错误态统一处理（404 / 500）
+* Skeleton / Loading 体验
+* SEO（Title / Meta）
 
-1. 紧急修复（现在）（Pending）
-- 修复 `UnitOfWork` 构造与 `Dispose` / 事务生命周期，实现或支持 `IAsyncDisposable`，确保能通过构建并避免资源泄露。
-- 修复 `PackResultMiddleware`：在所有分支恢复 `HttpContext.Response.Body`；保留或携带原始 HTTP `StatusCode`；不要将内部异常详情（`ex.Message`/堆栈）回传给客户端；对于大文件/流式响应和非 `application/json` 类型跳过包装以避免内存压力与语义破坏。
+---
 
-2. 近期（1–2 周）（Pending）
-- 审查并修正 `AutoMapper` 配置，确保敏感字段（如密码/密钥）不被映射至 DTO；统一 `DateTime` 时区/Kind 处理策略。
-- 短码（`IShortCodeService`）安全：将密钥存放在安全存储（UserSecrets/KeyVault），在生成时进行唯一性检测并实现有限重试策略以避免碰撞。
-- 评论/输入安全：对 Markdown/HTML 渲染做 XSS 过滤或白名单 Sanitizer；为公开评论加速率限制与反垃圾机制（简单 CAPTCHA 或 IP 限制）。
+## 六、前后端协作原则
 
-3. 中期（2–4 周）
-- 添加单元测试与集成测试：覆盖中间件（JSON 包装/非 JSON/状态码）、UnitOfWork 事务、仓储分页与短码 encode/decode 边界。
-- 引入 Redis 缓存关键视图/API（首页、热门文章、统计）并实现缓存失效策略与穿透保护；优化 EF 查询（`AsNoTracking()`、投影、避免 N+1）并建议必要的 DB 索引。
-- 分页接口改进：分页方法应返回包含 `totalCount` 的分页结果对象，便于前端分页控件使用。
+* **后端 API 优先稳定，不频繁破坏性变更**
+* 前端发现问题 → 记录 → 集中优化
+* DTO 调整以“前端真实使用”为依据
 
-4. 长期（上线前）
-- 完整安全审计：依赖漏洞扫描、密钥与配置管理、CSP/CORS 策略、Token 撤销与会话管理。
-- 性能调优与监控：索引优化、压力测试、APM（如 Elastic APM / Application Insights）、日志聚合与告警策略。
+> 后端不再“假想用户”，而是被真实 UI 驱动。
 
-当前重点
-- 优先完成“紧急修复”以保证项目能编译并通过本地验证（UnitOfWork 与 PackResultMiddleware 为首要）；随后补充测试覆盖防止回归，再推进缓存、CI 与部署准备工作。
+---
 
-## 2026-01-14 补充
-上线时记得同步数据库 UDF
+## 七、后续可选演进方向（不立即启动）
 
-1. 启用 clr 程序集
-```sql
-EXEC sp_configure 'clr enabled', 1;
-RECONFIGURE;
-```
-2. 信任程序集
-```sql
-exec sp_add_trusted_assembly
-  @hash = -- 计算最新的 TMod.Blog.Extensions.DBFunctions 的 Hash 值,
-  @description = N'扩展方法'
-```
-3. 删除然后重建程序集
-```sql
-create assembly [TMod.Blog.Extensions.DBFunctions]
-from N'C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER_2022\MSSQL\External_Assemblies\TMod.Blog.Extensions.DBFunctions.dll'
-with permission_set = safe;
-```
-4. 创建 UDF
-```sql
-create function dbo.UDF_GetSimilarity(
-	@s1 nvarchar(max),
-	@s2 nvarchar(max),
-	@weight1 float,
-	@weight2 float
-)
-returns float
-as external name [TMod.Blog.Extensions.DBFunctions].[TMod.Blog.Extensions.DBFunctions.StringExtensionDBFunctions].[GetSimilarity];
+* 鉴权 / 管理后台
+* 草稿 / 发布流
+* 文章版本历史
+* 文件上传（接入对象存储）
+* 搜索（全文索引）
 
+---
 
-create function dbo.UDF_IsSimilarTo(
-	@s1 nvarchar(max),
-	@s2 nvarchar(max),
-	@threshold float
-)
-returns bit
-as external name [TMod.Blog.Extensions.DBFunctions].[TMod.Blog.Extensions.DBFunctions.StringExtensionDBFunctions].[IsSimilarTo]
-```
+## 八、阶段性总结
+
+* 后端：**已完成核心工程目标**
+* 当前阶段重点：**产品化，而非继续堆接口**
+* 下一步关键词：
+
+> **让真实用户路径来检验设计**
+
+---
+
+> 本 README 作为当前阶段的执行指南，
+> 后续会随着前端推进持续演进。
