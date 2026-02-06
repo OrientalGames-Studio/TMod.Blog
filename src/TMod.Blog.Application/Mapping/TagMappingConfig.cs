@@ -16,10 +16,14 @@ namespace TMod.Blog.Application.Mapping
     {
         public void Register(TypeAdapterConfig config)
         {
-            config.NewConfig<Tag,TagDto>()
-                .Map(dest=>dest.ArticleCount,src=>src.Articles == null || src.Articles.Count == 0?0:src.Articles.Count)
-                .TwoWays();
+            config.NewConfig<Tag, TagDto>()
+                .Map(dest => dest.ArticleCount, src => src.Articles == null || src.Articles.Count == 0 ? 0 : src.Articles.Count);
 
+            // When mapping from DTO to Entity, keep navigation properties null so EF won't treat them as new entities
+            config.NewConfig<TagDto, Tag>()
+                .Ignore(dest => dest.Articles);
+
+            // Requests should map to DTOs only
             config.NewConfig<CreateTagRequest, TagDto>();
             config.NewConfig<UpdateTagRequest, TagDto>();
         }

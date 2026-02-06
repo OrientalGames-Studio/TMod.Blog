@@ -14,8 +14,10 @@ namespace TMod.Blog.Application.Services
         Task<SiteConfigurationDto> AddConfigurationAsync(CreateConfigurationRequest request, CancellationToken token = default);
 
         Task<SiteConfigurationDto?> UpdateConfigurationAsync(int configId,UpdateConfigurationRequest request, CancellationToken token = default);
+        Task<SiteConfigurationDto?> UpdateConfigurationAsync(string configKey, UpdateConfigurationRequest request, CancellationToken token = default);
 
         Task<SiteConfigurationDto?> UpdateConfigurationEnabledAsync(int configId,PatchConfigurationRequest request, CancellationToken token = default);
+        Task<SiteConfigurationDto?> UpdateConfigurationEnabledAsync(string configKey,PatchConfigurationRequest request, CancellationToken token = default);
 
         Task<SiteConfigurationDto?> UpdateConfigurationValueByKeyAsync(string configKey,string? configValue,CancellationToken token = default);
 
@@ -28,5 +30,7 @@ namespace TMod.Blog.Application.Services
         Task<bool> DeleteConfigurationAsync(string configKey,CancellationToken token = default);
 
         Task<bool> DeleteConfigurationByIdAsync(int configId,CancellationToken token = default);
+
+        Task<PagingDto<SiteConfigurationDto>> GetAllConfigurationsAsync(string? keyword = null,CancellationToken token = default);
     }
 }

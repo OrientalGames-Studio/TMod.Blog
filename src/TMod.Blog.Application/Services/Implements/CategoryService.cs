@@ -34,18 +34,22 @@ namespace TMod.Blog.Application.Services.Implements
         public async Task<CategoryDto?> ChangeParentCategoryAsync(Guid categoryId, PatchCategoryParentRequest request, CancellationToken cancellationToken = default)
         {
             Category? category = await _categoryRepository.GetEntityByIdAsync(categoryId,false,cancellationToken);
-            if(category is null || category.IsDeleted)
+            if ( category is null || category.IsDeleted )
             {
                 _logger.LogError("分类不存在，分类Id：{CategoryId}", categoryId);
                 throw new InvalidOperationException("分类不存在，无法修改父分类");
             }
-            if(request.ParentId == Guid.Empty || request.ParentId == null )
+            if ( request.ParentId == category.ParentId )
+            {
+                return _mapper.Map<CategoryDto>(category);
+            }
+            else if ( request.ParentId == Guid.Empty || request.ParentId == null )
             {
                 category.ParentId = null;
             }
             else
             {
-                Category? parent = await _categoryRepository.GetEntityByIdAsync(request.ParentId,true,cancellationToken);
+                Category? parent = await _categoryRepository.GetEntityByIdAsync(request.ParentId.Value,true,cancellationToken);
                 if ( parent is null || parent.IsDeleted )
                 {
                     _logger.LogError("父分类不存在，分类Id：{CategoryId}", request.ParentId);
@@ -60,16 +64,24 @@ namespace TMod.Blog.Application.Services.Implements
 
         public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryRequest request, CancellationToken cancellationToken = default)
         {
-            Category category = _mapper.Map<Category>(request);
-            if(request.ParentId != Guid.Empty && request.ParentId != null )
+            // Map request -> DTO -> Entity (enforce chain)
+            CategoryDto dto = _mapper.Map<CategoryDto>(request);
+            Category category = _mapper.Map<Category>(dto);
+
+            if ( request.ParentId != Guid.Empty && request.ParentId != null )
             {
-                Category? parent = await _categoryRepository.GetEntityByIdAsync(request.ParentId,true,cancellationToken);
-                if(parent is null || parent.IsDeleted )
+                Category? parent = await _categoryRepository.GetEntityByIdAsync(request.ParentId.Value,true,cancellationToken);
+                if ( parent is null || parent.IsDeleted )
                 {
                     _logger.LogError("父分类不存在，分类Id：{CategoryId}", request.ParentId);
                     throw new NotSupportedException("父分类不存在，无法绑定到父分类");
                 }
                 category.Parent = parent;
+            }
+            else
+            {
+                category.Parent = null;
+                category.ParentId = null;
             }
             await _categoryRepository.AddAsync(category, cancellationToken);
             await _categoryRepository.SaveChangesAsync(cancellationToken);
@@ -79,11 +91,11 @@ namespace TMod.Blog.Application.Services.Implements
         public async Task<bool> DeleteCategoryAsync(Guid categoryId, CancellationToken cancellationToken = default)
         {
             Category? meta = await _categoryRepository.GetEntityByIdAsync(categoryId,false,cancellationToken);
-            if(meta is null || meta.IsDeleted )
+            if ( meta is null || meta.IsDeleted )
             {
                 return true;
             }
-            if(meta.Children?.Count > 0 || meta.Articles?.Count > 0 )
+            if ( meta.Children?.Count > 0 || meta.Articles?.Count > 0 )
             {
                 _logger.LogWarning("尝试删除有子分类或文章的分类，分类Id:{}", categoryId);
                 throw new InvalidOperationException("无法删除有子分类或文章的分类，请先删除子分类或文章");
@@ -95,8 +107,9 @@ namespace TMod.Blog.Application.Services.Implements
 
         public async Task<CategoryDto?> GetCategoryByIdAsync(Guid categoryId, CancellationToken cancellationToken = default)
         {
-            Category? category = await _categoryRepository.GetEntityByIdAsync(categoryId,true,cancellationToken);
-            if(category is null || category.IsDeleted )
+            var specification = CategorySpecification.CreateGetCategoryByIdWithDetail(categoryId,true);
+            Category? category = await _categoryRepository.GetEntityAsync(specification,cancellationToken);
+            if ( category is null || category.IsDeleted )
             {
                 return null;
             }
@@ -126,9 +139,9 @@ namespace TMod.Blog.Application.Services.Implements
         public async Task<CategoryDto?> UpdateCategoryAsync(Guid categoryId, UpdateCategoryRequest request, CancellationToken cancellationToken = default)
         {
             Category? category = await _categoryRepository.GetEntityByIdAsync(categoryId,false,cancellationToken);
-            if(category is null || category.IsDeleted )
+            if ( category is null || category.IsDeleted )
             {
-                _logger.LogError("分类不存在，分类Id:{}",categoryId);
+                _logger.LogError("分类不存在，分类Id:{}", categoryId);
                 throw new InvalidOperationException("分类不存在，无法更新分类信息");
             }
             if ( !category.Name.Equals(request.Name) )
@@ -139,16 +152,16 @@ namespace TMod.Blog.Application.Services.Implements
             {
                 category.Description = request.Description;
             }
-            if(category.ParentId != request.ParentId )
+            if ( category.ParentId != request.ParentId )
             {
-                if(request.ParentId == Guid.Empty || request.ParentId == null )
+                if ( request.ParentId == Guid.Empty || request.ParentId == null )
                 {
                     category.Parent = null;
                     category.ParentId = null;
                 }
                 else
                 {
-                    Category? parent = await _categoryRepository.GetEntityByIdAsync(request.ParentId,true,cancellationToken);
+                    Category? parent = await _categoryRepository.GetEntityByIdAsync(request.ParentId.Value,true,cancellationToken);
                     if ( parent is null || parent.IsDeleted )
                     {
                         _logger.LogError("父分类不存在，分类Id：{CategoryId}", request.ParentId);

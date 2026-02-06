@@ -25,5 +25,9 @@ namespace TMod.Blog.Application.Dtos
         public bool IsDeleted { get; set; }
 
         public string? AuthorIp { get; set; }
+
+        public DateOnly CommentDate { get; set; }
+
+        public TimeOnly CommentTime { get; set; }
     }
 }

@@ -12,6 +12,6 @@ namespace TMod.Blog.Application.Requests.Category
 
         public string? Description { get; set; }
 
-        public Guid ParentId { get; set; }
+        public Guid? ParentId { get; set; }
     }
 }

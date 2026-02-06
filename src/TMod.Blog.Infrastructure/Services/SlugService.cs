@@ -19,14 +19,17 @@ namespace TMod.Blog.Infrastructure.Services
     {
         private readonly IArticleRepository _articleRepository;
         private readonly ICharacterService _characterService;
+        private readonly ISiteConfigurationCacheService _siteConfigurationCacheService;
         private readonly ILogger<SlugService> _logger;
 
         public SlugService(IArticleRepository articleRepository
             , ICharacterService characterService
+            , ISiteConfigurationCacheService siteConfigurationCacheService
             , ILogger<SlugService> logger)
         {
             _articleRepository = articleRepository;
             _characterService = characterService;
+            _siteConfigurationCacheService = siteConfigurationCacheService;
             _logger = logger;
         }
 
@@ -36,7 +39,17 @@ namespace TMod.Blog.Infrastructure.Services
             {
                 return "";
             }
-            string spell = await _characterService.ParseCharacterToSpellAsync(title,Domain.Common.ChineseCharacterToSpellOptions.Default,cancellationToken);
+            string? configuredMaxLengthStr = _siteConfigurationCacheService.GetConfiguration(SLUG_STRING_LENGTH);
+            if(int.TryParse(configuredMaxLengthStr,out int configuredMaxLength) )
+            {
+                maxLength ??= configuredMaxLength;
+            }
+            if(maxLength.GetValueOrDefault() <= 0 )
+            {
+                _logger.LogError("未配置Slug最大长度，且传入的maxLength参数无效，无法生成Slug");
+                throw new ArgumentException($"生成Slug使用了无效的长度:{maxLength}",nameof(maxLength));
+            }
+            string spell = await _characterService.ParseCharacterToSpellAsync(title,title.Length<=15?Domain.Common.ChineseCharacterToSpellOptions.Default:Domain.Common.ChineseCharacterToSpellOptions.AbbreviationOnlyPattern,cancellationToken);
             string normalizedTitle = spell.Normalize(NormalizationForm.FormC)
                 .ToLowerInvariant();
             string noSpecialCharsTitle = Regex.Replace(normalizedTitle,@"[^\p{L}\p{N}\s-]", " ");

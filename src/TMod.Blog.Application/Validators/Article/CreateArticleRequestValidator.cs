@@ -22,6 +22,7 @@ namespace TMod.Blog.Application.Validators.Article
 
             RuleFor(x => x.CategoryId)
                 .NotNull()
+                .WithMessage("请选择一个分类")
                 .NotEqual(Guid.Empty)
                 .WithMessage("请选择一个分类");
 

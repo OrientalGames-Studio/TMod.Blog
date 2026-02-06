@@ -28,17 +28,17 @@ namespace TMod.Blog.Infrastructure.Repositories.Aggregates
             return true;
         }
 
-        public async Task<IReadOnlyList<Comment>> PagingArticleCommentAsync(Guid articleId, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyList<Comment>> PagingArticleCommentAsync(Guid articleId, int pageIndex = 1, int pageSize = 20, SortRuleEnum sortRule = SortRuleEnum.Latest, CancellationToken cancellationToken = default)
         {
             int skip = (Math.Max(1,pageIndex)-1)*pageSize;
-            ISpecification<Comment> specification = CommentSpecification.CreatePagingArticleComment(articleId,skip,pageSize);
+            ISpecification<Comment> specification = CommentSpecification.CreatePagingArticleComment(articleId,skip,pageSize,sortRule);
             return await GetAllEntitiesAsync(specification,cancellationToken);
         }
 
-        public async Task<IReadOnlyList<Comment>> PagingCommentRepliesAsync(Guid commentId, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyList<Comment>> PagingCommentRepliesAsync(Guid commentId, int pageIndex = 1, int pageSize = 20, SortRuleEnum sortRule = SortRuleEnum.Latest, CancellationToken cancellationToken = default)
         {
             int skip = (Math.Max(1,pageIndex)-1)*pageSize;
-            ISpecification<Comment> specification = CommentSpecification.CreatePagingCommentReplies(commentId,skip,pageSize);
+            ISpecification<Comment> specification = CommentSpecification.CreatePagingCommentReplies(commentId,skip,pageSize,sortRule);
             return await GetAllEntitiesAsync(specification,cancellationToken);
         }
     }

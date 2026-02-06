@@ -122,3 +122,43 @@
 当前重点
 - 优先完成“紧急修复”以保证项目能编译并通过本地验证（UnitOfWork 与 PackResultMiddleware 为首要）；随后补充测试覆盖防止回归，再推进缓存、CI 与部署准备工作。
 
+## 2026-01-14 补充
+上线时记得同步数据库 UDF
+
+1. 启用 clr 程序集
+```sql
+EXEC sp_configure 'clr enabled', 1;
+RECONFIGURE;
+```
+2. 信任程序集
+```sql
+exec sp_add_trusted_assembly
+  @hash = -- 计算最新的 TMod.Blog.Extensions.DBFunctions 的 Hash 值,
+  @description = N'扩展方法'
+```
+3. 删除然后重建程序集
+```sql
+create assembly [TMod.Blog.Extensions.DBFunctions]
+from N'C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER_2022\MSSQL\External_Assemblies\TMod.Blog.Extensions.DBFunctions.dll'
+with permission_set = safe;
+```
+4. 创建 UDF
+```sql
+create function dbo.UDF_GetSimilarity(
+	@s1 nvarchar(max),
+	@s2 nvarchar(max),
+	@weight1 float,
+	@weight2 float
+)
+returns float
+as external name [TMod.Blog.Extensions.DBFunctions].[TMod.Blog.Extensions.DBFunctions.StringExtensionDBFunctions].[GetSimilarity];
+
+
+create function dbo.UDF_IsSimilarTo(
+	@s1 nvarchar(max),
+	@s2 nvarchar(max),
+	@threshold float
+)
+returns bit
+as external name [TMod.Blog.Extensions.DBFunctions].[TMod.Blog.Extensions.DBFunctions.StringExtensionDBFunctions].[IsSimilarTo]
+```

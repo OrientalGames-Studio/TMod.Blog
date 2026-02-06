@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -20,10 +22,13 @@ namespace TMod.Blog.Infrastructure.Specifications
         {
         }
 
-        public static ISpecification<SiteConfiguration> CreateGetConfiguration(string configurationKey,bool asNoTracking = true, bool showDeleted = false)
+        public static ISpecification<SiteConfiguration> CreateGetConfiguration(string configurationKey,bool allowDisable = true,bool asNoTracking = true, bool showDeleted = false)
         {
             SiteConfigurationSpecification specification = new SiteConfigurationSpecification(c=>StringComparer.InvariantCulture.Compare(configurationKey,c.ConfigKey) == 0);
-            specification.AddCriteria(c => c.IsEnabled == true);
+            if ( !allowDisable )
+            {
+                specification.AddCriteria(c => c.IsEnabled == true);
+            }
             if ( !showDeleted )
             {
                 specification.AddCriteria(c => !c.IsDeleted);
@@ -40,7 +45,7 @@ namespace TMod.Blog.Infrastructure.Specifications
             SiteConfigurationSpecification specification = new SiteConfigurationSpecification();
             if ( !string.IsNullOrWhiteSpace(keyword) )
             {
-                specification.AddCriteria(c => c.ConfigKey.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
+                specification.AddCriteria(c => EF.Functions.Like(c.ConfigKey,$"%{keyword}%"));
             }
             if ( !showDisabled )
             {
@@ -53,6 +58,26 @@ namespace TMod.Blog.Infrastructure.Specifications
             specification.ApplyPaging(skip, take);
             specification.ApplyOrderBy(c => c.ConfigKey);
             specification.ApplyThenBy(c => c.IsEnabled);
+            return specification;
+        }
+
+        public static ISpecification<SiteConfiguration> CreateListAll(string? keyword = null,bool showDisabled = false,bool showDeleted = false)
+        {
+            var specification = new SiteConfigurationSpecification();
+            if ( !string.IsNullOrWhiteSpace(keyword) )
+            {
+                specification.AddCriteria(c => EF.Functions.Like(c.ConfigKey,$"%{keyword}%") || EF.Functions.Like(c.Description,$"%{keyword}%"));
+            }
+            if(!showDisabled )
+            {
+                specification.AddCriteria(c => c.IsEnabled);
+            }
+            if ( !showDeleted )
+            {
+                specification.AddCriteria(c => !c.IsDeleted);
+            }
+            specification.EnabledNoTracking();
+            specification.ApplyOrderBy(c => c.ConfigKey);
             return specification;
         }
     }

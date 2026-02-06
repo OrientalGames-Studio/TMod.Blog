@@ -8,6 +8,6 @@ namespace TMod.Blog.Application.Requests.Category
 {
     public record PatchCategoryParentRequest
     {
-        public required Guid ParentId { get; set; }
+        public Guid? ParentId { get; set; }
     }
 }

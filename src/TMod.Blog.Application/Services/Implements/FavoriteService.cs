@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using TMod.Blog.Domain.Entities;
 using TMod.Blog.Domain.Interfaces.Repositories;
 using TMod.Blog.Domain.Interfaces.UnitOfWorks;
+using TMod.Blog.Infrastructure.Specifications;
 
 namespace TMod.Blog.Application.Services.Implements
 {
@@ -47,6 +48,25 @@ namespace TMod.Blog.Application.Services.Implements
             return favoriteCount;
         }
 
+        public async Task<bool> DisfavoriteArticleAsync(Guid articleId, string fingerprint, string clientIp, CancellationToken token = default)
+        {
+            Article? article = await _applicationUnitOfWork.ArticleRepository.GetEntityByIdAsync(articleId,true,token);
+            if ( article is null || article.IsDeleted )
+            {
+                _logger.LogError("无法给不存在的文章{}取消点赞", articleId);
+                return false;
+            }
+            var specification = FavoriteSpecification.CreateDisfavorite(articleId,fingerprint,clientIp,FavoriteTypeEnum.Article);
+            var favoriteHistory = await _applicationUnitOfWork.FavoriteRepository.GetEntityAsync(specification,token);
+            if(favoriteHistory is null || favoriteHistory.IsDeleted )
+            {
+                return true;
+            }
+            _applicationUnitOfWork.FavoriteRepository.Delete(favoriteHistory);
+            await _applicationUnitOfWork.SaveChangesAsync(token);
+            return true;
+        }
+
         public async Task FavoriteArticleAsync(Guid articleId, string fingerprint, string clientIp, CancellationToken token = default)
         {
             Article? article = await _applicationUnitOfWork.ArticleRepository.GetEntityByIdAsync(articleId,true,token);
@@ -64,6 +84,7 @@ namespace TMod.Blog.Application.Services.Implements
                 TargetId = article.Id,
             };
             await _applicationUnitOfWork.FavoriteRepository.AddAsync(favorite, token);
+            await _applicationUnitOfWork.SaveChangesAsync();
         }
 
         public async Task FavoriteCommentAsync(Guid commentId, string fingerprint, string clientIp, CancellationToken token = default)
@@ -83,6 +104,7 @@ namespace TMod.Blog.Application.Services.Implements
                 TargetId = comment.Id,
             };
             await _applicationUnitOfWork.FavoriteRepository.AddAsync(favorite, token);
+            await _applicationUnitOfWork.SaveChangesAsync();
         }
 
         public async Task<IReadOnlyList<string>> GetArticleFavoritedListAsync(Guid articleId, CancellationToken token = default)

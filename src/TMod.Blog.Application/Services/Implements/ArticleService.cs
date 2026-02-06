@@ -43,7 +43,9 @@ namespace TMod.Blog.Application.Services.Implements
                 throw new NotSupportedException($"分类[{createArticleRequest.CategoryId}]不存在，不允许添加文章");
             }
             string slug = await _slugService.GenerateSlugAsync(createArticleRequest.Title,cancellationToken:cancellationToken);
-            Article article = _mapper.Map<Article>(createArticleRequest);
+            ArticleDto articleDto = _mapper.Map<ArticleDto>(createArticleRequest);
+            Article article = _mapper.Map<Article>(articleDto);
+            article.CategoryId = category.Id;
             article.Slug = slug;
             await _applicationUnitOfWork.BeginTransactionAsync(cancellationToken);
             foreach ( string tagName in createArticleRequest.Tags )
@@ -117,7 +119,8 @@ namespace TMod.Blog.Application.Services.Implements
             pageIndex = Math.Max(1, pageIndex);
             int skip = (pageIndex - 1) * pageSize;
             var specification = ArticleSpecification.CreatePagingWithFullFilter(skip,Math.Max(0,pageSize),categoryId,tagId,keyword,articleStatus,false);
-            int totalCount = await _applicationUnitOfWork.ArticleRepository.CountAsync(specification,cancellationToken);
+            var prepareSpecification = ArticleSpecification.CreateCountForPreparePaging(categoryId,tagId,keyword,articleStatus,false);
+            int totalCount = await _applicationUnitOfWork.ArticleRepository.CountAsync(prepareSpecification,cancellationToken);
             var articles = await _applicationUnitOfWork.ArticleRepository.GetAllEntitiesAsync(specification,cancellationToken);
             int pageCount = (int)Math.Ceiling((double)totalCount / pageSize);
             pageCount = Math.Max(1,pageCount);
@@ -180,7 +183,7 @@ namespace TMod.Blog.Application.Services.Implements
 
         public async Task<ArticleDto?> PatchArticleTagsAsync(Guid articleId, PatchArticleTagsRequest request, CancellationToken cancellationToken = default)
         {
-            Article? article = await _applicationUnitOfWork.ArticleRepository.GetEntityByIdAsync(articleId,false,cancellationToken);
+            Article? article = await _applicationUnitOfWork.ArticleRepository.GetArticleWithDetailByIdAsync(articleId,cancellationToken);
             if ( article is null || article.IsDeleted )
             {
                 return null;
@@ -192,7 +195,7 @@ namespace TMod.Blog.Application.Services.Implements
                 _applicationUnitOfWork.ArticleRepository.Update(article);
                 foreach ( string tagName in request.Tags )
                 {
-                    Tag? tag = await _applicationUnitOfWork.TagRepository.GetByNameAsync(tagName,cancellationToken);
+                    Tag? tag = await _applicationUnitOfWork.TagRepository.GetByNameWithDetailAsync(tagName,cancellationToken);
                     if ( tag is null )
                     {
                         tag = new Tag()
@@ -218,12 +221,13 @@ namespace TMod.Blog.Application.Services.Implements
                 {
                     foreach ( string tagName in request.RemovedTags )
                     {
-                        Tag? tag = await _applicationUnitOfWork.TagRepository.GetByNameAsync(tagName,cancellationToken);
+                        Tag? tag = await _applicationUnitOfWork.TagRepository.GetByNameWithDetailAsync(tagName,cancellationToken);
                         if (tag is null)
                         {
                             continue;
                         }
                         article.Tags.Remove(tag);
+                        tag.Articles.Remove(article);
                         if(tag.Articles.Count == 0 )
                         {
                             _applicationUnitOfWork.TagRepository.Delete(tag);
@@ -234,7 +238,7 @@ namespace TMod.Blog.Application.Services.Implements
                 {
                     foreach ( string tagName in request.AddedTags )
                     {
-                        Tag? tag = await _applicationUnitOfWork.TagRepository.GetByNameAsync(tagName,cancellationToken);
+                        Tag? tag = await _applicationUnitOfWork.TagRepository.GetByNameWithDetailAsync(tagName,cancellationToken);
                         if ( tag is null )
                         {
                             tag = new Tag()
@@ -262,7 +266,7 @@ namespace TMod.Blog.Application.Services.Implements
 
         public async Task<ArticleDto?> UpdateArticleAsync(Guid articleId, UpdateArticleRequest updateArticleRequest, CancellationToken cancellationToken = default)
         {
-            Article? article = await _applicationUnitOfWork.ArticleRepository.GetEntityByIdAsync(articleId,false,cancellationToken);
+            Article? article = await _applicationUnitOfWork.ArticleRepository.GetArticleWithDetailByIdAsync(articleId,cancellationToken);
             if ( article is null || article.IsDeleted )
             {
                 return null;
@@ -305,6 +309,11 @@ namespace TMod.Blog.Application.Services.Implements
                         tag.DeleteDate = null;
                         _applicationUnitOfWork.TagRepository.Update(tag);
                     }
+                    //if ( tag.Articles.Contains(article) )
+                    //{
+                    //    tag.Articles.Remove(article);
+                    //    _applicationUnitOfWork.TagRepository.Update(tag);
+                    //}
                     article.Tags.Add(tag);
                 }
                 _applicationUnitOfWork.ArticleRepository.Update(article);

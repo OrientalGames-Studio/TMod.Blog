@@ -17,7 +17,9 @@ namespace TMod.Blog.Application.Mapping
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<SiteConfiguration, SiteConfigurationDto>();
+            config.NewConfig<SiteConfigurationDto, SiteConfiguration>();
 
+            // Requests should map to DTOs only
             config.NewConfig<CreateConfigurationRequest, SiteConfigurationDto>();
             config.NewConfig<UpdateConfigurationRequest, SiteConfigurationDto>();
         }

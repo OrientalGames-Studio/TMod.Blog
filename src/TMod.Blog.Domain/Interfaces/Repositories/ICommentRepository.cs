@@ -19,9 +19,10 @@ namespace TMod.Blog.Domain.Interfaces.Repositories
         /// <param name="articleId">文章Id</param>
         /// <param name="pageIndex">当前页码</param>
         /// <param name="pageSize">单页数据量</param>
+        /// <param name="sortRule">排序规则</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<IReadOnlyList<Comment>> PagingArticleCommentAsync(Guid articleId, int pageIndex = 1, int pageSize = 20,CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<Comment>> PagingArticleCommentAsync(Guid articleId, int pageIndex = 1, int pageSize = 20, SortRuleEnum sortRule = SortRuleEnum.Latest, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// 按照评论分页查询子评论
@@ -29,8 +30,9 @@ namespace TMod.Blog.Domain.Interfaces.Repositories
         /// <param name="commentId">评论Id</param>
         /// <param name="pageIndex">当前页码</param>
         /// <param name="pageSize">单页数据量</param>
+        /// <param name="sortRule">排序规则</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<IReadOnlyList<Comment>> PagingCommentRepliesAsync(Guid commentId, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<Comment>> PagingCommentRepliesAsync(Guid commentId, int pageIndex = 1, int pageSize = 20, SortRuleEnum sortRule = SortRuleEnum.Latest, CancellationToken cancellationToken = default);
     }
 }

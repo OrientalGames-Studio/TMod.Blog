@@ -46,5 +46,14 @@ namespace TMod.Blog.Infrastructure.Specifications
             specification.EnabledNoTracking();
             return specification;
         }
+
+        public static ISpecification<Favorite> CreateDisfavorite(Guid targetId,string fingerprint,string clientIp,FavoriteTypeEnum favoriteTypeEnum)
+        {
+            FavoriteSpecification specification = new FavoriteSpecification();
+            specification.AddCriteria(f => f.TargetId == targetId && f.FavoriteType == favoriteTypeEnum);
+            specification.AddCriteria(f => f.Fingerprint == fingerprint && f.ClientIp == clientIp);
+            specification.AddCriteria(f => !f.IsDeleted);
+            return specification;
+        }
     }
 }

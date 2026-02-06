@@ -45,5 +45,10 @@ namespace TMod.Blog.Domain.Constants
         /// 是否允许分享配置项的 Key
         /// </summary>
         public const string SITE_IS_SHARE_ENABLE = nameof(SITE_IS_SHARE_ENABLE);
+
+        /// <summary>
+        /// Slug 字符串最大长度配置项的 Key
+        /// </summary>
+        public const string SLUG_STRING_LENGTH = nameof(SLUG_STRING_LENGTH);
     }
 }

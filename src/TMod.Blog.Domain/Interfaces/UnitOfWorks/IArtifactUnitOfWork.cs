@@ -8,12 +8,14 @@ using TMod.Blog.Domain.Interfaces.Repositories;
 
 namespace TMod.Blog.Domain.Interfaces.UnitOfWorks
 {
-    public interface ICommentUnitOfWork:IUnitOfWork
+    public interface IArtifactUnitOfWork:IUnitOfWork
     {
         IArticleRepository ArticleRepository { get; }
 
         ICommentRepository CommentRepository { get; }
 
         IFavoriteRepository FavoriteRepository { get; }
+
+        IShareLinkRepository ShareLinkRepository { get; }
     }
 }

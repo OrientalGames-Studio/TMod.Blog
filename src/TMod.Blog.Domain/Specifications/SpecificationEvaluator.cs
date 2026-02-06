@@ -49,8 +49,9 @@ namespace TMod.Blog.Domain.Specifications
                 {
                     orderedQuery = orderedQuery.ThenBy(thenBy);
                 }
-                query = orderedQuery;
             }
+
+            query = orderedQuery ?? query;
 
             if ( specification.Skip.HasValue )
             {

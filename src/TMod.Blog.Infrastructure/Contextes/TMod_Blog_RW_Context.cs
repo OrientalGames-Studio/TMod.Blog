@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,6 +14,18 @@ namespace TMod.Blog.Infrastructure.Contextes
 {
     public class TMod_Blog_RW_Context : DbContext
     {
+        #region Database UDFs
+
+        //[DbFunction("UDF_GetSimilarity","dbo")]
+        //public static double Similarity(string s1, string s2, double levWeight = 0.6, double jwWeight = 0.4) => throw new NotImplementedException();
+
+        //[DbFunction("UDF_IsSimilarTo","dbo")]
+        //public static bool IsSimilarTo(string s1, string s2, double threshold = 0.85) => throw new NotImplementedException();
+        #endregion
+
+        #region UDF Definitions
+        private static readonly MethodInfo? _isSimilarToMethod = typeof(StringSimilarityExtensions).GetMethod(nameof(StringSimilarityExtensions.IsSimilarTo),BindingFlags.Static|BindingFlags.Public,[typeof(string),typeof(string),typeof(double)]);
+        #endregion
 
         public DbSet<Article> Articles => Set<Article>();
 
@@ -38,7 +51,7 @@ namespace TMod.Blog.Infrastructure.Contextes
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder);            
             ConfigureCategory(modelBuilder);
             ConfigureArticle(modelBuilder);
             ConfigureTag(modelBuilder);
@@ -46,7 +59,18 @@ namespace TMod.Blog.Infrastructure.Contextes
             ConfigureShareLink(modelBuilder);
             ConfigureSiteConfiguration(modelBuilder);
             ConfigureFavories(modelBuilder);
+            MappingUDF(modelBuilder);
             SeedInitialData(modelBuilder);
+        }
+
+        private void MappingUDF(ModelBuilder modelBuilder)
+        {
+            if(_isSimilarToMethod is not null )
+            {
+                modelBuilder.HasDbFunction(_isSimilarToMethod)
+                    .HasSchema("dbo")
+                    .HasName("UDF_IsSimilarTo");
+            }
         }
 
         private void ConfigureFavories(ModelBuilder modelBuilder)
@@ -55,6 +79,8 @@ namespace TMod.Blog.Infrastructure.Contextes
             {
                 entity.Property(f => f.Id)
                 .HasDefaultValueSql<Guid>("NEWSEQUENTIALID()");
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.ToTable("favorites");
             });
         }
@@ -121,6 +147,22 @@ namespace TMod.Blog.Infrastructure.Contextes
                         ConfigValue = "20",
                         Description = "短码服务生成的短码最多几位",
                         CreateDate = DateTime.Parse("2025-11-07 17:40")
+                    },
+                    new SiteConfiguration()
+                    {
+                        Id = 7,
+                        ConfigKey = SLUG_STRING_LENGTH,
+                        ConfigValue = "24",
+                        Description = "文章用于SEO的Slug字符串长度",
+                        CreateDate = DateTime.Parse("2026-01-12 16:31")
+                    },
+                    new SiteConfiguration()
+                    {
+                        Id = 8,
+                        ConfigKey = SITE_IS_SHARE_ENABLE,
+                        ConfigValue = "true",
+                        Description = "是否允许分享文章和评论",
+                        CreateDate = DateTime.Parse("2026-02-02 11:10")
                     }
                 );
         }
@@ -130,14 +172,20 @@ namespace TMod.Blog.Infrastructure.Contextes
             modelBuilder.Entity<SiteConfiguration>(entity =>
             {
                 entity.HasIndex(c => c.ConfigKey);
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.ToTable("system_configurations");
             });
         }
 
         private void ConfigureShareLink(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ShareLink>()
-                .ToTable("share_links");
+            modelBuilder.Entity<ShareLink>(entity =>
+            {
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.ToTable("share_links");
+            });
         }
 
         private void ConfigureComment(ModelBuilder modelBuilder)
@@ -158,7 +206,8 @@ namespace TMod.Blog.Infrastructure.Contextes
                 .WithMany(c=>c.Replies)
                 .HasForeignKey(c=>c.ParentId)
                 .OnDelete(DeleteBehavior.Restrict);
-
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.ToTable("comments");
             });
         }
@@ -169,7 +218,8 @@ namespace TMod.Blog.Infrastructure.Contextes
             {
                 entity.Property(t => t.Id)
                 .HasDefaultValueSql<Guid>("NEWSEQUENTIALID()");
-
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.ToTable("tags");
             });
         }
@@ -186,11 +236,19 @@ namespace TMod.Blog.Infrastructure.Contextes
                 entity.HasIndex(a => a.Slug)
                 .IsUnique();
 
+                entity.Property(a => a.Status)
+                .HasDefaultValue(ArticleStatusEnum.Draft)
+                .HasConversion<int>()
+                .HasSentinel((ArticleStatusEnum)(-1));
+
                 entity.Property(a => a.IsShareEnabled)
                 .HasDefaultValue(true);
 
                 entity.Property(a=>a.IsCommentEnabled)
                 .HasDefaultValue(true);
+
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.HasMany(a => a.Tags)
                 .WithMany(t => t.Articles)
@@ -228,7 +286,8 @@ namespace TMod.Blog.Infrastructure.Contextes
                 .WithOne(a => a.Category)
                 .HasForeignKey(a => a.CategoryId)
                 .OnDelete(DeleteBehavior.SetNull);
-
+                entity.Property(f => f.CreateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.ToTable("categories");
             });
         }

@@ -33,6 +33,10 @@ namespace TMod.Blog.Domain.Entities
         [MaxLength(64)]
         public string? CreatorIp { get; set; }
 
+        public bool AutoExpire { get; set; }
+
+        public DateTime? ExpireDate { get; set; }
+
         [NotMapped]
         public ISharable? Target {  get; set; }
     }

@@ -17,7 +17,7 @@ namespace TMod.Blog.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.10")
+                .HasAnnotation("ProductVersion", "10.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -52,7 +52,9 @@ namespace TMod.Blog.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<DateTime?>("DeleteDate")
                         .HasColumnType("datetime2");
@@ -81,7 +83,9 @@ namespace TMod.Blog.Infrastructure.Migrations
                         .HasColumnType("nvarchar(128)");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(2);
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -110,7 +114,9 @@ namespace TMod.Blog.Infrastructure.Migrations
                         .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<DateTime?>("DeleteDate")
                         .HasColumnType("datetime2");
@@ -186,7 +192,9 @@ namespace TMod.Blog.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<DateTime?>("DeleteDate")
                         .HasColumnType("datetime2");
@@ -230,7 +238,9 @@ namespace TMod.Blog.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<DateTime?>("DeleteDate")
                         .HasColumnType("datetime2");
@@ -270,14 +280,22 @@ namespace TMod.Blog.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("AutoExpire")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("CreatorIp")
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
 
                     b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpireDate")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
@@ -323,7 +341,9 @@ namespace TMod.Blog.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<DateTime?>("DeleteDate")
                         .HasColumnType("datetime2");
@@ -418,6 +438,28 @@ namespace TMod.Blog.Infrastructure.Migrations
                             IsDeleted = false,
                             IsEnabled = true,
                             RowVersion = new byte[0]
+                        },
+                        new
+                        {
+                            Id = 7,
+                            ConfigKey = "SLUG_STRING_LENGTH",
+                            ConfigValue = "24",
+                            CreateDate = new DateTime(2026, 1, 12, 16, 31, 0, 0, DateTimeKind.Unspecified),
+                            Description = "文章用于SEO的Slug字符串长度",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            RowVersion = new byte[0]
+                        },
+                        new
+                        {
+                            Id = 8,
+                            ConfigKey = "SITE_IS_SHARE_ENABLE",
+                            ConfigValue = "true",
+                            CreateDate = new DateTime(2026, 2, 2, 11, 10, 0, 0, DateTimeKind.Unspecified),
+                            Description = "是否允许分享文章和评论",
+                            IsDeleted = false,
+                            IsEnabled = true,
+                            RowVersion = new byte[0]
                         });
                 });
 
@@ -429,7 +471,9 @@ namespace TMod.Blog.Infrastructure.Migrations
                         .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<DateTime?>("DeleteDate")
                         .HasColumnType("datetime2");

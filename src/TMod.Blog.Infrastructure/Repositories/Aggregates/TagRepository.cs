@@ -24,6 +24,16 @@ namespace TMod.Blog.Infrastructure.Repositories.Aggregates
             return await GetEntityAsync(specification,cancellationToken);
         }
 
+        public async Task<Tag?> GetByNameWithDetailAsync(string? name, CancellationToken cancellationToken = default)
+        {
+            if ( string.IsNullOrWhiteSpace(name) )
+            {
+                return null;
+            }
+            ISpecification<Tag> specification = TagSpecification.CreateGetByNameWithDetail(name);
+            return await GetEntityAsync(specification, cancellationToken);
+        }
+
         public async Task<IReadOnlyList<Article>> PagingArticleByTagAsync(Guid tagId, string? keyword = null, ArticleStatusEnum articleStatus = ArticleStatusEnum.Draft | ArticleStatusEnum.Published | ArticleStatusEnum.Unpublished, int pageIndex = 1, int pageSize = 20, CancellationToken cancellationToken = default)
         {
             Tag? tag = await GetEntityByIdAsync(tagId,true,cancellationToken);

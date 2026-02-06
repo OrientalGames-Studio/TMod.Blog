@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using System;
 using System.Collections.Generic;
@@ -52,7 +53,19 @@ namespace TMod.Blog.Infrastructure
             services.AddScoped<IReadOnlyRepository<Tag,Guid>,TagRepository>();
             services.AddScoped<IRepository<Tag,Guid>, TagRepository>();
 
-            services.AddSingleton<ISiteConfigurationCacheService, SiteConfigurationCacheService>();
+            services.AddScoped<ISiteConfigurationCacheService, SiteConfigurationCacheService>();
+
+            services.AddScoped<ISlugService, SlugService>();
+            services.AddScoped<ICharacterService, CharacterService>();
+            services.AddScoped<IShortCodeService, ShortCodeService>();
+
+            services.AddScoped<IFavoriteRepository, FavoriteRepository>();
+            services.AddScoped<IReadOnlyRepository<Favorite, Guid>, FavoriteRepository>();
+            services.AddScoped<IRepository<Favorite, Guid>, FavoriteRepository>();
+
+            services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
+            services.AddScoped<IArtifactUnitOfWork, ArtifactUnitOfWork>();
+            services.TryAddEnumerable([ServiceDescriptor.Scoped<IUnitOfWork, ApplicationUnitOfWork>(),ServiceDescriptor.Scoped<IUnitOfWork,ArtifactUnitOfWork>()]);
             return services;
         }
     }
